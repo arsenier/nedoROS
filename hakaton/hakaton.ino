@@ -1,9 +1,12 @@
 //servo
+#include <MPU9250.h>
+
+MPU9250 IMU(Wire, -1, 0x68);
+
 #include <Servo.h>
 #include <Wire.h>
 
 Servo arm, claws;
-
 
 //серва
 #define CLAWS_PIN 10
@@ -34,7 +37,9 @@ Servo arm, claws;
 /////////
 int wl = 1023, wr = 1023, bl = 0, br = 0;
 int gray = 130;
-
+/////////////
+float gx, gy, gz, ax, ay, az;
+//////////////
 int sensL, sensR, u, err;
 
 //motors + encoders
@@ -44,8 +49,6 @@ int periodR = 1, periodL = 1, errL, errR, uL, uR;
 float k_speed = 22, k = 0.1, speedL = 0, speedR = 0;
 extern void motorRPM(int rpmL, int rpmR, int move_time = 10), move_by_dist(int dist, int vel);
 
-int x = 0, y = 0;
-
 void setup() {
 
   init_motors();
@@ -54,8 +57,10 @@ void setup() {
   init_serial();
   init_encoders();
   init_led();
-
-  
+  init_gyro();
 }
 void loop() {
+
+
+  Serial.println(gyro());
 }
