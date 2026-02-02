@@ -12,7 +12,7 @@ void motor(int motorL, int motorR) {
   motorL = abs(motorL);
   analogWrite(5, min(255, motorL));
 
-  digitalWrite(7, (motorR > 0));
+  digitalWrite(7, (motorR < 0));
   motorR = abs(motorR);
   analogWrite(6, min(255, motorR));
 }

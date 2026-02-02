@@ -4,6 +4,9 @@
 
 Servo arm, claws;
 
+#include <MPU9250.h>
+
+MPU9250 IMU(Wire, -1, 0x68);
 
 //серва
 #define CLAWS_PIN 9
@@ -53,7 +56,7 @@ void setup() {
   init_serial();
   init_encoders();
   init_led();
-
+  init_gyro();
 }
 
 float fmap(float x, float in_min, float in_max, float out_min, float out_max)
@@ -72,7 +75,8 @@ void loop() {
   claws.write(posclaws);
   arm.write(posarm);
 
-   t = sin(millis() / 1000.0);
+  t = sin(millis() / 1000.0);
+  ///////////////ЧЕКНУТЬ ЧЕ С БОЛЬШОЙ СЕРВОЙ//////////////////
   //t += t_one_it;
   //t = constrain(t, 0, 1);
 }
