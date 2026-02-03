@@ -30,7 +30,7 @@ Rpi-Arduino:
 Arduino-Rpi:
 Ответ на обычное управление:
 |x:float|y:float|theta:float|usiki:2x bool|
-13 bytes
+14 bytes
 ```
 
 
