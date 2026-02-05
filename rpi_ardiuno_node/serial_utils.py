@@ -3,6 +3,8 @@ import time
 from typing import Optional
 import serial
 
+# import hexdump
+
 port = "COM3"
 baudrate = 9600
 
@@ -57,3 +59,28 @@ def send_speeds(
 
 if __name__ == "__main__":
     send_speeds(5, 0.5, False)
+
+    # data_to_write = struct.pack(
+    #     "<fffBB",
+    #     0.5,
+    #     4.125,
+    #     4.25,
+    #     int(True),
+    #     int(False),
+    # )
+
+    # with open("output.bin", "wb") as binary_file:
+    #     binary_file.write(data_to_write)
+
+    # with open("output.bin", "rb") as binary_file:
+    #     response = binary_file.read(RX_PACKET_SIZE)
+    #     hexdump.hexdump(response)
+
+    #     ans = struct.unpack("<fffBB", response)
+
+    #     print("Received:")
+    #     print("  x =", ans[0])
+    #     print("  y =", ans[1])
+    #     print("  theta =", ans[2])
+    #     print("  left_usik =", bool(ans[3]))
+    #     print("  right_usik =", bool(ans[4]))
