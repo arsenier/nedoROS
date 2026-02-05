@@ -1,8 +1,10 @@
+float gx, gy, gz, ax, ay, az;
+
 void init_gyro()
 {
   Wire.begin();
   Wire.setClock(400000);
-  Serial.begin(115200);
+  //Serial.begin(115200);
   bool success = IMU.begin();
   if (!success) {
     while (1) {

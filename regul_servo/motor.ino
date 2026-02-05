@@ -16,14 +16,25 @@ void motor(int motorL, int motorR) {
   motorR = abs(motorR);
   analogWrite(6, min(255, motorR));
 }
-void motorRPM(int rpmL, int rpmR, int move_time = 10) {
+
+float getvel_left()
+{
+  return 60000000 / TICKS_PER_ROTATE / periodL;
+}
+
+float getvel_right()
+{
+  return -60000000 / TICKS_PER_ROTATE / periodR;
+}
+
+void motorRPM(int rpmL, int rpmR, uint8_t move_time = Ts_ms) {
   static uint32_t timer;
   while (millis() - timer < move_time)
     ;
   timer = millis();
 
   speedL = 60000000 / TICKS_PER_ROTATE / periodL;
-  speedR = 60000000 / TICKS_PER_ROTATE / periodR;
+  speedR = -60000000 / TICKS_PER_ROTATE / periodR;
 
   if (fabs(speedL) < 10) speedL = 0;
   if (fabs(speedR) < 10) speedR = 0;
@@ -35,11 +46,11 @@ void motorRPM(int rpmL, int rpmR, int move_time = 10) {
   uL = errL * k_speedL + uIL;
   uR = errR * k_speed + uIR;
 
-  Serial.print("encL: " + String(encL) + " encR: " + String(encR));
+  /*Serial.print("encL: " + String(encL) + " encR: " + String(encR));
   Serial.print(" speedL = ");
   Serial.print(speedL);
   Serial.print(" speedR = ");
-  Serial.println(speedR);
+  Serial.println(speedR);*/
   motor(uL, uR);
   // motor(150, 150);
   //motor(rpmL, rpmR);

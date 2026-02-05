@@ -14,8 +14,8 @@ MPU9250 IMU(Wire, -1, 0x68);
 //
 #define BUTTON_PIN 13
 ///
-#define ENCL A4
-#define ENCR A5
+#define ENCL A0
+#define ENCR A1
 #define LED 8
 
 #define SERIAL_SPEED 115200
@@ -33,50 +33,59 @@ MPU9250 IMU(Wire, -1, 0x68);
 
 #define RADIUS 23.75
 #define GAUGE 235.0
+#define Ts_ms 10
+#define Ts_s (Ts_ms / 1000.0)
+
+#define ENDCAP1 8
+#define ENDCAP2 11
 
 ////////
 
 //motors + encoders
 volatile int encL = 0, encR = 0;
-extern void motorRPM(int rpmL, int rpmR, int move_time = 10), move_by_dist(int dist, int vel);
+extern void motorRPM(int rpmL, int rpmR, uint8_t move_time = Ts_ms), move_by_dist(int dist, int vel);
 
 /////////////////servo//////////////////
 float posarm = 0, posclaws = 0;
-int time_to_claws = 3000;
-float t_one_it = 1.0 / (time_to_claws / 10.0);
+int time_to_claws = 500;
+float t_one_it = 1.0 / (time_to_claws / float(Ts_ms));
 float want_t_claws = 0.5;
 
-int x = 0, y = 0;
 
 void setup() {
-
   init_motors();
+  motor(0, 0);
   init_servo();
+  motor(0, 0);
   init_button();
   init_serial();
   init_encoders();
   init_led();
   init_gyro();
+  init_endcaps();
 }
 
-float fmap(float x, float in_min, float in_max, float out_min, float out_max)
-{
+float fmap(float x, float in_min, float in_max, float out_min, float out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 void loop() {
-  motorRPM(20, 20);
+  readrpi();
+  odom();
+  usiki();
+
+  //motorRPM(20, 20);
   static float t = 0;
 
-  Serial.println(posarm);
-  Serial.println(t);
+  //Serial.println(gyro());
   posarm = constrain(fmap(t, (1 - want_t_claws), 1, DOWN, UP), UP, DOWN);
   posclaws = constrain(fmap(t, 0, want_t_claws, OPEN, CLOSE), OPEN, CLOSE);
   claws.write(posclaws);
   arm.write(posarm);
+  if (gripper_form_rpi())
+    t += t_one_it;
+  else
+    t -= t_one_it;
 
-  t = sin(millis() / 1000.0);
-  ///////////////ЧЕКНУТЬ ЧЕ С БОЛЬШОЙ СЕРВОЙ//////////////////
-  //t += t_one_it;
-  //t = constrain(t, 0, 1);
+  t = constrain(t, 0, 1);
 }
