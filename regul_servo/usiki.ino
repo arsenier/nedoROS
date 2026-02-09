@@ -14,8 +14,8 @@ Endcaps endcaps;
 
 void usiki()
 {
-  endcaps.usikleft = digitalRead(ENDCAP1);
-  endcaps.usikright = digitalRead(ENDCAP2);
+  endcaps.usikleft = !digitalRead(ENDCAP1);
+  endcaps.usikright = !digitalRead(ENDCAP2);
 }
 
 bool turn_usik1()

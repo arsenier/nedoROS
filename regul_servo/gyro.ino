@@ -19,7 +19,5 @@ float gyro()
   IMU.waitForData();
   IMU.getGyro(gx, gy, gz);
   
-  delay(50);
-
   return gz;
 }

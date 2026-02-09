@@ -42,7 +42,7 @@ MPU9250 IMU(Wire, -1, 0x68);
 ////////
 
 //motors + encoders
-volatile int encL = 0, encR = 0;
+volatile int64_t encL = 0, encR = 0;
 extern void motorRPM(int rpmL, int rpmR, uint8_t move_time = Ts_ms), move_by_dist(int dist, int vel);
 
 /////////////////servo//////////////////
@@ -56,13 +56,17 @@ void setup() {
   init_motors();
   motor(0, 0);
   init_servo();
-  motor(0, 0);
   init_button();
   init_serial();
   init_encoders();
+  motor(100, 100);
+  delay(50);
+  motor(0, 0);
   init_led();
   init_gyro();
   init_endcaps();
+
+  Serial.println(get_x());
 }
 
 float fmap(float x, float in_min, float in_max, float out_min, float out_max) {
@@ -74,10 +78,23 @@ void loop() {
   odom();
   usiki();
 
-  //motorRPM(20, 20);
+  //motorRPM(0, 0);
   static float t = 0;
 
-  //Serial.println(gyro());
+  // Serial.print(" getvel_right = ");
+  // Serial.print(getvel_right());
+  // Serial.print(" getvel_left = ");
+  // Serial.print(getvel_left());
+
+  Serial.print(" theta = ");
+  Serial.print(get_theta());
+  Serial.print(" x = ");
+  Serial.print(get_x());
+  Serial.print(" gyro = ");
+  Serial.print(gyro());
+  Serial.print(" y = ");
+  Serial.println(get_y());
+
   posarm = constrain(fmap(t, (1 - want_t_claws), 1, DOWN, UP), UP, DOWN);
   posclaws = constrain(fmap(t, 0, want_t_claws, OPEN, CLOSE), OPEN, CLOSE);
   claws.write(posclaws);
