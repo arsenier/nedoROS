@@ -56,23 +56,39 @@ void motorRPM(int rpmL, int rpmR, uint8_t move_time = Ts_ms) {
 
   errL = rpmL - speedL;
   errR = rpmR - speedR;
-  uIR += errR * ki_speed * move_time / 1000.0;
   uIL += errL * ki_speedL * move_time / 1000.0;
-  uIR = constrain(uIR, -256, 256);
+  uIR += errR * ki_speed * move_time / 1000.0;
   uIL = constrain(uIL, -256, 256);
+  uIR = constrain(uIR, -256, 256);
+
+  if(fabs(errL) < 0.1) uIL *= 0.9;
+  if(fabs(errR) < 0.1) uIR *= 0.9;
+
   uL = errL * k_speedL + uIL;
   uR = errR * k_speed + uIR;
 
-  /*Serial.print("encL: " + String(encL) + " encR: " + String(encR));
-  Serial.print(" speedL = ");
-  Serial.print(speedL);
-  Serial.print(" speedR = ");
-  Serial.println(speedR);*/
+  // log("errL", errL);
+  // log("errR", errR);
+  // log("uIL", uIL);
+  // log("uIR", uIR);
+  // log("uL", uL);
+  // log("uR", uR);
+
+  // // Serial.print("encL: " + String(encL) + " encR: " + String(encR));
+  // Serial.print(" speedL = ");
+  // Serial.print(speedL);
+  // Serial.print(" speedR = ");
+  // Serial.println(speedR);
   /*if (rpmL == 0 && rpmR == 0)
     motor(0, 0);*/
   motor(uL, uR);
   //motor(150, 150);
   //motor(rpmL, rpmR);
+}
+
+void log(String name, float val)
+{
+  Serial.print("\t" + name + " " + String(val));
 }
 
 void encoderL() {

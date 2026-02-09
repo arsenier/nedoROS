@@ -30,12 +30,12 @@ void odom() {
   theta += theta_i * Ts_s;
 
   
-  Serial.print(" velL = ");
-  Serial.print(velL);
-  Serial.print("\tvelR = ");
-  Serial.print(velR);
-  Serial.print("\tvel = ");
-  Serial.print(vel);
+  // Serial.print(" velL = ");
+  // Serial.print(velL);
+  // Serial.print("\tvelR = ");
+  // Serial.print(velR);
+  // Serial.print("\tvel = ");
+  // Serial.print(vel);
 }
 
 float get_theta() {

@@ -5,8 +5,8 @@ import serial
 
 # import hexdump
 
-port = "COM3"
-baudrate = 9600
+port = "COM4"
+baudrate = 115200
 
 CONTROL_HEADER = 0x01
 TX_PACKET_SIZE = 1 + 4 + 4 + 1 + 1  # 14 bytes
@@ -15,21 +15,22 @@ RX_PACKET_SIZE = 1 + 4 + 4 + 4 + 1 + 1 + 1  # 16 bytes
 
 def xor_checksum(data: bytes) -> int:
     checksum = 0
-    for b in data:
+    for b in data[1:]:
         checksum ^= b
     return checksum
 
+ser = serial.Serial(port, baudrate=baudrate, timeout=1)
 
-def send_speeds(
-    left_motor_speed: float, right_motor_speed: float, gripper: bool
-) -> Optional[tuple[float, float, float, bool, bool]]:
-    ser: Optional[serial.Serial] = None
+# def send_speeds(
+#     left_motor_speed: float, right_motor_speed: float, gripper: bool
+# ) -> Optional[tuple[float, float, float, bool, bool]]:
+def send_speeds(left_motor_speed, right_motor_speed, gripper):
     ans: Optional[tuple[float, float, float, bool, bool]] = None
 
     args: list[float] = [
         CONTROL_HEADER,
-        left_motor_speed,
-        right_motor_speed,
+        int(left_motor_speed),
+        int(right_motor_speed),
         int(gripper),
     ]
 
@@ -38,15 +39,22 @@ def send_speeds(
     command = struct.pack("<BffBB", *args)
 
     try:
-        ser = serial.Serial(port, baudrate=baudrate, timeout=1)
         time.sleep(0.1)
 
         ser.write(command)
+        print(f"Sent: {command}")
 
-        response = ser.read(RX_PACKET_SIZE)
-        if len(response) != RX_PACKET_SIZE:
+        ser.timeout = 0.1
+        header = ser.read(1)
+        while len(header) == 1 and header[0] != 0x01:
+            header = ser.read(1)
+            
+        response = ser.read(RX_PACKET_SIZE-1)
+        if len(response) != RX_PACKET_SIZE-1:
             print("Invalid response size:", len(response))
             return None
+        
+        print(f"Response: {response}")
 
         checksum = 0
         for byte in response:
@@ -55,8 +63,12 @@ def send_speeds(
         if checksum != 0:
             print("Invalid checksum:", checksum)
             return None
+        
+        # response = bytearray(response)
+        # response.insert(0, 0x01)
+        print(f"Resp: {response}, resplen: {len(response)}")
 
-        ans = struct.unpack("<fffBB", response)
+        ans = struct.unpack("<fffBBB", response)
 
         # print("Received:")
         # print("  x =", ans[0])
@@ -68,15 +80,26 @@ def send_speeds(
     except serial.SerialException as e:
         print("Serial error:", e)
 
-    finally:
-        if ser is not None and ser.is_open:
-            ser.close()
+    # finally:
+    #     if ser is not None and ser.is_open:
+    #         ser.close()
 
     return ans
 
 
 if __name__ == "__main__":
-    send_speeds(5, 0.5, False)
+    
+    k = 50 / 0.25
+    
+    time.sleep(5)
+    
+    print(send_speeds(0.1*k, 0.1*k, True))
+    
+    time.sleep(2)
+    
+    print(send_speeds(0, 0, False))
+    
+    time.sleep(5)
 
     # data_to_write = struct.pack(
     #     "<BfffBBB",

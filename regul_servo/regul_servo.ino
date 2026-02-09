@@ -78,7 +78,8 @@ void loop() {
   odom();
   usiki();
 
-  //motorRPM(0, 0);
+  motorRPM(velL_from_rpi(), velR_from_rpi());
+  // motorRPM(0, 0);
   static float t = 0;
 
   // Serial.print(" getvel_right = ");
@@ -86,14 +87,14 @@ void loop() {
   // Serial.print(" getvel_left = ");
   // Serial.print(getvel_left());
 
-  Serial.print(" theta = ");
-  Serial.print(get_theta());
-  Serial.print(" x = ");
-  Serial.print(get_x());
-  Serial.print(" gyro = ");
-  Serial.print(gyro());
-  Serial.print(" y = ");
-  Serial.println(get_y());
+  // Serial.print(" theta = ");
+  // Serial.print(get_theta());
+  // Serial.print(" x = ");
+  // Serial.print(get_x());
+  // Serial.print(" gyro = ");
+  // Serial.print(gyro());
+  // Serial.print(" y = ");
+  // Serial.println(get_y());
 
   posarm = constrain(fmap(t, (1 - want_t_claws), 1, DOWN, UP), UP, DOWN);
   posclaws = constrain(fmap(t, 0, want_t_claws, OPEN, CLOSE), OPEN, CLOSE);
