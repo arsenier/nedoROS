@@ -33,6 +33,7 @@ class TurtlePoseFollower(Node):
 
         self.x_goal = 0.0
         self.y_goal = 0.0
+        self.angle_pos = 0.0
 
         self.k_forward = 1.0
         self.k_turn = 4.0
@@ -40,6 +41,7 @@ class TurtlePoseFollower(Node):
     def goal_pose_callback(self, msg):
         self.x_goal = msg.pose.position.x
         self.y_goal = msg.pose.position.y
+        self.angle_pos = math.atan2(msg.pose.orientation.z, msg.pose.orientation.w)
 
     def set_goal(self, x, y):
         self.x_goal = x
@@ -53,7 +55,11 @@ class TurtlePoseFollower(Node):
         dy = self.y_goal - self.current_pose.y
         distance = math.sqrt(dx*dx + dy*dy)
 
-        if distance < 0.3:
+        desired_angle = math.atan2(dy, dx)
+        angle_error = desired_angle - self.current_pose.theta
+        angle_error = math.atan2(math.sin(angle_error), math.cos(angle_error))
+
+        if distance < 0.3 and abs(angle_error) < 0.3:
             twist = Twist()
             twist.linear.x = 0.0
             twist.angular.z = 0.0
@@ -61,11 +67,11 @@ class TurtlePoseFollower(Node):
             self.amgoing = True
             print("все конец")
             return 
-
+        elif distance < 0.3:
+            desired_angle = self.angle_pos
+            angle_error = desired_angle - self.current_pose.theta
+            angle_error = math.atan2(math.sin(angle_error), math.cos(angle_error))
         ####
-        desired_angle = math.atan2(dy, dx)
-        angle_error = desired_angle - self.current_pose.theta
-        angle_error = math.atan2(math.sin(angle_error), math.cos(angle_error))
         #####
 
         twist = Twist()
