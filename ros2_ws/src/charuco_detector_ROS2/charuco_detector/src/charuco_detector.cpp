@@ -233,18 +233,16 @@ void ChArUcoDetector::cameraInfoCallback(const sensor_msgs::msg::CameraInfo::Con
 		}
 	}
 	if (valid_camera_info) {
-		getCameraCalibrationCoefficient();
+		camera_intrinsics_matrix = cv::Mat::zeros(3, 3, CV_64F);
+		camera_distortion_coefficients_matrix = cv::Mat::zeros(1, 5, CV_64F);
+
+		for (int i = 0; i < 9; ++i)
+		camera_intrinsics_matrix.at<double>(i/3, i%3) = _msg->k[i];
+
+		for (int i = 0; i < 5 && i < (int)_msg->d.size(); ++i)
+		camera_distortion_coefficients_matrix.at<double>(0, i) = _msg->d[i];
 		camera_info_ = _msg;
-		// camera_intrinsics_matrix = cv::Mat::zeros(3, 3, CV_64F);
-		// camera_distortion_coefficients_matrix = cv::Mat::zeros(1, 5, CV_64F);
-		// for (int i = 0; i < 3; i++) {
-		// 	for (int j = 0; j < 3; j++) {
-		// 		camera_intrinsics_matrix.at<double>(i, j) = _msg->K[i * 3 + j];
-		// 	}
-		// }
-		// for (int i = 0; i < 5; i++) {
-		// 	camera_distortion_coefficients_matrix.at<double>(0, i) = _msg->D[i];
-		// }
+		
 	} else {
 		RCLCPP_WARN(get_logger(),"Received invalid camera intrinsics (K all zeros)");
 	}
