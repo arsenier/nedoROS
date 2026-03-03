@@ -17,7 +17,6 @@
 #include <list>
 #include <iostream>
 
-#include <ini/ini.h>
 // #include <INIReader.h>
 #include <unistd.h>
 // external libs includes
@@ -59,6 +58,7 @@ public:
 	virtual void setupConfigurationFromParameterServer();
 	virtual void startDetection();
 	void cameraInfoCallback(const sensor_msgs::msg::CameraInfo::ConstSharedPtr &_msg);
+	bool camera_calib_ready_ = false;
 	void imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr &_msg);
 	void applyMedianBlur(cv::Mat &image_in_out_);
 	void applyDynamicRange(cv::Mat& image_in_out_);
@@ -69,7 +69,6 @@ public:
 									cv::Vec3d &_camera_rotation_out, cv::Vec3d &_camera_translation_out,
 									cv::InputOutputArray _image_with_detection_results, bool _show_rejected_markers);
 	void fillPose(const cv::Vec3d &_camera_rotation, const cv::Vec3d &_camera_translation, geometry_msgs::msg::PoseStamped &_pose_in_out);
-	void getCameraCalibrationCoefficient();
 private:
 	cv::Ptr<cv::aruco::DetectorParameters> detector_parameters_;
 	cv::Ptr<cv::aruco::Dictionary> dictionary_;
@@ -104,7 +103,6 @@ private:
 	int imageQueueSize;
 	bool imageLatch;
 
-	std::string file_path_;
 	std::string sensor_frame_override_;
 	std::string charuco_tf_frame_;
 	std::string image_topic_;
@@ -112,8 +110,6 @@ private:
 	std::string image_results_publish_topic_;
 	std::string charuco_pose_publish_topic_;
 	
-	std::vector<double> distortion;
-	std::vector<double> intrinsic;
 	sensor_msgs::msg::CameraInfo::ConstSharedPtr camera_info_;
 	cv::Mat camera_intrinsics_matrix;
 	cv::Mat camera_distortion_coefficients_matrix;
