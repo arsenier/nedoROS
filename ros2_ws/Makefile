@@ -3,7 +3,7 @@ SHELL := /bin/bash
 all: colcon launch_all #run_cam run_charuco_decoder run_apriltag_detector
 
 colcon:
-	colcon build --symlink-install --packages-select apriltag_pose_detector
+	colcon build --symlink-install
 
 launch_all:
 	. install/setup.bash && \
@@ -26,3 +26,8 @@ run_apriltag_detector:
 		-p tag_id:=-1 \
 		-p apriltag_dictionary:=3 \
 		-p publish_debug_image:=true
+
+run_pose_on_board:
+	colcon build --symlink-install --packages-select tag_in_charuco && \
+	. install/setup.bash && \
+	ros2 run tag_in_charuco pose_in_charuco

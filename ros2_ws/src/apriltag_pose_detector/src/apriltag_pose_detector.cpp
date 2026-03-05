@@ -208,9 +208,9 @@ private:
       const auto &t = tvecs[chosen];
       const auto &r = rvecs[chosen];
 
-      pose.pose.position.x = t[0];
-      pose.pose.position.y = t[1];
-      pose.pose.position.z = t[2];
+      pose.pose.position.x = t[0]/10;
+      pose.pose.position.y = t[1]/10;
+      pose.pose.position.z = t[2]/10;
       pose.pose.orientation = rvecToQuat(r);
 
       pose_pub_->publish(pose);
