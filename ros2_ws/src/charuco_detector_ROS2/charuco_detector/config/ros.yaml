@@ -31,7 +31,7 @@ charuco_detector:
     tf_parameters:
       use_static_tf_broadcaster: true
       tf_broadcaster_republish_rate: 10.0
-      sensor_frame_override: calib_camera
+      sensor_frame_override: default_cam
       charuco_tf_frame: calib_charuco
 
     subscribers:

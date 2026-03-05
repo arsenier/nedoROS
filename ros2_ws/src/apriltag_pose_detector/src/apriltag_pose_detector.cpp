@@ -23,16 +23,13 @@ class AprilTagPoseDetector : public rclcpp::Node
 public:
   AprilTagPoseDetector() : Node("apriltag_pose_detector")
   {
-    // ЖЁСТКО под твою систему, но оставляем параметры (если захочешь поменять без перекомпиляции)
     image_topic_       = declare_parameter<std::string>("image_topic", "/image_raw");
     camera_info_topic_ = declare_parameter<std::string>("camera_info_topic", "/camera_info");
 
-    // Твой маркер (по умолчанию)
     marker_size_m_ = declare_parameter<double>("marker_size_m", 0.055);
     marker_id_     = declare_parameter<int>("marker_id", 239);
 
     // Словарь: по умолчанию ArUco DICT_4X4_250 (=2)
-    // Если окажется, что это AprilTag 16h5/36h11 — просто поменяешь dictionary_id параметром.
     dictionary_id_ = declare_parameter<int>("dictionary_id", (int)cv::aruco::DICT_4X4_250);
 
     publish_debug_image_ = declare_parameter<bool>("publish_debug_image", true);
@@ -49,7 +46,7 @@ public:
         this, image_topic_ + std::string("_apriltag_detection"));
     }
 
-    // subs (usb_cam у тебя RELIABLE, поэтому ставим reliable)
+    // subs
     image_sub_ = image_transport::create_subscription(
       this,
       image_topic_,
@@ -143,7 +140,6 @@ private:
       return;
     }
 
-    // ЖЁСТКО под твоё изображение: rgb8
     if (msg->encoding != sensor_msgs::image_encodings::RGB8) {
       RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 2000,
                             "Expected rgb8, got: %s", msg->encoding.c_str());
@@ -158,7 +154,7 @@ private:
       return;
     }
 
-    // RGB -> GRAY (правильно под rgb8)
+    // RGB -> GRAY
     cv::Mat gray;
     cv::cvtColor(cv_ptr->image, gray, cv::COLOR_RGB2GRAY);
 
@@ -176,7 +172,6 @@ private:
     cv::cvtColor(gray, dbg, cv::COLOR_GRAY2BGR);
 
     if (ids.empty()) {
-      // Очень полезно видеть rejected-кандидатов
       if (!rejected.empty()) {
         cv::aruco::drawDetectedMarkers(dbg, rejected);
       }

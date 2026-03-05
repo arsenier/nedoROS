@@ -25,7 +25,7 @@ def generate_launch_description():
     charuco_tf_frame = DeclareLaunchArgument('charuco_tf_frame', default_value='calib_charuco')
     # If necessary, the TF publisher of the charuco_detector can use a custom frame_id instead of using the one present in the header of the sensor_msgs/Image messages
     # If [sensor_frame_override] is empty, the TF publisher will use [ image_msg.header.frame_id -> charuco_tf_frame ], otherwise it will use [ sensor_frame_override -> charuco_tf_frame ]
-    sensor_frame_override = DeclareLaunchArgument('sensor_frame_override', default_value='calib_camera')
+    sensor_frame_override = DeclareLaunchArgument('sensor_frame_override', default_value='default_cam')
 
     # Fine tune the yaml and parameters below if needed
     config_file = DeclareLaunchArgument('config_file', default_value='$(find charuco_detector)/yaml/charuco.yaml')
