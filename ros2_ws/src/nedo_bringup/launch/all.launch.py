@@ -40,8 +40,20 @@ def generate_launch_description():
                 'camera_info_topic': '/camera_info',
                 'marker_size_m': 0.115,
                 'marker_id': 239,
-                'dictionary_id': 2,
+                'dictionary_id': 2, 
                 'publish_debug_image': True,
+            }]
+        ),
+
+        Node(
+            package='charuco_rectifier',
+            executable='charuco_rectifier_node',
+            name='charuco_rectifier',
+            output='screen',
+            parameters=[{
+                'image_topic': '/image_raw',
+                'camera_info_topic': '/camera_info',
+                'board_pose_topic': '/image_raw_charuco_pose',
             }]
         ),
     ])
