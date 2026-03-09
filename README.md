@@ -20,8 +20,8 @@
 ```
 Rpi-Arduino:
 Обычное управление:
-|0x01|left_motor_speed:float|right_motor_speed:float|gripper:bool|
-10 bytes
+|0x01|left_motor_speed:float|right_motor_speed:float|gripper:byte|checksum:byte|
+11 bytes
 
 Сброс:
 |0xFF|0xFF|0xFF|0xFF|
@@ -29,8 +29,8 @@ Rpi-Arduino:
 
 Arduino-Rpi:
 Ответ на обычное управление:
-|x:float|y:float|theta:float|usiki:2x bool|
-13 bytes
+|0x01|x:float|y:float|theta:float|usik_left:byte|usik_right:byte|checksum:byte|
+16 bytes
 ```
 
 

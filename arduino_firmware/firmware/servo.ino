@@ -2,8 +2,7 @@ void init_servo() {
   claws.attach(CLAWS_PIN);
   arm.attach(ARM_PIN);
 
-  open_claws();
-  up();
+  down();
 }
 
 void close_claws() {

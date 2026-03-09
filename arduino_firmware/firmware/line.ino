@@ -29,14 +29,14 @@ int sign(int in) {
 void move_arc_right(int radius, int angle, int time) {
   float turnoverL = (((radius - 175) * 2 * PI * angle / 360) / (2 * PI * RADIUS));
   float turnoverR =  (((radius + 175) * 2 * PI * angle / 360) / (2 * PI * RADIUS));
-  Serial.println(turnoverL);
-  Serial.println(turnoverR);
+  // Serial.println(turnoverL);
+  // Serial.println(turnoverR);
   float velL = turnoverL / time;
   velL = 255 * velL / 2;
-  Serial.println(velL);
+  // Serial.println(velL);
   float velR = turnoverR / time;
   velR = 255 * velR / 2;
-  Serial.println(velR);
+  // Serial.println(velR);
   encL = 0;
   while (encR < ((turnoverR * TICKS_PER_ROTATE)/2.45)) {
     motor(int(velL), int(velR));
