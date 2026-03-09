@@ -56,4 +56,11 @@ def generate_launch_description():
                 'board_pose_topic': '/image_raw_charuco_pose',
             }]
         ),
+
+        Node(
+            package='pose_recalibrator',
+            executable='pose_recalibrator',
+            name='pose_recalibrator',
+            output='screen',
+        )
     ])

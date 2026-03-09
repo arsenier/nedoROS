@@ -9,6 +9,9 @@ launch_all:
 	. install/setup.bash && \
 	ros2 launch nedo_bringup all.launch.py
 
+run_pose_recalibrator:
+	ros2 run pose_recalibrator pose_recalibrator
+
 run_cam:
 	ros2 run usb_cam usb_cam_node_exe --ros-args --params-file ./src/usb_cam/params.yaml
 
