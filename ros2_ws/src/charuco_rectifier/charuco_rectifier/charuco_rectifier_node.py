@@ -119,8 +119,12 @@ class CharucoRectifierNode(Node):
         )
 
         if self.etalon is None:
-            self.etalon=rectified
+            self.etalon = np.load("./etalon.npy") # comment to calibrate
             return
+            self.etalon = rectified.copy()
+            np.save("./etalon.npy", self.etalon)
+            return
+         
         
         diff = np.abs(rectified.astype(np.int16) - self.etalon.astype(np.int16)).astype(np.uint8)
 
