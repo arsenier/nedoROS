@@ -21,8 +21,8 @@ class CharucoRectifierNode(Node):
         self.declare_parameter('number_of_squares_y', 7)
         self.declare_parameter('square_size_m', 0.025)
 
-        self.declare_parameter('output_width_px', 800)
-        self.declare_parameter('output_height_px', 1200)
+        self.declare_parameter('output_width_px', 1250)
+        self.declare_parameter('output_height_px', 1750)
 
         self.declare_parameter('board_origin_mode', 'corner')  # corner / center
 
@@ -61,6 +61,8 @@ class CharucoRectifierNode(Node):
         )
 
         self.get_logger().info('CharucoRectifierNode started')
+
+        self.etalon: rclpy.Optional[np.ndarray] = None
 
     def camera_info_callback(self, msg: CameraInfo):
         self.K = np.array(msg.k, dtype=np.float64).reshape((3, 3))
@@ -116,7 +118,16 @@ class CharucoRectifierNode(Node):
             (self.output_width_px, self.output_height_px)
         )
 
-        rect_msg = self.bgr_to_image_msg(rectified, msg.header)
+        if self.etalon is None:
+            self.etalon=rectified
+            return
+        
+        diff = np.abs(rectified.astype(np.int16) - self.etalon.astype(np.int16)).astype(np.uint8)
+
+        kernel = np.ones((20,20),np.uint8)
+        open_diff = cv2.morphologyEx(diff, cv2.MORPH_OPEN, kernel)
+
+        rect_msg = self.bgr_to_image_msg(open_diff, msg.header)
         dbg_msg = self.bgr_to_image_msg(dbg, msg.header)
 
         self.rectified_pub.publish(rect_msg)
