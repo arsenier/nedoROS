@@ -86,10 +86,10 @@ void loop() {
 
   // vel_est_tick();
 
-  Serial.print(" getvel_left = ");
-  Serial.print(getvel_left());
-  Serial.print(" getvel_right = ");
-  Serial.println(getvel_right());
+  // Serial.print(" getvel_left = ");
+  // Serial.print(getvel_left());
+  // Serial.print(" getvel_right = ");
+  // Serial.println(getvel_right());
 
   // Serial.print(" theta = ");
   // Serial.print(get_theta());
