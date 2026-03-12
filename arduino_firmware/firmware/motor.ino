@@ -2,10 +2,12 @@
 uint64_t timerL = 0, timerR = 0;
 int periodR = 1, periodL = 1;
 float errL, errR, uL, uR, uIL = 0, uIR = 0;
-float kMl = 80.0 / 150, kMr = 80.0 / 150;
+float kMl = 4.5 / 150, kMr = 4.5 / 150;
 float Amp = 5;
 float tm = 250.0 / 1000;
-float k_speed = Amp / kMr, k = 0.1, speedL = 0, speedR = 0, ki_speed = Amp / (tm * kMr), k_speedL = Amp / kMl, ki_speedL = Amp / (tm * kMl);
+float k_speed = Amp / kMr, k = 0.1, ki_speed = Amp / (tm * kMr), k_speedL = Amp / kMl, ki_speedL = Amp / (tm * kMl);
+float kEncLtoangle = 2 * PI / 1650.0;
+float kEncRtoangle = 2 * PI / 1000.0;
 
 int64_t enc_get_tick_L()
 {
@@ -30,39 +32,26 @@ void motor(int motorL, int motorR) {
   analogWrite(6, min(255, motorR));
 }
 
-float getvel_left() {
-  if (fabs(60000000 / TICKS_PER_ROTATE / periodL) < 20) return 0;
-  return 60000000 / TICKS_PER_ROTATE / periodL;
-}
-
-float getvel_right() {
-  if (fabs(-60000000 / TICKS_PER_ROTATE / periodR) < 20) return 0;
-  return -60000000 / TICKS_PER_ROTATE / periodR;
-}
-
-void motorRPM(int rpmL, int rpmR, uint8_t move_time = Ts_ms) {
+void motorRPM(float rpmL, float rpmR, uint8_t move_time = Ts_ms) {
   static uint32_t timer = 0;
   uint32_t time1 = millis();
+
   while (millis() - timer < move_time)
     ;
   //Serial.println("dt: " + String(time1 - timer));
   timer = millis();
 
-  speedL = 60000000 / TICKS_PER_ROTATE / periodL;
-  speedR = -60000000 / TICKS_PER_ROTATE / periodR;
+  vel_est_tick();
 
-  if (fabs(speedL) < 20) speedL = 0;
-  if (fabs(speedR) < 20) speedR = 0;
-
-  errL = rpmL - speedL;
-  errR = rpmR - speedR;
+  errL = rpmL - getvel_left();
+  errR = rpmR - getvel_right();
   uIL += errL * ki_speedL * move_time / 1000.0;
   uIR += errR * ki_speed * move_time / 1000.0;
   uIL = constrain(uIL, -256, 256);
   uIR = constrain(uIR, -256, 256);
 
-  if(fabs(errL) < 0.1) uIL *= 0.9;
-  if(fabs(errR) < 0.1) uIR *= 0.9;
+  // if(fabs(errL) < 0.1) uIL *= 0.9;
+  // if(fabs(errR) < 0.1) uIR *= 0.9;
 
   uL = errL * k_speedL + uIL;
   uR = errR * k_speed + uIR;
@@ -86,14 +75,9 @@ void motorRPM(int rpmL, int rpmR, uint8_t move_time = Ts_ms) {
   //motor(rpmL, rpmR);
 }
 
-void log(String name, float val)
-{
-  Serial.print("\t" + name + " " + String(val));
-}
-
 void encoderL() {
   periodL = micros() - timerL;
-  if (!digitalRead(ENCL)) {
+  if (!digitalRead(ENCL) != !digitalRead(ENCLIRQ)) {
     encL--;
     periodL = -abs(periodL);
   } else {
@@ -103,7 +87,7 @@ void encoderL() {
 }
 void encoderR() {
   periodR = micros() - timerR;
-  if (!digitalRead(ENCR)) {
+  if (!digitalRead(ENCR) == !digitalRead(ENCRIRQ)) {
     encR++;
   } else {
     encR--;
@@ -111,13 +95,22 @@ void encoderR() {
   }
   timerR = micros();
 }
+float getLangle()
+{
+  return encL * kEncLtoangle; 
+}
+
+float getRangle()
+{
+  return encR * kEncRtoangle; 
+}
 void init_motors() {
   pinMode(4, 1);
   pinMode(7, 1);
 }
 void init_encoders() {
-  attachInterrupt(1, encoderL, RISING);
-  attachInterrupt(0, encoderR, RISING);
+  attachInterrupt(1, encoderL, CHANGE);
+  attachInterrupt(0, encoderR, CHANGE);
 }
 
 void stop_motor() {
