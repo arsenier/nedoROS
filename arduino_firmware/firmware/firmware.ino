@@ -16,6 +16,8 @@ MPU9250 IMU(Wire, -1, 0x68);
 ///
 #define ENCL A0
 #define ENCR A1
+#define ENCLIRQ 3
+#define ENCRIRQ 2
 #define LED 8
 
 #define SERIAL_SPEED 115200
@@ -43,7 +45,7 @@ MPU9250 IMU(Wire, -1, 0x68);
 
 //motors + encoders
 volatile int64_t encL = 0, encR = 0;
-extern void motorRPM(int rpmL, int rpmR, uint8_t move_time = Ts_ms), move_by_dist(int dist, int vel);
+extern void motorRPM(float rpmL, float rpmR, uint8_t move_time = Ts_ms), move_by_dist(int dist, int vel);
 
 /////////////////servo//////////////////
 float posarm = 0, posclaws = 0;
@@ -79,13 +81,15 @@ void loop() {
   usiki();
 
   motorRPM(velL_from_rpi(), velR_from_rpi());
-  // motorRPM(0, 0);
+  //motorRPM(2, -2);
   static float t = 0;
 
-  // Serial.print(" getvel_right = ");
-  // Serial.print(getvel_right());
-  // Serial.print(" getvel_left = ");
-  // Serial.print(getvel_left());
+  // vel_est_tick();
+
+  Serial.print(" getvel_left = ");
+  Serial.print(getvel_left());
+  Serial.print(" getvel_right = ");
+  Serial.println(getvel_right());
 
   // Serial.print(" theta = ");
   // Serial.print(get_theta());
@@ -95,6 +99,16 @@ void loop() {
   // Serial.print(gyro());
   // Serial.print(" y = ");
   // Serial.println(get_y());
+
+  // Serial.print(" encl = ");
+  // Serial.print(int(encL));
+  // Serial.print(" encr = ");
+  // Serial.print(int(encR));
+
+  // Serial.print(" enclAngle = ");
+  // Serial.print(getLangle());
+  // Serial.print(" encrAngle = ");
+  // Serial.println(getRangle());
 
   posarm = constrain(fmap(t, (1 - want_t_claws), 1, DOWN, UP), UP, DOWN);
   posclaws = constrain(fmap(t, 0, want_t_claws, OPEN, CLOSE), OPEN, CLOSE);
