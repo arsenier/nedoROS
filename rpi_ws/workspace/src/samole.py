@@ -102,12 +102,19 @@ def send_speeds(left_motor_speed, right_motor_speed, gripper):
 
 if __name__ == "__main__":
     
-    k = 50 / 0.25
+    R_robot = 0.08
+    R_wheel = 0.04
+
+    v = 0.2
+    w = 1.0
+
+    vl = (v - w*R_robot) / R_wheel
+    vr = (v + w*R_robot) / R_wheel
     
     time.sleep(5)
     ser.reset_input_buffer()
 
-    print(send_speeds(0.1*k, 0.1*k, True))
+    print(send_speeds(vl, vr, True))
     
     time.sleep(2)
     

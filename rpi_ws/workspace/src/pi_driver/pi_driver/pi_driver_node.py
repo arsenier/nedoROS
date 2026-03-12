@@ -132,11 +132,16 @@ class Driver(Node):
     
     def update_data_robot(self):
         # fw (-1-1), ang(-pi, pi)
-        kf = 50/0.25 # [popugov/(m/s)]
-        R_robot = 0.125 # [m]
-        v = self.fw * kf
-        u = self.ang * R_robot * kf
-        ans = send_speeds(v-u, v+u, self.gripper)
+        R_robot = 0.08
+        R_wheel = 0.04
+
+        #kf = 50/0.25 # [popugov/(m/s)]
+
+        vl = (self.fw - self.ang*R_robot) / R_wheel
+        vr = (self.fw + self.ang*R_robot) / R_wheel
+        # v = self.fw * kf
+        # u = self.ang * R_robot * kf
+        ans = send_speeds(vl, vr, self.gripper)
         if ans is None:
                 return
 
