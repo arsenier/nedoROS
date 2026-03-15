@@ -9,8 +9,8 @@ Servo arm, claws;
 MPU9250 IMU(Wire, -1, 0x68);
 
 //серва
-#define CLAWS_PIN 9
-#define ARM_PIN 10
+#define CLAWS_PIN 10
+#define ARM_PIN 9
 //
 #define BUTTON_PIN 13
 ///
@@ -27,7 +27,7 @@ MPU9250 IMU(Wire, -1, 0x68);
 #define TICKS_PER_ROTATE 484
 
 #define OPEN 0.0
-#define CLOSE 170.0
+#define CLOSE 130.0
 
 #define UP 10.0
 #define MID 80.0
@@ -41,6 +41,8 @@ MPU9250 IMU(Wire, -1, 0x68);
 #define ENDCAP1 8
 #define ENDCAP2 11
 
+#define ACUM A2
+
 ////////
 
 //motors + encoders
@@ -53,9 +55,13 @@ int time_to_claws = 500;
 float t_one_it = 1.0 / (time_to_claws / float(Ts_ms));
 float want_t_claws = 0.5;
 
+////////////
+uint64_t timerstart = 0;
+
 
 void setup() {
   init_motors();
+  init_buz();
   motor(0, 0);
   init_servo();
   init_button();
@@ -69,6 +75,7 @@ void setup() {
   init_endcaps();
 
   Serial.println(get_x());
+  timerstart = millis();
 }
 
 float fmap(float x, float in_min, float in_max, float out_min, float out_max) {
@@ -76,48 +83,57 @@ float fmap(float x, float in_min, float in_max, float out_min, float out_max) {
 }
 
 void loop() {
-  readrpi();
-  odom();
-  usiki();
+  if (voltage() > 10.2) {
+    readrpi();
+    odom();
+    usiki();
 
-  motorRPM(velL_from_rpi(), velR_from_rpi());
-  //motorRPM(2, -2);
-  static float t = 0;
+    //motorRPM(velL_from_rpi(), velR_from_rpi());
+    motorRPM(2, 2);
+    static float t = 0;
 
-  // vel_est_tick();
+    // vel_est_tick();
 
-  Serial.print(" getvel_left = ");
-  Serial.print(getvel_left());
-  Serial.print(" getvel_right = ");
-  Serial.println(getvel_right());
+    //Serial.println(voltage());
+    // Serial.print(getvel_left());
+    // Serial.print(" getvel_right = ");
+    // Serial.println(getvel_right());
 
-  // Serial.print(" theta = ");
-  // Serial.print(get_theta());
-  // Serial.print(" x = ");
-  // Serial.print(get_x());
-  // Serial.print(" gyro = ");
-  // Serial.print(gyro());
-  // Serial.print(" y = ");
-  // Serial.println(get_y());
+    // Serial.print(" theta = ");
+    // Serial.print(get_theta());
+    // Serial.print(" x = ");
+    // Serial.print(get_x());
+    // Serial.print(" gyro = ");
+    // Serial.print(gyro());
+    // Serial.print(" y = ");
+    // Serial.println(get_y());
 
-  // Serial.print(" encl = ");
-  // Serial.print(int(encL));
-  // Serial.print(" encr = ");
-  // Serial.print(int(encR));
+    // Serial.print(" encl = ");
+    // Serial.print(int(encL));
+    // Serial.print(" encr = ");
+    // Serial.print(int(encR));
 
-  // Serial.print(" enclAngle = ");
-  // Serial.print(getLangle());
-  // Serial.print(" encrAngle = ");
-  // Serial.println(getRangle());
+    // Serial.print(" enclAngle = ");
+    // Serial.print(getLangle());
+    // Serial.print(" encrAngle = ");
+    // Serial.println(getRangle());
 
-  posarm = constrain(fmap(t, (1 - want_t_claws), 1, DOWN, UP), UP, DOWN);
-  posclaws = constrain(fmap(t, 0, want_t_claws, OPEN, CLOSE), OPEN, CLOSE);
-  claws.write(posclaws);
-  arm.write(posarm);
-  if (gripper_form_rpi())
-    t += t_one_it;
-  else
-    t -= t_one_it;
+    posarm = constrain(fmap(t, (1 - want_t_claws), 1, UP, DOWN), UP, DOWN);
+    posclaws = constrain(fmap(t, 0, want_t_claws, OPEN, CLOSE), OPEN, CLOSE);
+    claws.write(posclaws);
+    arm.write(posarm);
+    if (gripper_form_rpi())
+      t += t_one_it;
+    else
+      t -= t_one_it;
 
-  t = constrain(t, 0, 1);
+    t = constrain(t, 0, 1);
+  } else if(millis() - timerstart > 10000) {
+    motor(0, 0);
+    while (true)
+    {
+      voice();
+      if(voltage() > 10.35) break;
+    }
+  }
 }
