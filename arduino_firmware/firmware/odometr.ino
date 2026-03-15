@@ -23,13 +23,13 @@ void odom() {
   else
     theta_i = 0;
 
-  float k = 0.2/500;
+  float k = 0.2 / 500;
 
-  x += k*vel * cos(theta) * Ts_s;
-  y += k*vel * sin(theta) * Ts_s;
+  x += k * vel * cos(theta) * Ts_s;
+  y += k * vel * sin(theta) * Ts_s;
   theta += theta_i * Ts_s;
 
-  
+
   // Serial.print(" velL = ");
   // Serial.print(velL);
   // Serial.print("\tvelR = ");
