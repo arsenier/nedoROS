@@ -2,8 +2,13 @@
 uint64_t timerL = 0, timerR = 0;
 int periodR = 1, periodL = 1;
 float errL, errR, uL, uR, uIL = 0, uIR = 0;
+<<<<<<< Updated upstream:arduino_firmware/firmware/motor.ino
 float kMl = 4.5 / 150, kMr = 4.4 / 150;
 float Amp = 5;
+=======
+float kMl = 80.0 / 150, kMr = 80.0 / 150;
+float Amp = 5; ///////это во скольк раз ускорить
+>>>>>>> Stashed changes:regul_servo/motor.ino
 float tm = 250.0 / 1000;
 float k_speed = Amp / kMr, k = 0.1, ki_speed = Amp / (tm * kMr), k_speedL = Amp / kMl, ki_speedL = Amp / (tm * kMl);
 float kEncLtoangle = 2 * PI / 1650.0;
