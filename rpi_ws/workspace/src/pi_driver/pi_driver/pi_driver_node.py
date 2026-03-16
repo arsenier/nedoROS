@@ -141,7 +141,7 @@ class Driver(Node):
         vr = (self.fw + self.ang*R_robot) / R_wheel
         # v = self.fw * kf
         # u = self.ang * R_robot * kf
-        ans = send_speeds(vl, vr, self.gripper)
+        ans = send_speeds(vl, vr * 1.25, self.gripper)
         if ans is None:
                 return
 
