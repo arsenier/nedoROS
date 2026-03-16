@@ -7,6 +7,7 @@ from rclpy.node import Node
 
 from sensor_msgs.msg import Image, CameraInfo
 from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseArray, Pose
 
 
 class CharucoRectifierNode(Node):
@@ -59,6 +60,8 @@ class CharucoRectifierNode(Node):
         self.debug_pub = self.create_publisher(
             Image, self.image_topic + '_charuco_rectified_debug', 10
         )
+
+        self.ducks_pub = self.create_publisher(PoseArray, "/ducks", 10)
 
         self.get_logger().info('CharucoRectifierNode started')
 
@@ -128,11 +131,81 @@ class CharucoRectifierNode(Node):
         
         diff = np.abs(rectified.astype(np.int16) - self.etalon.astype(np.int16)).astype(np.uint8)
 
-        kernel = np.ones((20,20),np.uint8)
-        open_diff = cv2.morphologyEx(diff, cv2.MORPH_OPEN, kernel)
+        lower_int = 35
+        lower_bgr = np.array([lower_int,lower_int,lower_int], dtype=np.uint8)
+        upper_bgr = np.array([255, 255, 255], dtype=np.uint8)
+        mask = cv2.inRange(diff, lower_bgr, upper_bgr)
 
-        rect_msg = self.bgr_to_image_msg(open_diff, msg.header)
-        dbg_msg = self.bgr_to_image_msg(dbg, msg.header)
+        # исправляем тонкие линии, возникающие от неточного "вырезания" оригинального поля
+        param_int = 10
+        kernel_open = np.ones((param_int, param_int), np.uint8) 
+        mask_joined = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel_open)
+
+        # сливаем соседние контуры в один
+        param_int = 50
+        kernel_close = np.ones((param_int, param_int), np.uint8)
+        mask_joined = cv2.morphologyEx(mask_joined, cv2.MORPH_CLOSE, kernel_close)
+
+        # раздуваем маску
+        param_int = 10
+        kernel_dilate = np.ones((param_int, param_int), np.uint8)
+        mask_joined = cv2.dilate(mask_joined, kernel_dilate, iterations=1)
+
+        contours, _ = cv2.findContours(
+            mask_joined,
+            cv2.RETR_EXTERNAL,
+            cv2.CHAIN_APPROX_SIMPLE
+        )
+
+        ducks_msg = PoseArray()
+        ducks_msg.header = msg.header
+
+        for contour in contours:
+            # area = cv2.contourArea(contour)
+            # if area < 100 or area > 10e4:
+            #     continue
+
+            m = cv2.moments(contour)
+            if m["m00"] == 0:
+                continue
+
+            cx = int(m["m10"] / m["m00"])
+            cy = int(m["m01"] / m["m00"])
+
+            cv2.drawContours(rectified, [contour], -1, (0, 255, 0), 2)
+            cv2.circle(rectified, (cx, cy), 6, (0, 0, 255), -1)
+            # cv2.putText(
+            #     rectified,
+            #     f"({cx},{cy})",
+            #     (cx + 10, cy - 10),
+            #     cv2.FONT_HERSHEY_SIMPLEX,
+            #     0.5,
+            #     (0, 0, 255),
+            #     1,
+            #     cv2.LINE_AA
+            # )
+
+
+            pose = Pose()
+            pose.position.x = float(cx)
+            pose.position.y = float(cy)
+            pose.position.z = 0.0
+            # работает только потому что количество пикселей совпадает с мм
+
+            pose.orientation.x = 0.0
+            pose.orientation.y = 0.0
+            pose.orientation.z = 0.0
+            pose.orientation.w = 1.0
+
+            ducks_msg.poses.append(pose)
+
+
+        self.ducks_pub.publish(ducks_msg)
+
+        mask_bgr = cv2.cvtColor(mask_joined, cv2.COLOR_GRAY2BGR)
+
+        rect_msg = self.bgr_to_image_msg(mask_bgr, msg.header)
+        dbg_msg = self.bgr_to_image_msg(rectified, msg.header)
 
         self.rectified_pub.publish(rect_msg)
         self.debug_pub.publish(dbg_msg)
