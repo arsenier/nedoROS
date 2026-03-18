@@ -6,8 +6,11 @@ import rclpy
 from rclpy.node import Node
 
 from sensor_msgs.msg import Image, CameraInfo
-from geometry_msgs.msg import PoseStamped
-from geometry_msgs.msg import PoseArray, Pose
+from geometry_msgs.msg import PoseStamped, Pose
+
+from . import aux
+from .router import Router
+
 
 
 class CharucoRectifierNode(Node):
@@ -61,11 +64,12 @@ class CharucoRectifierNode(Node):
             Image, self.image_topic + '_charuco_rectified_debug', 10
         )
 
-        self.ducks_pub = self.create_publisher(PoseArray, "/ducks", 10)
+        self.ducks_pub = self.create_publisher(Pose, "/ducks", 10)
 
         self.get_logger().info('CharucoRectifierNode started')
 
         self.etalon: rclpy.Optional[np.ndarray] = None
+        self.router = Router()
 
     def camera_info_callback(self, msg: CameraInfo):
         self.K = np.array(msg.k, dtype=np.float64).reshape((3, 3))
@@ -151,56 +155,16 @@ class CharucoRectifierNode(Node):
         kernel_dilate = np.ones((param_int, param_int), np.uint8)
         mask_joined = cv2.dilate(mask_joined, kernel_dilate, iterations=1)
 
-        contours, _ = cv2.findContours(
+        num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(
             mask_joined,
-            cv2.RETR_EXTERNAL,
-            cv2.CHAIN_APPROX_SIMPLE
+            connectivity=8
         )
 
-        ducks_msg = PoseArray()
-        ducks_msg.header = msg.header
+        self.router.find_objects(num_labels, labels, stats, centroids)
 
-        for contour in contours:
-            # area = cv2.contourArea(contour)
-            # if area < 100 or area > 10e4:
-            #     continue
+        target = self.router.choose_target()
 
-            m = cv2.moments(contour)
-            if m["m00"] == 0:
-                continue
-
-            cx = int(m["m10"] / m["m00"])
-            cy = int(m["m01"] / m["m00"])
-
-            cv2.drawContours(rectified, [contour], -1, (0, 255, 0), 2)
-            cv2.circle(rectified, (cx, cy), 6, (0, 0, 255), -1)
-            # cv2.putText(
-            #     rectified,
-            #     f"({cx},{cy})",
-            #     (cx + 10, cy - 10),
-            #     cv2.FONT_HERSHEY_SIMPLEX,
-            #     0.5,
-            #     (0, 0, 255),
-            #     1,
-            #     cv2.LINE_AA
-            # )
-
-
-            pose = Pose()
-            pose.position.x = float(cx)
-            pose.position.y = float(cy)
-            pose.position.z = 0.0
-            # работает только потому что количество пикселей совпадает с мм
-
-            pose.orientation.x = 0.0
-            pose.orientation.y = 0.0
-            pose.orientation.z = 0.0
-            pose.orientation.w = 1.0
-
-            ducks_msg.poses.append(pose)
-
-
-        self.ducks_pub.publish(ducks_msg)
+        # self.ducks_pub.publish(ducks_msg)
 
         mask_bgr = cv2.cvtColor(mask_joined, cv2.COLOR_GRAY2BGR)
 
