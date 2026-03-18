@@ -134,7 +134,7 @@ class Router:
 def point_to_pose(point: aux.Point) -> Pose:
     pose = Pose()
     pose.position.x = point.x
-    pose.position.y = float(point.y)
+    pose.position.y = point.y
     pose.position.z = 0.0
     # работает только потому что количество пикселей совпадает с мм
 
