@@ -2,9 +2,16 @@ void init_servo() {
   claws.attach(CLAWS_PIN);
   arm.attach(ARM_PIN);
 
-  down();
   delay(200);
-  up();
+
+  claws.write(OPEN);
+  down();
+  // open_claws();
+  delay(200);
+  claws.write(CLAW_PARK);
+  arm.write(ARM_PARK);
+  // up();
+  // close_claws();
 }
 
 void close_claws() {

@@ -29,9 +29,12 @@ MPU9250 IMU(Wire, -1, 0x68);
 #define OPEN 0.0
 #define CLOSE 130.0
 
-#define UP 10.0
+#define UP 80.0
 #define MID 80.0
 #define DOWN 180.0
+
+#define ARM_PARK 5.0
+#define CLAW_PARK 40.0
 
 #define RADIUS 23.75
 #define GAUGE 235.0
@@ -51,7 +54,7 @@ extern void motorRPM(float rpmL, float rpmR, uint8_t move_time = Ts_ms), move_by
 
 /////////////////servo//////////////////
 float posarm = 0, posclaws = 0;
-int time_to_claws = 500;
+int time_to_claws = 1000;
 float t_one_it = 1.0 / (time_to_claws / float(Ts_ms));
 float want_t_claws = 0.5;
 
@@ -120,7 +123,7 @@ void loop() {
     // Serial.print(" encrAngle = ");
     // Serial.println(getRangle());
 
-    posarm = constrain(fmap(t, (1 - want_t_claws), 1, UP, DOWN), UP, DOWN);
+    posarm = constrain(fmap(t, (1 - want_t_claws), 1, DOWN, UP), UP, DOWN);
     posclaws = constrain(fmap(t, 0, want_t_claws, OPEN, CLOSE), OPEN, CLOSE);
     claws.write(posclaws);
     arm.write(posarm);
