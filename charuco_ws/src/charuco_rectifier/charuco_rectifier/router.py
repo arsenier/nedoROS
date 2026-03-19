@@ -113,6 +113,13 @@ class Router:
                         passthrough_point
                     ):
                         passthrough_points.append(passthrough_point)
+                        cv2.circle(
+                            image,
+                            passthrough_point.get_cords(),
+                            6,
+                            (0, 255, 0),
+                            -1,
+                        )
 
                 if len(passthrough_points) != 0:
                     best_point = aux.find_nearest_point(
@@ -125,10 +132,33 @@ class Router:
                             + aux.dist(best_point, duck),
                         )
                     )
+                    cv2.line(
+                        image,
+                        best_point.get_cords(),
+                        duck.get_cords(),
+                        (0, 127, 0),
+                    )
+
+        for point, _ in points_with_length:
+            cv2.line(
+                image,
+                self.ally_pos.get_cords(),
+                point.get_cords(),
+                (0, 127, 0),
+            )
+
         if len(points_with_length) != 0:
             target = sorted(points_with_length, key=lambda x: x[1])[0]
 
-        return point_to_pose(target)
+            cv2.line(
+                image,
+                self.ally_pos.get_cords(),
+                point.get_cords(),
+                (127, 127, 0),
+            )
+            return point_to_pose(target)
+
+        return None
 
 
 def point_to_pose(point: aux.Point) -> Pose:

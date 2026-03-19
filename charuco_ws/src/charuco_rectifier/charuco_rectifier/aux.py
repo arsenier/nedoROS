@@ -7,7 +7,6 @@ import typing
 from typing import Optional, Sequence, TypeVar
 
 
-
 class Graph:
     """
     Class for working with graphs.
@@ -141,6 +140,9 @@ class Point:
         """Return string to recreate this point."""
         return f"aux.Point({self.x:.0f}, {self.y:.0f})"
 
+    def get_cords(self) -> tuple[int, int]:
+        return self.x, self.y
+
 
 RIGHT = Point(1, 0)
 UP = Point(0, 1)
@@ -161,7 +163,9 @@ def dist2line(line_start: Point, line_end: Point, point: Point) -> float:
     return abs(vec_mult((line_end - line_start).unity(), point - line_start))
 
 
-def segment_poly_intersect(segment_start: Point, segment_end: Point, polygon: list[Point]) -> typing.Optional[Point]:
+def segment_poly_intersect(
+    segment_start: Point, segment_end: Point, polygon: list[Point]
+) -> typing.Optional[Point]:
     """
     Check if the segment intersects with the polygon.
 
@@ -174,7 +178,9 @@ def segment_poly_intersect(segment_start: Point, segment_end: Point, polygon: li
         Optional[Point]: The intersection point if found, otherwise None.
     """
     for i in range(-1, len(polygon) - 1):
-        p = get_line_intersection(segment_start, segment_end, polygon[i], polygon[i + 1], "SS")
+        p = get_line_intersection(
+            segment_start, segment_end, polygon[i], polygon[i + 1], "SS"
+        )
         if p is not None:
             return p
     return None
@@ -289,9 +295,21 @@ def get_line_intersection(
 
     first_valid = False
     second_valid = False
-    if is_inf[0] == "S" and 0 <= t1 <= 1 or is_inf[0] == "R" and t1 >= 0 or is_inf[0] == "L":
+    if (
+        is_inf[0] == "S"
+        and 0 <= t1 <= 1
+        or is_inf[0] == "R"
+        and t1 >= 0
+        or is_inf[0] == "L"
+    ):
         first_valid = True
-    if is_inf[1] == "S" and 0 <= t2 <= 1 or is_inf[1] == "R" and t2 >= 0 or is_inf[1] == "L":
+    if (
+        is_inf[1] == "S"
+        and 0 <= t2 <= 1
+        or is_inf[1] == "R"
+        and t2 >= 0
+        or is_inf[1] == "L"
+    ):
         second_valid = True
 
     if first_valid and second_valid:
@@ -345,7 +363,9 @@ def rotate(vector: Point, angle: float) -> Point:
     )
 
 
-def find_nearest_point(center: Point, points: list[Point], exclude: Optional[list[Point]] = None) -> Point:
+def find_nearest_point(
+    center: Point, points: list[Point], exclude: Optional[list[Point]] = None
+) -> Point:
     """
     Find the nearest point to a given point (center) from a list, optionally excluding some points.
 
@@ -386,7 +406,9 @@ def wind_down_angle(angle: float) -> float:
     return angle
 
 
-def closest_point_on_line(line_start: Point, line_end: Point, point: Point, is_inf: str = "S") -> Point:
+def closest_point_on_line(
+    line_start: Point, line_end: Point, point: Point, is_inf: str = "S"
+) -> Point:
     """
     Find the closest point on the line to the given point.
 
@@ -411,7 +433,9 @@ def closest_point_on_line(line_start: Point, line_end: Point, point: Point, is_i
     line_direction = (line_vector[0] / line_length, line_vector[1] / line_length)
 
     point_vector = (point.x - line_start.x, point.y - line_start.y)
-    dot_product = point_vector[0] * line_direction[0] + point_vector[1] * line_direction[1]
+    dot_product = (
+        point_vector[0] * line_direction[0] + point_vector[1] * line_direction[1]
+    )
 
     if dot_product <= 0 and is_inf != "L":
         return line_start
@@ -581,7 +605,9 @@ def in_place(point: Point, target: Point, epsilon: float) -> bool:
     return (point - target).mag() < epsilon
 
 
-def circles_inter(center1: Point, center2: Point, radius1: float, radius2: float) -> tuple[Point, Point]:
+def circles_inter(
+    center1: Point, center2: Point, radius1: float, radius2: float
+) -> tuple[Point, Point]:
     """
     Find the intersection points of two circles.
 
@@ -735,7 +761,9 @@ def nearest_point_on_circle(point: Point, center: Point, radius: float) -> Point
     return center + (point - center).unity() * radius
 
 
-def is_point_on_line(point: Point, line_start: Point, line_end: Point, is_inf: str = "L") -> bool:
+def is_point_on_line(
+    point: Point, line_start: Point, line_end: Point, is_inf: str = "L"
+) -> bool:
     """
     Check if a point lies exactly on a line, segment, or ray.
 
@@ -768,7 +796,11 @@ def offset_polygon(peaks: list[Point], distance: float) -> list[Point]:
     if len(peaks) < 3:
         return peaks
 
-    direction_sing = sign(wind_down_angle(angle_to_point(peaks[0], peaks[1]) - angle_to_point(peaks[1], peaks[2])))
+    direction_sing = sign(
+        wind_down_angle(
+            angle_to_point(peaks[0], peaks[1]) - angle_to_point(peaks[1], peaks[2])
+        )
+    )
     if direction_sing < 0:
         distance *= -1
 
@@ -780,7 +812,9 @@ def offset_polygon(peaks: list[Point], distance: float) -> list[Point]:
         perp_right = rotate(right_edge, math.pi / 2).unity()
 
         delta_vec_angle = wind_down_angle(perp_left.arg() - perp_right.arg()) / 2
-        delta_vec = (perp_left + perp_right).unity() * distance / math.cos(delta_vec_angle)
+        delta_vec = (
+            (perp_left + perp_right).unity() * distance / math.cos(delta_vec_angle)
+        )
         new_peaks[idx] = peaks[idx] + delta_vec
 
     return new_peaks

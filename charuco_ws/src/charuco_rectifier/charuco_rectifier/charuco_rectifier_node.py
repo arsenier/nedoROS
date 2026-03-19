@@ -64,7 +64,7 @@ class CharucoRectifierNode(Node):
             Image, self.image_topic + '_charuco_rectified_debug', 10
         )
 
-        self.ducks_pub = self.create_publisher(Pose, "/ducks", 10)
+        self.ducks_pub = self.create_publisher(Pose, "/duck_target", 10)
 
         self.get_logger().info('CharucoRectifierNode started')
 
@@ -163,8 +163,7 @@ class CharucoRectifierNode(Node):
         self.router.find_objects(num_labels, labels, stats, centroids)
 
         target = self.router.choose_target()
-
-        # self.ducks_pub.publish(ducks_msg)
+        self.ducks_pub.publish(target)
 
         mask_bgr = cv2.cvtColor(mask_joined, cv2.COLOR_GRAY2BGR)
 
