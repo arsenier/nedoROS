@@ -3,6 +3,8 @@ void init_servo() {
   arm.attach(ARM_PIN);
 
   down();
+  delay(200);
+  up();
 }
 
 void close_claws() {

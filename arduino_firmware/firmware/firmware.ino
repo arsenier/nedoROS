@@ -74,7 +74,9 @@ void setup() {
   init_gyro();
   init_endcaps();
 
-  Serial.println(get_x());
+  // Serial.println(get_x());
+  while (!Serial.available())
+    ;
   timerstart = millis();
 }
 
@@ -88,8 +90,8 @@ void loop() {
     odom();
     usiki();
 
-    //motorRPM(velL_from_rpi(), velR_from_rpi());
-    motorRPM(2, 2);
+    motorRPM(velL_from_rpi(), velR_from_rpi());
+    // motorRPM(2, 2);
     static float t = 0;
 
     // vel_est_tick();
