@@ -21,8 +21,10 @@ class Router:
         self.enemy_robot = None
         self.enemy_robot_size = None
 
-    def set_ally(self, position: aux.Point) -> None:
-        self.ally_pos = position
+    def set_ally(self, position: Pose) -> None:
+        self.ally_pos = aux.Point(
+            1250 - position.position.x * 1000, position.position.y * 1000
+        )
 
     def find_objects(
         self,
@@ -38,6 +40,11 @@ class Router:
         BIG_H = 180  # слишком большой объект по высоте
         MAX_ASPECT_RATIO = 4.0  # слишком длинный / узкий объект
 
+        self.ducks = []
+
+        if self.ally_pos is not None:
+            cv2.circle(image, self.ally_pos.get_cords_int(), 20, (127, 127, 255), -1)
+
         for label_id in range(1, num_labels):
             x = stats[label_id, cv2.CC_STAT_LEFT]
             y = stats[label_id, cv2.CC_STAT_TOP]
@@ -52,10 +59,10 @@ class Router:
             if area < MIN_AREA:  # мелкий обьект
                 continue
 
+            aspect_ratio = max(w, h) / max(1, min(w, h))
+
             if aspect_ratio > MAX_ASPECT_RATIO:  # полоска
                 continue
-
-            aspect_ratio = max(w, h) / max(1, min(w, h))
 
             if w > BIG_W and h > BIG_H:  # вражеский робот
 
@@ -87,8 +94,6 @@ class Router:
             )
             return point_to_pose(point)
 
-        target: tuple[aux.Point] = None
-
         points_with_length: list[tuple[aux.Point, float]] = []
         for duck in self.ducks:
             if (
@@ -100,7 +105,9 @@ class Router:
             elif self.enemy_robot is not None:
                 # враг мешает
                 passthrough_points: list[aux.Point] = []
-                delta_angle = math.asin(ROBOT_RADIUS / aux.dist())
+                delta_angle = math.asin(
+                    ROBOT_RADIUS / aux.dist(self.ally_pos, self.enemy_robot)
+                )
                 for angle in [-delta_angle, delta_angle]:
                     ally_to_enemy = self.enemy_robot - self.ally_pos
                     ally_vec = self.ally_pos + aux.rotate(ally_to_enemy, angle)
@@ -115,7 +122,7 @@ class Router:
                         passthrough_points.append(passthrough_point)
                         cv2.circle(
                             image,
-                            passthrough_point.get_cords(),
+                            passthrough_point.get_cords_int(),
                             6,
                             (0, 255, 0),
                             -1,
@@ -134,26 +141,25 @@ class Router:
                     )
                     cv2.line(
                         image,
-                        best_point.get_cords(),
-                        duck.get_cords(),
+                        best_point.get_cords_int(),
+                        duck.get_cords_int(),
                         (0, 127, 0),
                     )
 
         for point, _ in points_with_length:
             cv2.line(
                 image,
-                self.ally_pos.get_cords(),
-                point.get_cords(),
+                self.ally_pos.get_cords_int(),
+                point.get_cords_int(),
                 (0, 127, 0),
             )
 
         if len(points_with_length) != 0:
-            target = sorted(points_with_length, key=lambda x: x[1])[0]
-
+            target, a = sorted(points_with_length, key=lambda x: x[1])[0]
             cv2.line(
                 image,
-                self.ally_pos.get_cords(),
-                point.get_cords(),
+                self.ally_pos.get_cords_int(),
+                target.get_cords_int(),
                 (127, 127, 0),
             )
             return point_to_pose(target)
@@ -163,8 +169,8 @@ class Router:
 
 def point_to_pose(point: aux.Point) -> Pose:
     pose = Pose()
-    pose.position.x = point.x
-    pose.position.y = point.y
+    pose.position.x = float(point.x)
+    pose.position.y = float(point.y)
     pose.position.z = 0.0
     # работает только потому что количество пикселей совпадает с мм
 

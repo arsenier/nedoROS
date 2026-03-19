@@ -11,6 +11,18 @@ from geometry_msgs.msg import PoseStamped, Pose
 from . import aux
 from .router import Router
 
+# title_window = "sad"
+# cv2.namedWindow(title_window)
+# alpha_slider_max = 255
+
+
+# def on_trackbar(val):
+#     pass
+
+
+# trackbar_name = "Alpha x %d" % alpha_slider_max
+# cv2.createTrackbar(trackbar_name, title_window, 0, alpha_slider_max, on_trackbar)
+
 
 class CharucoRectifierNode(Node):
     def __init__(self):
@@ -19,6 +31,7 @@ class CharucoRectifierNode(Node):
         self.declare_parameter("image_topic", "/image_raw")
         self.declare_parameter("camera_info_topic", "/camera_info")
         self.declare_parameter("board_pose_topic", "/image_raw_charuco_pose")
+        self.declare_parameter("ally_pose_topic", "/image_recalib_apriltag_pose")
 
         self.declare_parameter("number_of_squares_x", 5)
         self.declare_parameter("number_of_squares_y", 7)
@@ -32,6 +45,7 @@ class CharucoRectifierNode(Node):
         self.image_topic = self.get_parameter("image_topic").value
         self.camera_info_topic = self.get_parameter("camera_info_topic").value
         self.board_pose_topic = self.get_parameter("board_pose_topic").value
+        self.ally_pose_topic = self.get_parameter("ally_pose_topic").value
 
         self.number_of_squares_x = self.get_parameter("number_of_squares_x").value
         self.number_of_squares_y = self.get_parameter("number_of_squares_y").value
@@ -54,6 +68,9 @@ class CharucoRectifierNode(Node):
         )
         self.pose_sub = self.create_subscription(
             PoseStamped, self.board_pose_topic, self.pose_callback, 10
+        )
+        self.ally_pose_sub = self.create_subscription(
+            PoseStamped, self.ally_pose_topic, self.ally_pose_callback, 10
         )
 
         self.rectified_pub = self.create_publisher(
@@ -85,6 +102,10 @@ class CharucoRectifierNode(Node):
 
     def pose_callback(self, msg: PoseStamped):
         self.latest_pose_msg = msg
+
+    def ally_pose_callback(self, msg: PoseStamped):
+        self.router.set_ally(msg.pose)
+        print(self.router.ally_pos)
 
     def image_callback(self, msg: Image):
         if self.K is None or self.D is None:
@@ -139,11 +160,21 @@ class CharucoRectifierNode(Node):
         diff = np.abs(rectified.astype(np.int16) - self.etalon.astype(np.int16)).astype(
             np.uint8
         )
+        # diff = diff.mean(axis=2).astype(np.uint8)
+        # diff = np.repeat(diff[:, :, None], 3, axis=2)
 
-        lower_int = 35
-        lower_bgr = np.array([lower_int, lower_int, lower_int], dtype=np.uint8)
+        lower_int = 25
         upper_bgr = np.array([255, 255, 255], dtype=np.uint8)
-        mask = cv2.inRange(diff, lower_bgr, upper_bgr)
+        mask = np.zeros((diff.shape[0], diff.shape[1]), dtype=np.uint8)
+        for lower_boarder in [[lower_int, 0, 0], [0, lower_int, 0], [0, 0, lower_int]]:
+            lower_bgr = np.array(lower_boarder, dtype=np.uint8)
+            mask |= cv2.inRange(diff, lower_bgr, upper_bgr)
+
+        if self.router.ally_pos is not None:
+            radius = 300
+            ally_mask = np.zeros(mask.shape, dtype=np.uint8)
+            cv2.circle(ally_mask, self.router.ally_pos.get_cords_int(), radius, 255, -1)
+            mask[ally_mask > 0] = 0
 
         # исправляем тонкие линии, возникающие от неточного "вырезания" оригинального поля
         param_int = 10
@@ -163,17 +194,19 @@ class CharucoRectifierNode(Node):
         num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(
             mask_joined, connectivity=8
         )
+        self.router.find_objects(rectified, num_labels, labels, stats, centroids)
 
-        self.router.find_objects(num_labels, labels, stats, centroids)
-
-        target = self.router.choose_target()
-        self.ducks_pub.publish(target)
+        target = self.router.choose_target(rectified)
+        if target is not None:
+            self.ducks_pub.publish(target)
 
         mask_bgr = cv2.cvtColor(mask_joined, cv2.COLOR_GRAY2BGR)
 
         rect_msg = self.bgr_to_image_msg(mask_bgr, msg.header)
         dbg_msg = self.bgr_to_image_msg(rectified, msg.header)
 
+        # # cv2.imshow("kek", mask_bgr)
+        # cv2.waitKey(1)
         self.rectified_pub.publish(rect_msg)
         self.debug_pub.publish(dbg_msg)
 

@@ -140,8 +140,11 @@ class Point:
         """Return string to recreate this point."""
         return f"aux.Point({self.x:.0f}, {self.y:.0f})"
 
-    def get_cords(self) -> tuple[int, int]:
+    def get_cords(self) -> tuple[float, float]:
         return self.x, self.y
+
+    def get_cords_int(self) -> tuple[int, int]:
+        return int(self.x), int(self.y)
 
 
 RIGHT = Point(1, 0)
