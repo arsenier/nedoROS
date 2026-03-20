@@ -5,7 +5,7 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist, PoseStamped
 from nav_msgs.msg import Odometry
 from turtlesim.msg import Pose 
-from builtin_interfaces.msg import Time
+from builtin_interfaces.msg import  Time
 import time
 
 from sensor_msgs.msg import LaserScan
@@ -39,7 +39,8 @@ class Going_zone_obect(Node):
         self.angle_increment = 0
 
         self.angle_par = math.pi * 2 / 3
-        self.dist_par = 30 / 100
+        self.dist_par = 50 / 100
+        self.dist_par_low = 20 / 100
 
         self.angle_otbros = math.pi/9
 
@@ -57,12 +58,12 @@ class Going_zone_obect(Node):
         self.angle_increment = msg.angle_increment
         self.pc = msg.ranges
 
-        for idx, p in pc.enumerate():
+        for idx, p in self.pc.enumerate():
             angle = self.angle_min_out + idx * self.angle_increment 
             distance = p
             
             if abs(cma - angle) < self.angle_otbros:
-                if abs(angle) < self.angle_par and distance < self.dist_par:
+                if abs(angle) < self.angle_par and distance < self.dist_par and distance > self.dist_par_low:
                     self.cma += angle
                     self.cmr += distance
                     self.mass += 1

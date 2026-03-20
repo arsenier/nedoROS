@@ -88,17 +88,17 @@ void loop() {
     odom();
     usiki();
 
-    //motorRPM(velL_from_rpi(), velR_from_rpi());
-    motorRPM(2, 2);
+    motorRPM(velL_from_rpi(), velR_from_rpi());
     static float t = 0;
-
+    static float t2 = 0;
+    
+    //motorRPM(2, 2);
     // vel_est_tick();
 
     //Serial.println(voltage());
     // Serial.print(getvel_left());
     // Serial.print(" getvel_right = ");
     // Serial.println(getvel_right());
-
     // Serial.print(" theta = ");
     // Serial.print(get_theta());
     // Serial.print(" x = ");
@@ -107,27 +107,32 @@ void loop() {
     // Serial.print(gyro());
     // Serial.print(" y = ");
     // Serial.println(get_y());
-
     // Serial.print(" encl = ");
     // Serial.print(int(encL));
     // Serial.print(" encr = ");
     // Serial.print(int(encR));
-
     // Serial.print(" enclAngle = ");
     // Serial.print(getLangle());
     // Serial.print(" encrAngle = ");
     // Serial.println(getRangle());
 
     posarm = constrain(fmap(t, (1 - want_t_claws), 1, UP, DOWN), UP, DOWN);
-    posclaws = constrain(fmap(t, 0, want_t_claws, OPEN, CLOSE), OPEN, CLOSE);
+    posclaws = constrain(fmap(t, 0, 1, OPEN, CLOSE), OPEN, CLOSE);
     claws.write(posclaws);
     arm.write(posarm);
     if (gripper_form_rpi())
+    {
       t += t_one_it;
+      t2 += t_one_it / want_t_claws;
+    }
     else
+    {
       t -= t_one_it;
+      t2 -= t_one_it / want_t_claws;
+    }
 
     t = constrain(t, 0, 1);
+    t2 = constrain(t2, 0, 1);
   } else if(millis() - timerstart > 10000) {
     motor(0, 0);
     while (true)
