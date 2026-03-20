@@ -390,74 +390,48 @@ def main(args=None):
     node = TSPA()
     try:
         while rclpy.ok():
-            # node.set_behaviour(Behaviour.WAIT_TARGET)
-            # while rclpy.ok():
-            #     rclpy.spin_once(node)
-            #     if node.duck_pose is not None:
-            #         break
 
-            # node.set_behaviour(Behaviour.GO_TO_TARGET)
-            # while rclpy.ok():
-            #     rclpy.spin_once(node)
-            #     if dist(node.robot_pose, node.duck_pose) < 0.1 and \
-            #         abs(node.robot_pose.theta - node.duck_pose.theta) < 0.1:
-            #         break
+            run_behaviour(node, Behaviour.WAIT_TARGET, until = lambda: node.duck_pose is not None)
 
-            while True:
-                # node.set_behaviour(Behaviour.WAIT_TIME)
-                # while rclpy.ok():
-                #     rclpy.spin_once(node)
-                #     if node.timestate > 1:
-                #         break
+            run_behaviour(node, Behaviour.GO_TO_TARGET, until = lambda: \
+                dist(node.robot_pose, node.duck_pose) < 0.1 and \
+                abs(node.robot_pose.theta - node.duck_pose.theta) < 0.1)
+
+            for i in range(3):
                 run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
 
                 run_behaviour(node, Behaviour.DOCK_WITH_DUCK, until = lambda: node.gripper.data == True)
-                # node.set_behaviour(Behaviour.DOCK_WITH_DUCK)
-                # while rclpy.ok():
-                #     rclpy.spin_once(node)
-                #     if node.gripper.data == True:
-                #         break
 
                 run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
-                # node.set_behaviour(Behaviour.WAIT_TIME)
-                # while rclpy.ok():
-                #     rclpy.spin_once(node)
-                #     if node.timestate > 10:
-                #         break
 
                 node.set_behaviour(Behaviour.GRAB_THE_DUCK)
-                # while rclpy.ok():
                 rclpy.spin_once(node)
                 if abs(node.duck_locator.cma) > 0.1 and abs(node.duck_locator.cmr) > 0.1 or not node.duck_locator.is_visible:
                     break
 
-            #     if node.duck_sensor.duck_type == DuckType.GOOD_DUCK or \
-            #        node.duck_sensor.duck_type == DuckType.BAD_DUCK:
-            #         break
+            run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 5)
+
+                # if node.duck_sensor.duck_type == DuckType.GOOD_DUCK or \
+                #    node.duck_sensor.duck_type == DuckType.BAD_DUCK:
+                #     break
             
-            # if node.duck_sensor.duck_type == DuckType.GOOD_DUCK:
-            #     node.set_behaviour(Behaviour.GO_TO_PBASE)
-            #     while rclpy.ok():
-            #         rclpy.spin_once(node)
-            #         if dist(node.robot_pose, node.baze_pose) < 0.1 and abs(node.robot_pose.theta - node.baze_pose.theta) < 0.1:
-            #             break
-            # else:
-            #     node.set_behaviour(Behaviour.GO_TO_NBASE)
-            #     while rclpy.ok():
-            #         rclpy.spin_once(node)
-            #         if dist(node.robot_pose, node.enemy_baze_pose) < 0.1 and abs(node.robot_pose.theta - node.enemy_baze_pose.theta) < 0.1:
-            #             break
+            if node.duck_sensor.duck_type == DuckType.GOOD_DUCK:
+                run_behaviour(node, Behaviour.GO_TO_PBASE, until = lambda: \
+                    dist(node.robot_pose, node.baze_pose) < 0.1 and \
+                    abs(node.robot_pose.theta - node.baze_pose.theta) < 0.1)
+
+            elif node.duck_sensor.duck_type == DuckType.BAD_DUCK:
+                run_behaviour(node, Behaviour.GO_TO_NBASE, until = lambda: \
+                    dist(node.robot_pose, node.enemy_baze_pose) < 0.1 and \
+                    abs(node.robot_pose.theta - node.enemy_baze_pose.theta) < 0.1)
+            else:
+                continue
 
             run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 5)
 
             run_behaviour(node, Behaviour.DROP_THE_DUCK, until = lambda: node.timestate > 3)
 
             run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
-            # node.set_behaviour(Behaviour.DROP_THE_DUCK)
-            # while rclpy.ok():
-            #     rclpy.spin_once(node)
-            #     if abs(node.timestate - node.timelastbeh) > 1:
-            #         break
 
             break
 
