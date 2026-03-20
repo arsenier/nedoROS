@@ -2,6 +2,8 @@ from enum import Enum
 import math
 import rclpy
 
+import time
+
 from rclpy.node import Node
 
 from geometry_msgs.msg import Twist, PoseStamped
@@ -40,6 +42,7 @@ class Behaviour(Enum):
     GO_TO_PBASE = 4
     GO_TO_NBASE = 5
     DROP_THE_DUCK = 6
+    WAIT_TIME = 1000
 
 class TSPA(Node):
     def __init__(self):
@@ -75,6 +78,9 @@ class TSPA(Node):
                 self.gps_sub,
                 self.nfield_sub
             ],
+            Behaviour.DROP_THE_DUCK: [
+            ],
+            Behaviour.WAIT_TIME: [],
         }
 
         # https://stackoverflow.com/questions/334655/passing-a-dictionary-to-a-function-as-keyword-parameters#334666
@@ -86,7 +92,7 @@ class TSPA(Node):
         self.timer = self.create_timer(self.timer_period, self.main_loop)
 
         self.duck_sensor = DuckSensor(DuckType.NOT_A_DUCK)
-        self.duck_locator = DuckLocator()
+        self.duck_locator = DuckLocator(0, 0, False)
         self.robot_pose = None
         self.duck_pose = None
         self.baze_pose = None
@@ -106,7 +112,7 @@ class TSPA(Node):
 
     def scan_callback(self, msg):
         """Lidar callback [LaserScan]"""
-        lidar_offset = -90.0 * math.pi / 180
+        lidar_offset = -83.0 * math.pi / 180
         angle_par = math.pi * 2 / 3
         dist_par = 50.0 / 100
         dist_par_low = 20.0 / 100
@@ -120,6 +126,7 @@ class TSPA(Node):
 
         self.duck_locator.cma = 0
         self.duck_locator.cmr = 0
+        self.duck_locator.is_visible = False
         mass = 0
 
         for idx, p in enumerate(pc):
@@ -153,7 +160,7 @@ class TSPA(Node):
     def gps_callback(self, msg):
         """Gps callback [PoseStamped]"""
         if self.robot_pose is None: 
-            self.robot_pose = Pose()
+            self.robot_pose = Pose(0, 0, 0)
 
         self.robot_pose.x = msg.pose.position.x
         self.robot_pose.y = msg.pose.position.y
@@ -165,18 +172,20 @@ class TSPA(Node):
         # self.ducks_pub = self.create_publisher(Pose, "/duck_target", 10)
 
         if self.duck_pose is None:
-            self.duck_pose = Pose()
-
+            self.duck_pose = Pose(0, 0, 0)
+        
         self.duck_pose.x = msg.pose.position.x
         self.duck_pose.y = msg.pose.position.y
         self.duck_pose.theta = math.atan2(msg.pose.orientation.z, msg.pose.orientation.w) * 2
+
+        self.get_logger().info(f'Current duck pose: {self.duck_pose}')
         pass
 
     def pzone_callback(self, msg):
         """Our base position callback [PoseStamped]"""
 
         if self.baze_pose is None:
-            self.baze_pose = Pose()
+            self.baze_pose = Pose(0, 0, 0)
             
         self.baze_pose.x = msg.pose.position.x
         self.baze_pose.y = msg.pose.position.y
@@ -187,7 +196,7 @@ class TSPA(Node):
         """Enemy base position callback [PoseStamped]"""
 
         if self.enemy_baze_pose is None:
-            self.enemy_baze_pose = Pose()
+            self.enemy_baze_pose = Pose(0, 0, 0)
 
         self.enemy_baze_pose.x = msg.pose.position.x
         self.enemy_baze_pose.y = msg.pose.position.y
@@ -205,24 +214,34 @@ class TSPA(Node):
         pass
     
     def set_behaviour(self, behaviour):
-        self.timelastbeh = self.get_clock().nanoseconds / 1e9
+        clock = self.get_clock()
+        currenttime = clock.now()
+        self.timelastbeh = currenttime.nanoseconds / 1e9
+        #self.timelastbeh = self.get_clock().nanoseconds() / 1e9
         # https://stackoverflow.com/questions/38487816/unsubscribing-from-ros-topic-python
-        for sub in self.current_subs:
-            sub.unregister()
+        # for sub in self.current_subs:
+        #     sub.shutdown()
+        self.current_subs = []
 
-        self.duck_sensor = None
-        self.duck_locator = None
-        self.robot_pose = None
-        self.duck_pose = None
-        self.baze_pose = None
-        self.enemy_baze_pose = None
+        # self.duck_sensor = None
+        # self.duck_locator = None
+        # self.robot_pose = None
+        # self.duck_pose = None
+        # self.baze_pose = None
+        # self.enemy_baze_pose = None
 
         self.current_behaviour = behaviour
 
         for subd in self.beh2sub[behaviour]:
-            self.current_subs.append(self.create_subscription(**subd))
+            self.current_subs.append(self.create_subscription(*subd))
 
     def goToPose(self, pose: Pose):
+
+        if pose is None:
+            return
+        if self.robot_pose is None:
+            return
+
         anglereg = 0.0
         v = 0.0
         distotcl = 0.1
@@ -265,6 +284,8 @@ class TSPA(Node):
         elif twist.angular.z < -maxz:
             twist.angular.z = -maxz
 
+        self.twist = twist
+
     def object_docking(self):
         twist = Twist()
         v = 0.0
@@ -275,13 +296,13 @@ class TSPA(Node):
         porog_turn = math.pi / 18
         porog_dist = 2.0 / 100
         k_forward = 1.0
-        k_turn = 2.5
+        k_turn = 10.0
         max_v = 0.1
-        max_w = 1.0
+        max_w = 0.5
 
         dtheta = self.duck_locator.cma - self.robot_theta
         ddist = self.duck_locator.cmr - const_dist_gripper
-        if abs(dtheta) > porog_turn:
+        if abs(self.duck_locator.cma) > porog_turn:
             v = 0.0
             theta_turn = k_turn * dtheta
         else:
@@ -291,92 +312,154 @@ class TSPA(Node):
         if abs(dtheta) < (porog_turn / 2) and abs(ddist) < porog_dist:
             gripper.data = True
 
-        if self.cmr < 0.1:
+        if self.duck_locator.cmr < 0.1:
             v = 0.0
 
         v = min(max(v, -max_v), max_v)
         theta_turn = min(max(theta_turn, -max_w), max_w)
 
-        self.robot_theta += theta_turn * self.timer_period * 2
+        theta_turn_int = theta_turn if abs(theta_turn) > 0.3 else 0
+
+        self.robot_theta += theta_turn_int * self.timer_period * 0.3
 
         twist.linear.x = v
         twist.angular.z = theta_turn
 
+        self.twist = twist
+        self.gripper = gripper
+
     def main_loop(self):
-        self.timestate = self.get_clock().nanoseconds / 1e9
+        clock = self.get_clock()
+        currenttime = clock.now()
+        self.timestate = currenttime.nanoseconds / 1e9 - self.timelastbeh
+
         if self.current_behaviour == Behaviour.WAIT_TARGET:
+            self.twist = Twist()
             self.get_logger().info('Waiting for target')
         elif self.current_behaviour == Behaviour.GO_TO_TARGET:
-            self.goToPose(self, self.duck_pose)
-            self.get_logger().info('Going to target')
+            self.goToPose(self.duck_pose)
+            self.get_logger().info(f'Going to target {self.duck_pose}')
         elif self.current_behaviour == Behaviour.DOCK_WITH_DUCK:
-            self.object_docking(self)
-            self.get_logger().info('Docking with duck')
+            self.object_docking()
+            self.get_logger().info(f'Docking with duck {self.duck_locator}')
         elif self.current_behaviour == Behaviour.GRAB_THE_DUCK:
+            self.twist = Twist()
             self.get_logger().info('Grabbing the duck')
         elif self.current_behaviour == Behaviour.GO_TO_PBASE:
+            self.goToPose(self.baze_pose)
             self.get_logger().info('Going to pbase')
         elif self.current_behaviour == Behaviour.GO_TO_NBASE:
+            self.goToPose(self.enemy_baze_pose)
             self.get_logger().info('Going to nbase')
         elif self.current_behaviour == Behaviour.DROP_THE_DUCK:
+            self.twist = Twist()
+            self.twist.linear.x = -0.2
             self.get_logger().info('Dropping the duck')
+        elif self.current_behaviour == Behaviour.WAIT_TIME:
+            self.twist = Twist()
+            self.get_logger().info(f'Waiting... {self.timestate}')
+
+        self.get_logger().info(f'Current subs: {self.current_subs}')
+        self.get_logger().info(f'Control: {self.twist}, {self.gripper}')
 
         self.twist_pub.publish(self.twist)
         self.gripper_pub.publish(self.gripper)
 
-# def run_behaviour(node, behaviour, until = lambda: False):
-#     node.set_behaviour(behaviour)
-#     while rclpy.ok():
-#         rclpy.spin_once(node)
-#         if until():
-#             break
-    
+def run_behaviour(node, behaviour, until = lambda: False):
+    node.set_behaviour(behaviour)
+    while rclpy.ok():
+        rclpy.spin_once(node)
+        if until():
+            break
+
+def dist(p1, p2):
+    if p1 is None or p2 is None:
+        return math.inf
+    return abs( \
+        math.sqrt( \
+            math.pow( \
+                p1.x - p2.x, 2 \
+            ) + math.pow( \
+            p1.y - p2.y, 2 \
+            ) \
+        ) \
+    )
+
 def main(args=None):
     rclpy.init(args=args)
     node = TSPA()
     try:
         while rclpy.ok():
-            node.set_behaviour(Behaviour.GO_TO_TARGET)
-            while rclpy.ok():
-                rclpy.spin_once(node)
-                if node.duck_pose is not None:
-                    break
+            # node.set_behaviour(Behaviour.WAIT_TARGET)
+            # while rclpy.ok():
+            #     rclpy.spin_once(node)
+            #     if node.duck_pose is not None:
+            #         break
+
+            # node.set_behaviour(Behaviour.GO_TO_TARGET)
+            # while rclpy.ok():
+            #     rclpy.spin_once(node)
+            #     if dist(node.robot_pose, node.duck_pose) < 0.1 and \
+            #         abs(node.robot_pose.theta - node.duck_pose.theta) < 0.1:
+            #         break
 
             while True:
-                node.set_behaviour(Behaviour.DOCK_WITH_DUCK)
-                while rclpy.ok():
-                    rclpy.spin_once(node)
-                    if node.gripper == True:
-                        break
-                
-                node.set_behaviour(Behaviour.GRAB_THE_DUCK)
-                while rclpy.ok():
-                    rclpy.spin_once(node)
-                    if node.duck_locator.cma > 0.01 and node.duck_locator.cmr < 0.1:
-                        break
-                
-                if node.duck_sensor.duck_type == DuckType.GOOD_DUCK or \
-                   node.duck_sensor.duck_type == DuckType.BAD_DUCK:
-                    break
-            
-            if node.duck_sensor.duck_type == DuckType.GOOD_DUCK:
-                node.set_behaviour(Behaviour.GO_TO_PBASE)
-                while rclpy.ok():
-                    rclpy.spin_once(node)
-                    if abs(math.sqrt(math.pow(node.robot_pose.x - node.baze_pose.x, 2), math.pow(node.robot_pose.y - node.baze_pose.y, 2))) < 0.1 and abs(node.robot_pose.theta - node.baze_pose.theta) < 0.1:
-                        break
-            else:
-                node.set_behaviour(Behaviour.GO_TO_NBASE)
-                while rclpy.ok():
-                    rclpy.spin_once(node)
-                    if abs(math.sqrt(math.pow(node.robot_pose.x - node.enemy_baze_pose.x, 2), math.pow(node.robot_pose.y - node.enemy_baze_pose.y, 2))) < 0.1 and abs(node.robot_pose.theta - node.enemy_baze_pose.theta) < 0.1:
-                        break
+                # node.set_behaviour(Behaviour.WAIT_TIME)
+                # while rclpy.ok():
+                #     rclpy.spin_once(node)
+                #     if node.timestate > 1:
+                #         break
+                run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
 
-            node.set_behaviour(Behaviour.DROP_THE_DUCK)
-            while rclpy.ok():
+                run_behaviour(node, Behaviour.DOCK_WITH_DUCK, until = lambda: node.gripper.data == True)
+                # node.set_behaviour(Behaviour.DOCK_WITH_DUCK)
+                # while rclpy.ok():
+                #     rclpy.spin_once(node)
+                #     if node.gripper.data == True:
+                #         break
+
+                run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
+                # node.set_behaviour(Behaviour.WAIT_TIME)
+                # while rclpy.ok():
+                #     rclpy.spin_once(node)
+                #     if node.timestate > 10:
+                #         break
+
+                node.set_behaviour(Behaviour.GRAB_THE_DUCK)
+                # while rclpy.ok():
                 rclpy.spin_once(node)
-                if abs(node.timestate - node.timelastbeh) > 1:
+                if abs(node.duck_locator.cma) > 0.1 and abs(node.duck_locator.cmr) > 0.1 or not node.duck_locator.is_visible:
                     break
+
+            #     if node.duck_sensor.duck_type == DuckType.GOOD_DUCK or \
+            #        node.duck_sensor.duck_type == DuckType.BAD_DUCK:
+            #         break
+            
+            # if node.duck_sensor.duck_type == DuckType.GOOD_DUCK:
+            #     node.set_behaviour(Behaviour.GO_TO_PBASE)
+            #     while rclpy.ok():
+            #         rclpy.spin_once(node)
+            #         if dist(node.robot_pose, node.baze_pose) < 0.1 and abs(node.robot_pose.theta - node.baze_pose.theta) < 0.1:
+            #             break
+            # else:
+            #     node.set_behaviour(Behaviour.GO_TO_NBASE)
+            #     while rclpy.ok():
+            #         rclpy.spin_once(node)
+            #         if dist(node.robot_pose, node.enemy_baze_pose) < 0.1 and abs(node.robot_pose.theta - node.enemy_baze_pose.theta) < 0.1:
+            #             break
+
+            run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 5)
+
+            run_behaviour(node, Behaviour.DROP_THE_DUCK, until = lambda: node.timestate > 3)
+
+            run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
+            # node.set_behaviour(Behaviour.DROP_THE_DUCK)
+            # while rclpy.ok():
+            #     rclpy.spin_once(node)
+            #     if abs(node.timestate - node.timelastbeh) > 1:
+            #         break
+
+            break
 
     
     except KeyboardInterrupt:
