@@ -38,7 +38,7 @@ def generate_launch_description():
             parameters=[{
                 'image_topic': '/image_raw',
                 'camera_info_topic': '/camera_info',
-                'marker_size_m': 0.120,
+                'marker_size_m': 0.092,
                 'marker_id': 239,
                 'dictionary_id': 2, 
                 'publish_debug_image': True,

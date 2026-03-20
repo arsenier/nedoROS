@@ -2,7 +2,7 @@ import math
 import numpy as np
 import cv2
 from typing import Optional
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Point
 
 from . import aux
 
@@ -44,7 +44,7 @@ class Router:
         self.ducks = []
 
         if self.ally_pos is not None:
-            cv2.circle(image, self.ally_pos.get_cords_int(), 20, (127, 127, 255), -1)
+            cv2.circle(image, self.ally_pos.get_cords_int(), 50, (127, 127, 255), -1)
 
         for label_id in range(1, num_labels):
             x = stats[label_id, cv2.CC_STAT_LEFT]
@@ -99,7 +99,7 @@ class Router:
                 cv2.LINE_AA,
             )
 
-    def choose_target(self, image: cv2.typing.MatLike) -> Optional[Pose]:
+    def choose_target(self, image: cv2.typing.MatLike) -> Optional[Point]:
         if self.ally_pos is None:
             return None
         if (
@@ -119,7 +119,7 @@ class Router:
             if (
                 self.enemy_robot is None
                 or aux.dist2line(self.ally_pos, duck, self.enemy_robot)
-                < ROBOT_RADIUS * 2
+                > ROBOT_RADIUS * 2
             ):  # можно проехать
                 points_with_length.append((duck, aux.dist(self.ally_pos, duck)))
             elif self.enemy_robot is not None:
@@ -187,17 +187,12 @@ class Router:
         return None
 
 
-def point_to_pose(point: aux.Point) -> Pose:
-    pose = Pose()
-    pose.position.x = float(point.x)
-    pose.position.y = float(point.y)
-    pose.position.z = 0.0
+def point_to_pose(point: aux.Point) -> Point:
+    pose = Point()
+    pose.x = float(1.25 - point.x / 1000)
+    pose.y = float(point.y / 1000)
+    pose.z = 0.0
     # работает только потому что количество пикселей совпадает с мм
-
-    pose.orientation.x = 0.0
-    pose.orientation.y = 0.0
-    pose.orientation.z = 0.0
-    pose.orientation.w = 1.0
 
     return pose
 

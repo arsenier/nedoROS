@@ -2,8 +2,6 @@ import math
 import numpy as np
 import cv2
 
-from geometry_msgs.msg import Twist
-
 import rclpy
 from rclpy.node import Node
 

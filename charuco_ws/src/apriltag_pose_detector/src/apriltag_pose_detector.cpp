@@ -15,6 +15,8 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/calib3d.hpp>
 
+#include <std_msgs/msg/bool.hpp>
+
 using sensor_msgs::msg::Image;
 using sensor_msgs::msg::CameraInfo;
 
@@ -40,6 +42,9 @@ public:
     // pubs
     pose_pub_ = create_publisher<geometry_msgs::msg::PoseStamped>(
       image_topic_ + std::string("_apriltag_pose"), rclcpp::QoS(10).reliable());
+
+    start_pub_ = create_publisher<std_msgs::msg::Bool>(
+      "/start", rclcpp::QoS(10).reliable());
 
     if (publish_debug_image_) {
       debug_pub_ = image_transport::create_publisher(
@@ -163,6 +168,15 @@ private:
     std::vector<std::vector<cv::Point2f>> corners, rejected;
     cv::aruco::detectMarkers(gray, dict(), corners, ids, detector_params_, rejected);
 
+    for (const auto &id : ids) {
+      if (id == 8) {
+        std_msgs::msg::Bool start_msg;
+        start_msg.data = true;
+        start_pub_->publish(start_msg);
+        break;
+      }
+    }
+
     // RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 500,
     //   "detected=%zu rejected=%zu dict=%d",
     //   ids.size(), rejected.size(), dictionary_id_);
@@ -236,6 +250,7 @@ private:
     rclcpp::Subscription<CameraInfo>::SharedPtr camera_info_sub_;
 
     rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_pub_;
+    rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr start_pub_;
     image_transport::Publisher debug_pub_;
 
     CameraInfo::ConstSharedPtr camera_info_;
