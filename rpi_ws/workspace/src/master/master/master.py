@@ -217,6 +217,7 @@ class TSPA(Node):
         clock = self.get_clock()
         currenttime = clock.now()
         self.timelastbeh = currenttime.nanoseconds / 1e9
+        self.timestate = 0
         #self.timelastbeh = self.get_clock().nanoseconds() / 1e9
         # https://stackoverflow.com/questions/38487816/unsubscribing-from-ros-topic-python
         # for sub in self.current_subs:
@@ -353,7 +354,8 @@ class TSPA(Node):
             self.get_logger().info('Going to nbase')
         elif self.current_behaviour == Behaviour.DROP_THE_DUCK:
             self.twist = Twist()
-            self.twist.linear.x = -0.2
+            self.twist.linear.x = -0.08
+            self.gripper.data = False
             self.get_logger().info('Dropping the duck')
         elif self.current_behaviour == Behaviour.WAIT_TIME:
             self.twist = Twist()
