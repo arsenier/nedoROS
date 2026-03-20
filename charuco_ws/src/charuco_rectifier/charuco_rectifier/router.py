@@ -12,7 +12,7 @@ ROBOT_RADIUS = 200
 class Router:
     def __init__(self) -> None:
         self.ally_pos: Optional[aux.Point] = None
-        self.ducks: list[aux.Point] = []
+        self.ducks: list[tuple[aux.Point, int]] = []  # position with life time
         self.enemy_robot: Optional[aux.Point] = None
         self.enemy_robot_size: Optional[tuple[float, float]] = None
 
@@ -40,6 +40,7 @@ class Router:
         BIG_H = 180  # слишком большой объект по высоте
         MAX_ASPECT_RATIO = 4.0  # слишком длинный / узкий объект
 
+        old_ducks = self.ducks.copy()
         self.ducks = []
 
         if self.ally_pos is not None:
@@ -67,7 +68,7 @@ class Router:
             if w > BIG_W and h > BIG_H:  # вражеский робот
 
                 cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
-                cv2.circle(image, (cx, cy), 8, (255, 0, 255), -1)
+                cv2.circle(image, (cx, cy), 20, (255, 0, 255), -1)
 
                 self.enemy_robot = aux.Point(
                     cx, cy
@@ -79,7 +80,24 @@ class Router:
             cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cv2.circle(image, (cx, cy), 6, (0, 0, 255), -1)
 
-            self.ducks.append(aux.Point(cx, cy))
+            new_duck = aux.Point(cx, cy)
+            for old_duck, lifetime in old_ducks:
+                if aux.dist(old_duck, new_duck) < 100:
+                    self.ducks.append(((new_duck + old_duck) / 2, lifetime + 1))
+                    break
+            else:
+                self.ducks.append((new_duck, 0))
+
+            cv2.putText(
+                image,
+                str(self.ducks[-1][1]),
+                self.ducks[-1][0].get_cords_int(),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.8,
+                (255, 0, 0),
+                2,
+                cv2.LINE_AA,
+            )
 
     def choose_target(self, image: cv2.typing.MatLike) -> Optional[Pose]:
         if self.ally_pos is None:
@@ -95,7 +113,9 @@ class Router:
             return point_to_pose(point)
 
         points_with_length: list[tuple[aux.Point, float]] = []
-        for duck in self.ducks:
+        for duck, lifetime in self.ducks:
+            if lifetime < 5:
+                continue
             if (
                 self.enemy_robot is None
                 or aux.dist2line(self.ally_pos, duck, self.enemy_robot)

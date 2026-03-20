@@ -208,7 +208,7 @@ class CharucoRectifierNode(Node):
 
         rect_msg = self.bgr_to_image_msg(mask_bgr, msg.header)
         diff_msg = self.bgr_to_image_msg(diff, msg.header)
-        dbg_msg = self.bgr_to_image_msg(rect, msg.header)
+        dbg_msg = self.bgr_to_image_msg(rectified, msg.header)
 
         # # cv2.imshow("kek", mask_bgr)
         # cv2.waitKey(1)
