@@ -76,6 +76,9 @@ class CharucoRectifierNode(Node):
         self.rectified_pub = self.create_publisher(
             Image, self.image_topic + "_charuco_rectified", 10
         )
+        self.diff_pub = self.create_publisher(
+            Image, self.image_topic + "_charuco_rectified_diff", 10
+        )
         self.debug_pub = self.create_publisher(
             Image, self.image_topic + "_charuco_rectified_debug", 10
         )
@@ -149,6 +152,7 @@ class CharucoRectifierNode(Node):
         rectified = cv2.warpPerspective(
             cv_img, H, (self.output_width_px, self.output_height_px)
         )
+        rect = rectified.copy()
 
         if self.etalon is None:
             self.etalon = np.load("./etalon.npy")  # comment to calibrate
@@ -163,7 +167,7 @@ class CharucoRectifierNode(Node):
         # diff = diff.mean(axis=2).astype(np.uint8)
         # diff = np.repeat(diff[:, :, None], 3, axis=2)
 
-        lower_int = 25
+        lower_int = 50
         upper_bgr = np.array([255, 255, 255], dtype=np.uint8)
         mask = np.zeros((diff.shape[0], diff.shape[1]), dtype=np.uint8)
         for lower_boarder in [[lower_int, 0, 0], [0, lower_int, 0], [0, 0, lower_int]]:
@@ -203,11 +207,13 @@ class CharucoRectifierNode(Node):
         mask_bgr = cv2.cvtColor(mask_joined, cv2.COLOR_GRAY2BGR)
 
         rect_msg = self.bgr_to_image_msg(mask_bgr, msg.header)
-        dbg_msg = self.bgr_to_image_msg(rectified, msg.header)
+        diff_msg = self.bgr_to_image_msg(diff, msg.header)
+        dbg_msg = self.bgr_to_image_msg(rect, msg.header)
 
         # # cv2.imshow("kek", mask_bgr)
         # cv2.waitKey(1)
         self.rectified_pub.publish(rect_msg)
+        self.diff_pub.publish(diff_msg)
         self.debug_pub.publish(dbg_msg)
 
     def image_msg_to_bgr(self, msg: Image) -> np.ndarray:

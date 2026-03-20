@@ -35,7 +35,7 @@ class Router:
         centroids: cv2.typing.MatLike,
     ) -> None:
         """returns all correct targets and"""
-        MIN_AREA = 50  # слишком мелкий шум
+        MIN_AREA = 1600  # слишком мелкий шум
         BIG_W = 180  # слишком большой объект по ширине
         BIG_H = 180  # слишком большой объект по высоте
         MAX_ASPECT_RATIO = 4.0  # слишком длинный / узкий объект
