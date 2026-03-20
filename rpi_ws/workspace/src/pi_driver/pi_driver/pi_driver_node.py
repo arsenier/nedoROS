@@ -115,13 +115,20 @@ class Driver(Node):
         self.usik_right = self.create_publisher(Bool, '/usik_right', 10)
         self.usik_left = self.create_publisher(Bool, '/usik_left', 10)
         self.pub_odom = self.create_publisher(Odometry, '/odom', 10)
+        self.is_start = self.create_subscription(Bool, '/start', self.check_start, 10)
         self.odom_broadcaster = tf2_ros.TransformBroadcaster(self)
         self.timer_period = 0.1
         self.timer = self.create_timer(self.timer_period, self.update_data_robot)
         self.data_usl = Bool()
         self.data_usr = Bool()
-        
-        
+        self.started = False
+        self.start_time = 0.0
+        self.timeG = -2
+
+    def check_start(self, msg):
+        if msg.data and not self.started:
+            self.started = True
+            self.start_time = time.time()    
 
 
     def update_data_driver(self, msg):
@@ -131,6 +138,12 @@ class Driver(Node):
         self.gripper = msg.data
     
     def update_data_robot(self):
+        if not self.started:
+            return 
+        if time.time()-self.start_time > 90:
+            send_speeds(0, 0, 0)
+            return
+
         # fw (-1-1), ang(-pi, pi)
         R_robot = 0.08
         R_wheel = 0.04
@@ -141,7 +154,11 @@ class Driver(Node):
         vr = (self.fw + self.ang*R_robot) / R_wheel
         # v = self.fw * kf
         # u = self.ang * R_robot * kf
-        ans = send_speeds(vl, vr, self.gripper)
+        if time.time() - self.timeG < 2:
+            ans = send_speeds(vl, vr * 1.25, self.gripper)
+        else:
+            ans = send_speeds(-1, -1, self.gripper)
+
         if ans is None:
                 return
 
@@ -149,6 +166,9 @@ class Driver(Node):
         self.data_usr.data = bool(ans[4])
         self.usik_left.publish(self.data_usl)
         self.usik_right.publish(self.data_usr)
+        if bool(ans[3]) or bool(ans[4]):
+            self.timeG = time.time()
+
         #____________________ODOM_______________
 
         x = float(ans[0])
