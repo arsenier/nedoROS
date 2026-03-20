@@ -14,7 +14,6 @@ from . import aux
 from .router import Router
 
 # title_window = "sad"
-start = False
 # cv2.namedWindow(title_window)
 # alpha_slider_max = 255
 
@@ -218,22 +217,6 @@ class CharucoRectifierNode(Node):
         self.rectified_pub.publish(rect_msg)
         self.diff_pub.publish(diff_msg)
         self.debug_pub.publish(dbg_msg)
-
-        angle = 15
-        speed = 3.14/10
-        twist = Twist() 
-        twist.angular.z = speed
-        if not start:
-            self.publisher_.publish(twist)
-            start = True
-        # def start_gather_dataset():
-        #     for x in range(0, 360, 360//15):
-        #         twist.angular.z = speed
-        #         self.publisher_.publish(twist)
-        #         while robot_angle < x:
-        #             logger
-        #             a = 2 aboba
-        #         twist.angular.z = 0
 
     def image_msg_to_bgr(self, msg: Image) -> np.ndarray:
         if msg.encoding not in ("rgb8", "bgr8"):
