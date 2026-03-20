@@ -94,10 +94,6 @@ void loop() {
     usiki();
 
     motorRPM(velL_from_rpi(), velR_from_rpi());
-<<<<<<< HEAD
-=======
-    // motorRPM(2, 2);
->>>>>>> e6f9b4a34a9c9205e3f90d0bcc092366da7a29b3
     static float t = 0;
     static float t2 = 0;
     
@@ -125,13 +121,8 @@ void loop() {
     // Serial.print(" encrAngle = ");
     // Serial.println(getRangle());
 
-<<<<<<< HEAD
     posarm = constrain(fmap(t, (1 - want_t_claws), 1, UP, DOWN), UP, DOWN);
-    posclaws = constrain(fmap(t, 0, 1, OPEN, CLOSE), OPEN, CLOSE);
-=======
-    posarm = constrain(fmap(t, (1 - want_t_claws), 1, DOWN, UP), UP, DOWN);
-    posclaws = constrain(fmap(t, 0, want_t_claws, OPEN, CLOSE), OPEN, CLOSE);
->>>>>>> e6f9b4a34a9c9205e3f90d0bcc092366da7a29b3
+    posclaws = constrain(fmap(t2, 0, 1, OPEN, CLOSE), OPEN, CLOSE);
     claws.write(posclaws);
     arm.write(posarm);
     if (gripper_form_rpi())
