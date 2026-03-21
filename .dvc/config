@@ -1,0 +1,4 @@
+[core]
+    remote = lfs-storage
+['remote "lfs-storage"']
+    url = ../git@github.com:arsenier/nedoROS.git
