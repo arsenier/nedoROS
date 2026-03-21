@@ -443,11 +443,14 @@ def get_objects(image: cv2.typing.MatLike) -> Optional[np.ndarray]:
 
     return objects
 
-class DetectModelYolov8():
+
+class DetectModelYolov8:
     def __init__(self, path_to_model):
         self.detector_model = YOLO(path_to_model)
         self.path_to_model = path_to_model
-        self.device, self.fp16 = ('cuda', True) if torch.cuda.is_available() else ('cpu', False)
+        self.device, self.fp16 = (
+            ("cuda", True) if torch.cuda.is_available() else ("cpu", False)
+        )
 
     def predict_object(self, image: cv2.typing.MatLike) -> int:
         """Predict object from image 100x120
@@ -478,20 +481,29 @@ class DetectModelYolov8():
 
 
         """
-        model_to_yura = {'Octopus': 1, 'Bunny': 2, 'Penguin': 3, 'Cylinder':4, 'Blue Square': 5, 'Res square': 6, 'Aruco': 78}
+        model_to_yura = {
+            "Octopus": 1,
+            "Bunny": 2,
+            "Penguin": 3,
+            "Cylinder": 4,
+            "Blue Square": 5,
+            "Res square": 6,
+            "Aruco": 78,
+        }
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         # res = detector_model(img)[0]
-        prediction = self.classification_model.predict(source='/Users/bw/Documents/Hachathons/ROS2026/classification_dataset/val/Octopus/1ffdfc23-1774106735_0.png',
-                                show=False,
-                                save=False,
-                                conf=0.3,
-                                save_txt=False,
-                                save_crop=False,
-                                verbose=False,
-                                device=self.device,
-                                half=self.fp16,
-                                )[0]
+        prediction = self.classification_model.predict(
+            source="/Users/bw/Documents/Hachathons/ROS2026/classification_dataset/val/Octopus/1ffdfc23-1774106735_0.png",
+            show=False,
+            save=False,
+            conf=0.3,
+            save_txt=False,
+            save_crop=False,
+            verbose=False,
+            device=self.device,
+            half=self.fp16,
+        )[0]
         class_label = model_to_yura[prediction.name[prediction.probs.top1]]
         return class_label
 
