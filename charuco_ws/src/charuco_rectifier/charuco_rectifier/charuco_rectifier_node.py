@@ -12,7 +12,7 @@ from rclpy.node import Node
 
 from sensor_msgs.msg import Image, CameraInfo
 from geometry_msgs.msg import PoseStamped, Point
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Int16MultiArray
 
 from . import aux
 from .router import Router
@@ -95,10 +95,8 @@ class CharucoRectifierNode(Node):
         )
 
         self.objects_pub = self.create_publisher(
-            Image, self.image_topic + "_charuco_objects", 10
+            Int16MultiArray, self.image_topic + "_charuco_objects", 10
         )
-
-        self.ducks_pub = self.create_publisher(Point, "/duck_target", 10)
 
         self.get_logger().info("CharucoRectifierNode started")
 
@@ -106,9 +104,9 @@ class CharucoRectifierNode(Node):
         self.router = Router()
 
         self.start = False
-        self.top_of_objects: Optional[np.ndarray] = None
+        self.top_of_objects: Optional[list[int]] = None
 
-        self.black_box = DetectModelYolov8('../yolo_ws/model/best.pt')
+        self.black_box = DetectModelYolov8("../yolo_ws/model/best.pt")
 
     def camera_info_callback(self, msg: CameraInfo):
         self.K = np.array(msg.k, dtype=np.float64).reshape((3, 3))
@@ -246,10 +244,9 @@ class CharucoRectifierNode(Node):
                 self.top_of_objects = new_objects
 
         if self.top_of_objects is not None:
-            obj_msg = self.bgr_to_image_msg(self.top_of_objects, msg.header)
-            self.objects_pub.publish(obj_msg)
+            self.objects_pub.publish(Int16MultiArray(data=self.top_of_objects))
 
-    def image_msg_to_bgr(self, msg: Image) -> np.ndarray:
+    def image_msg_to_bgr(self, msg: Image) -> list[int]:
         if msg.encoding not in ("rgb8", "bgr8"):
             raise ValueError(f"Unsupported encoding: {msg.encoding}")
 
@@ -415,33 +412,33 @@ class CharucoRectifierNode(Node):
         (250 + half_size, 1000 - half_size),
     ]
 
-    def get_objects(self, image: cv2.typing.MatLike) -> Optional[np.ndarray]:
-        objects = np.zeros(8)
+    def get_objects(self, image: cv2.typing.MatLike) -> Optional[list[int]]:
+        objects = []
         size: int = (self.half_size + self.margin) * 2
-        for idx, centers in enumerate(zip(self.left_centers, self.right_centers)):
-            left_center, right_center = centers
+        for left_center, right_center in zip(self.left_centers, self.right_centers):
 
             x = left_center[0] - self.half_size - self.margin
-            y = right_center[1] - self.half_size - self.margin
+            y = left_center[1] - self.half_size - self.margin
             crop_left = image[y : y + size, x : x + size + self.x_delta]
-            value_left, img_left = self.predict_object(crop_left)
+            value_left, img_left = self.black_box.predict_object(crop_left)
 
-            x = left_center[0] - self.half_size - self.margin
+            x = right_center[0] - self.half_size - self.margin
             y = right_center[1] - self.half_size - self.margin
-            crop_right, img_right = image[
+            crop_right = image[
                 y + size - 1 : y - 1 : -1, x + size + self.x_delta - 1 : x - 1 : -1
             ]
-            value_right = self.self.black_box(crop_right)
+            value_right, img_right = self.black_box.predict_object(crop_right)
 
-            imge1 = np.concatenate([crop_left, crop_right], axis=0)
-            imge2 = np.concatenate([img_left, img_right], axis=0)
+            # imge1 = np.concatenate([crop_left, crop_right], axis=0)
+            # imge2 = np.concatenate([img_left, img_right], axis=0)
 
-            cv2.imshow("hihiha", np.concatenate([imge1, imge2], axis=1))
+            # cv2.imshow("hihiha", np.concatenate([imge1, imge2], axis=1))
+            # cv2.waitKey(10000)
 
-            if value_left != value_right:
-                return None
+            # if value_left != value_right:
+            #     return None
 
-            objects[idx] = value_left
+            objects.append(value_right)
 
         return objects
 
@@ -481,13 +478,13 @@ class DetectModelYolov8:
             "Cylinder": 4,
             "Blue Square": 5,
             "Res square": 6,
-            "Aruco": 78,
+            "Aruco": 7,
         }
 
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         # res = detector_model(img)[0]
         prediction = self.classification_model.predict(
-            source="/Users/bw/Documents/Hachathons/ROS2026/classification_dataset/val/Octopus/1ffdfc23-1774106735_0.png",
+            source=image,
             show=False,
             save=False,
             conf=0.3,
@@ -497,7 +494,7 @@ class DetectModelYolov8:
             device=self.device,
             half=self.fp16,
         )[0]
-        class_label = model_to_yura[prediction.name[prediction.probs.top1]]
+        class_label = model_to_yura[prediction.names[prediction.probs.top1]]
         return class_label, prediction.plot()
 
 
