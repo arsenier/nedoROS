@@ -7,7 +7,7 @@
     image_height: 720
     camera_name: "c920_camera"
     camera_info_url: "file:///home/nedoros/nedoROS/charuco_ws/src/usb_cam/camera_info.yaml"
-    brightness: 150
+    brightness: 80
     # contrast: -1
     # saturation: -1
     # sharpness: -1

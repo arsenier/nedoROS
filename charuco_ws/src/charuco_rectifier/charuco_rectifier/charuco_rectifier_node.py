@@ -11,6 +11,8 @@ from geometry_msgs.msg import PoseStamped, Point
 from . import aux
 from .router import Router
 
+import time
+
 # title_window = "sad"
 # cv2.namedWindow(title_window)
 # alpha_slider_max = 255
@@ -388,8 +390,22 @@ def get_objects(image: cv2.typing.MatLike) -> cv2.typing.MatLike:
         x = center[0] - half_size - margin
         y = center[1] - half_size - margin
 
-        crop = image[y : y + size, x : x + size + x_delta]
+        crop = image[y - y_delta : y + size, x : x + size + x_delta]
         objects.append(crop)
+
+    imge = np.concatenate(objects, axis=0)
+
+    cv2.imshow("kek", imge)
+    if cv2.waitKey(1) == 48:
+        for i, img in enumerate(objects):
+            cv2.imwrite(
+                "/home/nedoros/images/classification/"
+                + str(int(time.time()))
+                + f"_{i}"
+                + ".png",
+                img,
+            )
+            # self.
 
     imge = np.concatenate(objects, axis=0)
 
