@@ -404,10 +404,10 @@ def dist(p1, p2):
 
 
 cordination_ducks = [
-    Pose(0.287213, 0.327222, 2.27), # 1
+    Pose(0.336994, 0.363888, 2.27), # 1
     Pose(0.336994, 0.363888, 0.61), # 2
     Pose(0.835612, 0.320223, 2.35), # 3
-    Pose(0.890122, 0.443250, 0.61), # 4
+    Pose(0.835612, 0.320223, 0.61), # 4
     Pose(0.359710, 0.623648, 2.15), # 5
     Pose(0.354694, 0.621288, 1.03), # 6
     Pose(0.870093, 0.613370, 2.11), # 7
@@ -426,6 +426,8 @@ cordination_baze = []
 
 baze1 = Pose(0.869143, 0.136321, 0.00)
 baze2 = Pose(1.142820, 0.403740, -1.62)
+
+bazepos_centre = Pos(1.142820, 0.136321, -0.81)
 
 for i in range(8):
     cordination_baze.append(Pose(baze1.x, 0.15 + 0.027 * (i + 1), baze1.theta))
@@ -453,8 +455,7 @@ def main(args=None):
             run_behaviour(node, Behaviour.WAIT_TARGET, until = lambda: node.duck_pose is not None)
 
             run_behaviour(node, Behaviour.GO_TO_TARGET, until = lambda: \
-                dist(node.robot_pose, node.duck_pose) < 0.1 and \
-                abs(node.robot_pose.theta - node.duck_pose.theta) < 0.1)
+                dist(node.robot_pose, node.duck_pose) < 0.24)
 
             for i in range(3):
                 run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
@@ -474,7 +475,8 @@ def main(args=None):
             #     #     break
             
             # # if node.duck_sensor.duck_type == DuckType.GOOD_DUCK:
-            node.baze_pose = mirror_cordination(cordination_baze[0], is_A_baze)
+            #node.baze_pose = mirror_cordination(cordination_baze[0], is_A_baze)
+            node.baze_pose = mirror_cordination(bazepos_centre, is_A_baze)
             run_behaviour(node, Behaviour.GO_TO_PBASE, until = lambda: \
                 dist(node.robot_pose, node.baze_pose) < 0.1 and \
                 abs(node.robot_pose.theta - node.baze_pose.theta) < 0.1)
