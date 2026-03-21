@@ -11,3 +11,6 @@ lidar:
 
 pi_driver:
 	. install/setup.sh && ros2 run pi_driver pi_driver
+
+all:
+	. install/setup.sh && ros2 launch all_launch.py
