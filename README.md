@@ -57,7 +57,7 @@ make zmrobo_into
 ```
 cd workspace/
 source install/setup.bash
-make lslidar_driver
+make lidar
 make pi_driver
 ```
 
