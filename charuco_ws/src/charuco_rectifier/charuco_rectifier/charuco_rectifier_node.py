@@ -108,7 +108,7 @@ class CharucoRectifierNode(Node):
         self.start = False
         self.top_of_objects: Optional[np.ndarray] = None
 
-        self.black_box = DetectModelYolov8()
+        self.black_box = DetectModelYolov8('../yolo_ws/model/best.pt')
 
     def camera_info_callback(self, msg: CameraInfo):
         self.K = np.array(msg.k, dtype=np.float64).reshape((3, 3))
