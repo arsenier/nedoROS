@@ -12,7 +12,7 @@ from std_msgs.msg import Int32, Bool
 
 from dataclasses import dataclass
 
-robot_gotopoint_dist_threshold = 0.25
+robot_gotopoint_dist_threshold = 0.23
 
 @dataclass
 class Pose:
@@ -129,7 +129,7 @@ class TSPA(Node):
         lidar_offset = -86.0 * math.pi / 180
         angle_par = 45.0 * math.pi / 180
         dist_par = 35.0 / 100
-        dist_par_low = 18.0 / 100
+        dist_par_low = 20.0 / 100
         angle_otbros = math.pi/9
 
         manip_angles = [
@@ -277,8 +277,8 @@ class TSPA(Node):
         distotcl = 0.1
         k_forward = 0.4
         k_turn = 0.4
-        maxline = 0.15
-        maxz = 0.5
+        maxline = 0.2
+        maxz = 0.7
 
         dx = pose.x - self.robot_pose.x
         dy = pose.y - self.robot_pose.y
@@ -442,10 +442,10 @@ cordination_ducks = [
     # Pose(0.853082, 1.129030, 0.67), # 14
     # Pose(0.621408, 1.106540, 2.21), # 15
     # Pose(0.344352, 1.145580, 2.23)  # 16
-    Pose(0.5, 0.5, 0.61), # 2
-    Pose(1, 0.5, 0.61), # 4
-    Pose(0.25, 0.5, 2.27), # 1
     Pose(0.75, 0.5, 2.35), # 3
+    Pose(1, 0.5, 0.61), # 4
+    Pose(0.5, 0.5, 0.61), # 2
+    Pose(0.25, 0.5, 2.27), # 1
     Pose(0.3, 0.75, 2.15), # 5
     Pose(0.5, 0.75, 1.03), # 6
     Pose(0.75, 0.75, 2.11), # 7
@@ -499,7 +499,7 @@ def main(args=None):
 
                 run_behaviour(node, Behaviour.DOCK_WITH_DUCK, until = lambda: node.gripper.data == True)
 
-                # run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
+                run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 0.3)
 
                 node.set_behaviour(Behaviour.GRAB_THE_DUCK)
                 rclpy.spin_once(node)
