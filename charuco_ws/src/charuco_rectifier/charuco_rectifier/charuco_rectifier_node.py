@@ -392,9 +392,9 @@ def get_objects(image: cv2.typing.MatLike) -> list[int]:
         value = predict_object(crop)
         objects.append(value)
 
-    imge = np.concatenate(objects, axis=0)
+    # imge = np.concatenate(objects, axis=0)
 
-    return imge
+    return objects
 
 
 def predict_object(image: cv2.typing.MatLike) -> int:
