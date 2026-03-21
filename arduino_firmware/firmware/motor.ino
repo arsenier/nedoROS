@@ -50,8 +50,8 @@ void motorRPM(float rpmL, float rpmR, uint8_t move_time = Ts_ms) {
   uIL = constrain(uIL, -256, 256);
   uIR = constrain(uIR, -256, 256);
 
-  if(fabs(errL) < 0.1) uIL *= 0.98;
-  if(fabs(errR) < 0.1) uIR *= 0.98;
+  // if(fabs(errL) < 0.1) uIL *= 0.98;
+  // if(fabs(errR) < 0.1) uIR *= 0.98;
 
   uL = errL * k_speedL + uIL;
   uR = errR * k_speed + uIR;
