@@ -12,6 +12,7 @@ from rclpy.node import Node
 
 from sensor_msgs.msg import Image, CameraInfo
 from geometry_msgs.msg import PoseStamped, Point
+from std_msgs.msg import Bool
 
 from . import aux
 from .router import Router
@@ -37,7 +38,7 @@ class CharucoRectifierNode(Node):
         self.declare_parameter("camera_info_topic", "/camera_info")
         self.declare_parameter("board_pose_topic", "/image_raw_charuco_pose")
         self.declare_parameter("ally_pose_topic", "/image_recalib_apriltag_pose")
-        self.declare_parameter("ally_pose_topic", "/start")
+        self.declare_parameter("start_topic", "/start")
 
         self.declare_parameter("number_of_squares_x", 5)
         self.declare_parameter("number_of_squares_y", 7)
@@ -80,7 +81,7 @@ class CharucoRectifierNode(Node):
             PoseStamped, self.ally_pose_topic, self.ally_pose_callback, 10
         )
         self.start_sub = self.create_subscription(
-            bool, self.start_topic, self.start_callback, 10
+            Bool, self.start_topic, self.start_callback, 10
         )
 
         self.rectified_pub = self.create_publisher(
@@ -106,6 +107,8 @@ class CharucoRectifierNode(Node):
 
         self.start = False
         self.top_of_objects: Optional[np.ndarray] = None
+
+        self.black_box = DetectModelYolov8()
 
     def camera_info_callback(self, msg: CameraInfo):
         self.K = np.array(msg.k, dtype=np.float64).reshape((3, 3))
@@ -383,71 +386,72 @@ class CharucoRectifierNode(Node):
                 cv2.LINE_AA,
             )
 
+    half_size = 30
+    margin = 20
+    x_delta = 20
+    y_delta = 15
+    left_centers: list[tuple[int, int]] = [
+        # first line
+        (1000 + half_size, 500 + half_size),
+        (750 - half_size, 500 + half_size),
+        (500 + half_size, 500 + half_size),
+        (250 - half_size, 500 + half_size),
+        # second line
+        (1000 - half_size, 750 + half_size),
+        (750 + half_size, 750 + half_size),
+        (500 - half_size, 750 + half_size),
+        (250 + half_size, 750 + half_size),
+    ]
+    right_centers: list[tuple[int, int]] = [
+        # first line
+        (1000 + half_size, 1250 - half_size),
+        (750 - half_size, 1250 - half_size),
+        (500 + half_size, 1250 - half_size),
+        (250 - half_size, 1250 - half_size),
+        # second line
+        (1000 - half_size, 1000 - half_size),
+        (750 + half_size, 1000 - half_size),
+        (500 - half_size, 1000 - half_size),
+        (250 + half_size, 1000 - half_size),
+    ]
 
-half_size = 30
-margin = 20
-x_delta = 20
-y_delta = 15
-left_centers: list[tuple[int, int]] = [
-    # first line
-    (1000 + half_size, 500 + half_size),
-    (750 - half_size, 500 + half_size),
-    (500 + half_size, 500 + half_size),
-    (250 - half_size, 500 + half_size),
-    # second line
-    (1000 - half_size, 750 + half_size),
-    (750 + half_size, 750 + half_size),
-    (500 - half_size, 750 + half_size),
-    (250 + half_size, 750 + half_size),
-]
-right_centers: list[tuple[int, int]] = [
-    # first line
-    (1000 + half_size, 1250 - half_size),
-    (750 - half_size, 1250 - half_size),
-    (500 + half_size, 1250 - half_size),
-    (250 - half_size, 1250 - half_size),
-    # second line
-    (1000 - half_size, 1000 - half_size),
-    (750 + half_size, 1000 - half_size),
-    (500 - half_size, 1000 - half_size),
-    (250 + half_size, 1000 - half_size),
-]
+    def get_objects(self, image: cv2.typing.MatLike) -> Optional[np.ndarray]:
+        objects = np.zeros(8)
+        size: int = (self.half_size + self.margin) * 2
+        for idx, centers in enumerate(zip(self.left_centers, self.right_centers)):
+            left_center, right_center = centers
+
+            x = left_center[0] - self.half_size - self.margin
+            y = right_center[1] - self.half_size - self.margin
+            crop_left = image[y : y + size, x : x + size + self.x_delta]
+            value_left = self.black_box.predict_object(crop_left)
+
+            x = left_center[0] - self.half_size - self.margin
+            y = right_center[1] - self.half_size - self.margin
+            crop_right = image[
+                y + size - 1 : y - 1 : -1, x + size + self.x_delta - 1 : x - 1 : -1
+            ]
+            value_right = self.black_box.predict_object(crop_right)
+
+            imge = np.concatenate([crop_left, crop_right], axis=0)
+
+            # draw tut image pls
+
+            if value_left != value_right:
+                return None
+
+            objects[idx] = value_left
+
+        return objects
 
 
-def get_objects(image: cv2.typing.MatLike) -> Optional[np.ndarray]:
-    objects = np.zeros(8)
-    size: int = (half_size + margin) * 2
-    for idx, centers in enumerate(zip(left_centers, right_centers)):
-        left_center, right_center = centers
-
-        x = left_center[0] - half_size - margin
-        y = right_center[1] - half_size - margin
-        crop_left = image[y : y + size, x : x + size + x_delta]
-        value_left = predict_object(crop_left)
-
-        x = left_center[0] - half_size - margin
-        y = right_center[1] - half_size - margin
-        crop_right = image[
-            y + size - 1 : y - 1 : -1, x + size + x_delta - 1 : x - 1 : -1
-        ]
-        value_right = predict_object(crop_right)
-
-        imge = np.concatenate([crop_left, crop_right], axis=0)
-
-        # draw tut image pls
-
-        if value_left != value_right:
-            return None
-
-        objects[idx] = value_left
-
-    return objects
-
-class DetectModelYolov8():
+class DetectModelYolov8:
     def __init__(self, path_to_model):
         self.detector_model = YOLO(path_to_model)
         self.path_to_model = path_to_model
-        self.device, self.fp16 = ('cuda', True) if torch.cuda.is_available() else ('cpu', False)
+        self.device, self.fp16 = (
+            ("cuda", True) if torch.cuda.is_available() else ("cpu", False)
+        )
 
     def predict_object(self, image: cv2.typing.MatLike) -> int:
         """Predict object from image 100x120
@@ -467,20 +471,29 @@ class DetectModelYolov8():
 
             image_result (cv2.Mat)
         """
-        model_to_yura = {'Octopus': 1, 'Bunny': 2, 'Penguin': 3, 'Cylinder':4, 'Blue Square': 5, 'Res square': 6, 'Aruco': 78}
+        model_to_yura = {
+            "Octopus": 1,
+            "Bunny": 2,
+            "Penguin": 3,
+            "Cylinder": 4,
+            "Blue Square": 5,
+            "Res square": 6,
+            "Aruco": 78,
+        }
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         # res = detector_model(img)[0]
-        prediction = self.classification_model.predict(source='/Users/bw/Documents/Hachathons/ROS2026/classification_dataset/val/Octopus/1ffdfc23-1774106735_0.png',
-                                show=False,
-                                save=False,
-                                conf=0.3,
-                                save_txt=False,
-                                save_crop=False,
-                                verbose=False,
-                                device=self.device,
-                                half=self.fp16,
-                                )[0]
+        prediction = self.classification_model.predict(
+            source="/Users/bw/Documents/Hachathons/ROS2026/classification_dataset/val/Octopus/1ffdfc23-1774106735_0.png",
+            show=False,
+            save=False,
+            conf=0.3,
+            save_txt=False,
+            save_crop=False,
+            verbose=False,
+            device=self.device,
+            half=self.fp16,
+        )[0]
         class_label = model_to_yura[prediction.name[prediction.probs.top1]]
         return class_label, prediction.plot()
 

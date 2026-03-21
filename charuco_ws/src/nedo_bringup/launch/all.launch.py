@@ -45,17 +45,17 @@ def generate_launch_description():
             }]
         ),
 
-        Node(
-            package='charuco_rectifier',
-            executable='charuco_rectifier_node',
-            name='charuco_rectifier',
-            output='screen',
-            parameters=[{
-                'image_topic': '/image_raw',
-                'camera_info_topic': '/camera_info',
-                'board_pose_topic': '/image_raw_charuco_pose',
-            }]
-        ),
+        # Node(
+        #     package='charuco_rectifier',
+        #     executable='charuco_rectifier_node',
+        #     name='charuco_rectifier',
+        #     output='screen',
+        #     parameters=[{
+        #         'image_topic': '/image_raw',
+        #         'camera_info_topic': '/camera_info',
+        #         'board_pose_topic': '/image_raw_charuco_pose',
+        #     }]
+        # ),
 
         Node(
             package='pose_recalibrator',
