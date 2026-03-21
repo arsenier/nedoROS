@@ -465,18 +465,7 @@ class DetectModelYolov8():
                                 7 - aruca 21
                                 8 - aruca 20
 
-                                # Classes
-                                names:
-                                0: Aruco
-                                1: Blue Square
-                                2: Bunny
-                                3: Cylinder
-                                4: Octopus
-                                5: Penguin
-                                6: Res square
-
-
-
+            image_result (cv2.Mat)
         """
         model_to_yura = {'Octopus': 1, 'Bunny': 2, 'Penguin': 3, 'Cylinder':4, 'Blue Square': 5, 'Res square': 6, 'Aruco': 78}
 
@@ -493,7 +482,7 @@ class DetectModelYolov8():
                                 half=self.fp16,
                                 )[0]
         class_label = model_to_yura[prediction.name[prediction.probs.top1]]
-        return class_label
+        return class_label, prediction.plot()
 
 
 def main(args=None):
