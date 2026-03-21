@@ -14,3 +14,6 @@ pi_driver:
 
 all:
 	. install/setup.sh && ros2 launch all_launch.py
+
+master:
+	. install/setup.sh && ros2 run master master
