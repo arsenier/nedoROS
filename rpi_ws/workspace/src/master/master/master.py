@@ -12,6 +12,8 @@ from std_msgs.msg import Int32, Bool
 
 from dataclasses import dataclass
 
+robot_gotopoint_dist_threshold = 0.23
+
 @dataclass
 class Pose:
     x: float
@@ -91,6 +93,9 @@ class TSPA(Node):
         self.timer_period = 0.1
         self.timer = self.create_timer(self.timer_period, self.main_loop)
 
+        self.dock_time_threshold = 1.0
+        self.dock_timer = 0.0
+
         self.duck_sensor = DuckSensor(DuckType.NOT_A_DUCK)
         self.duck_locator = DuckLocator(0, 0, False)
         self.robot_pose = None
@@ -103,11 +108,11 @@ class TSPA(Node):
         self.timestate = None
         self.timelastbeh = None
 
-        self.err_theta = None
+        self.err_theta = 10000.0
         self.mas_give_cam = None
         self.duck_pos_number = None
 
-        self.robot_theta = 0
+        self.robot_theta = 0.0
 
         self.twist_pub = self.create_publisher(Twist, '/cmd_vel', 10)
         self.gripper_pub = self.create_publisher(Bool, '/gripper', 10)
@@ -123,10 +128,10 @@ class TSPA(Node):
 
     def scan_callback(self, msg):
         """Lidar callback [LaserScan]"""
-        lidar_offset = -83.0 * math.pi / 180
+        lidar_offset = -86.0 * math.pi / 180
         angle_par = 45.0 * math.pi / 180
         dist_par = 35.0 / 100
-        dist_par_low = 18.0 / 100
+        dist_par_low = 20.0 / 100
         angle_otbros = math.pi/9
 
         manip_angles = [
@@ -243,6 +248,7 @@ class TSPA(Node):
         currenttime = clock.now()
         self.timelastbeh = currenttime.nanoseconds / 1e9
         self.timestate = 0
+        self.err_theta = 10000.0
         #self.timelastbeh = self.get_clock().nanoseconds() / 1e9
         # https://stackoverflow.com/questions/38487816/unsubscribing-from-ros-topic-python
         # for sub in self.current_subs:
@@ -271,14 +277,14 @@ class TSPA(Node):
         anglereg = 0.0
         v = 0.0
         distotcl = 0.1
-        k_forward = 0.58
+        k_forward = 0.4
         k_turn = 0.4
-        maxline = 0.1
-        maxz = 0.5
+        maxline = 0.2
+        maxz = 0.7
 
         dx = pose.x - self.robot_pose.x
         dy = pose.y - self.robot_pose.y
-        distance = math.sqrt(dx*dx + dy*dy)
+        distance = math.sqrt(dx*dx + dy*dy) - robot_gotopoint_dist_threshold
         desired_angle = math.atan2(dy, dx)
         angle_errorToFr = desired_angle - self.robot_pose.theta
         angle_errorToFr = math.atan2(math.sin(angle_errorToFr), math.cos(angle_errorToFr))
@@ -319,10 +325,10 @@ class TSPA(Node):
         theta_turn = 0.0
         gripper = Bool()
         gripper.data = False
-        const_dist_gripper = 25.0 / 100
-        porog_turn = math.pi / 18
+        const_dist_gripper = 22.0 / 100
+        porog_turn = 10.0 * math.pi / 180
         porog_dist = 2.0 / 100
-        k_forward = 1.0
+        k_forward = 0.4
         k_turn = 0.6
         max_v = 0.1
         max_w = 0.5
@@ -337,8 +343,14 @@ class TSPA(Node):
             theta_turn = k_turn * dtheta
         
         if abs(dtheta) < (porog_turn / 2) and abs(ddist) < porog_dist:
-            gripper.data = True
+            self.dock_timer += self.timer_period
+        else:
+            self.dock_timer = 0.0
 
+        if self.dock_timer > self.dock_time_threshold:
+            gripper.data = True
+            self.dock_timer = 0.0
+        
         if self.duck_locator.cmr < 0.1:
             v = 0.0
 
@@ -432,6 +444,9 @@ cordination_ducks = [
     # Pose(0.853082, 1.129030, 0.67), # 14
     # Pose(0.621408, 1.106540, 2.21), # 15
     # Pose(0.344352, 1.145580, 2.23)  # 16
+    Pose(0.75, 0.5, 2.35), # 3
+    Pose(1, 0.5, 0.61), # 4
+    Pose(0.5, 0.5, 0.61), # 2
     Pose(0.25, 0.5, 2.27), # 1
     Pose(0.5, 0.5, 0.61), # 2
     Pose(0.75, 0.5, 2.35), # 3
@@ -468,10 +483,8 @@ def mirror_cordination(cordination: Pose, need: bool):
         return cordination
     else:
         return Pose(cordination.x, 1.75 - cordination.y, -cordination.theta)
-
-robot_gotopoint_dist_threshold = 0.24
-is_A_baze = False
-# is_A_baze = True
+# is_A_baze = False
+is_A_baze = True
 
 def main(args=None):
     rclpy.init(args=args)
@@ -483,15 +496,15 @@ def main(args=None):
             node.give_best_by_first()
             node.duck_pose = mirror_cordination(cordination_ducks[node.duck_pos_number], is_A_baze)
             run_behaviour(node, Behaviour.GO_TO_TARGET, until = lambda: \
-                dist(node.robot_pose, node.duck_pose) < robot_gotopoint_dist_threshold and \
-                    node.err_theta < 0.6)
+                (dist(node.robot_pose, node.duck_pose) < robot_gotopoint_dist_threshold or node.twist.linear.x < 0.03) and \
+                    abs(node.err_theta) < 0.1 and node.timestate > 0.5)
 
             for i in range(3):
-                run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
+                # run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
 
                 run_behaviour(node, Behaviour.DOCK_WITH_DUCK, until = lambda: node.gripper.data == True)
 
-                run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
+                run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 0.3)
 
                 node.set_behaviour(Behaviour.GRAB_THE_DUCK)
                 rclpy.spin_once(node)
@@ -507,8 +520,8 @@ def main(args=None):
             #node.baze_pose = mirror_cordination(cordination_baze[0], is_A_baze)
             node.baze_pose = mirror_cordination(bazepos_centre, is_A_baze)
             run_behaviour(node, Behaviour.GO_TO_PBASE, until = lambda: \
-                dist(node.robot_pose, node.baze_pose) < robot_gotopoint_dist_threshold and \
-                    node.err_theta < 0.6)
+                (dist(node.robot_pose, node.baze_pose) < robot_gotopoint_dist_threshold or node.twist.linear.x < 0.03) and \
+                    abs(node.err_theta) < 0.1 and node.timestate > 0.5)
 
             # # elif node.duck_sensor.duck_type == DuckType.BAD_DUCK:
             # #     run_behaviour(node, Behaviour.GO_TO_NBASE, until = lambda: \
@@ -517,9 +530,9 @@ def main(args=None):
             # # else:
             # #     continue
 
-            run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
+            # run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
             run_behaviour(node, Behaviour.DROP_THE_DUCK, until = lambda: node.timestate > 2)
-            run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
+            # run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
 
             count_what_duck += 1
             # break

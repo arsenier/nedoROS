@@ -30,11 +30,11 @@ MPU9250 IMU(Wire, -1, 0x68);
 #define CLOSE 160.0
 
 #define UP 60.0
-#define DOWN 120.0
+#define DOWN 140.0
 #define BELOW 180.0
 
 #define START_BELOW_TIME 0.0
-#define BELOW_TIME 0.1
+#define BELOW_TIME 0.15
 
 #define ARM_PARK 0.0
 #define CLAW_PARK 40.0
@@ -59,7 +59,7 @@ extern void motorRPM(float rpmL, float rpmR, uint8_t move_time = Ts_ms), move_by
 float posarm = 0, posclaws = 0;
 int time_to_claws = 1000;
 float t_one_it = 1.0 / (time_to_claws / float(Ts_ms));
-float want_t_claws = 0.5;
+float want_t_claws = 0.6;
 
 ////////////
 uint64_t timerstart = 0;
