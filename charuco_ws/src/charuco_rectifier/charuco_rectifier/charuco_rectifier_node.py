@@ -1,4 +1,5 @@
 import math
+from typing import Optional
 import numpy as np
 import cv2
 
@@ -32,6 +33,7 @@ class CharucoRectifierNode(Node):
         self.declare_parameter("camera_info_topic", "/camera_info")
         self.declare_parameter("board_pose_topic", "/image_raw_charuco_pose")
         self.declare_parameter("ally_pose_topic", "/image_recalib_apriltag_pose")
+        self.declare_parameter("ally_pose_topic", "/start")
 
         self.declare_parameter("number_of_squares_x", 5)
         self.declare_parameter("number_of_squares_y", 7)
@@ -46,6 +48,7 @@ class CharucoRectifierNode(Node):
         self.camera_info_topic = self.get_parameter("camera_info_topic").value
         self.board_pose_topic = self.get_parameter("board_pose_topic").value
         self.ally_pose_topic = self.get_parameter("ally_pose_topic").value
+        self.start_topic = self.get_parameter("start_topic").value
 
         self.number_of_squares_x = self.get_parameter("number_of_squares_x").value
         self.number_of_squares_y = self.get_parameter("number_of_squares_y").value
@@ -72,6 +75,9 @@ class CharucoRectifierNode(Node):
         self.ally_pose_sub = self.create_subscription(
             PoseStamped, self.ally_pose_topic, self.ally_pose_callback, 10
         )
+        self.start_sub = self.create_subscription(
+            bool, self.start_topic, self.start_callback, 10
+        )
 
         self.rectified_pub = self.create_publisher(
             Image, self.image_topic + "_charuco_rectified", 10
@@ -94,6 +100,9 @@ class CharucoRectifierNode(Node):
         self.etalon: rclpy.Optional[np.ndarray] = None
         self.router = Router()
 
+        self.start = False
+        self.top_of_objects: Optional[np.ndarray] = None
+
     def camera_info_callback(self, msg: CameraInfo):
         self.K = np.array(msg.k, dtype=np.float64).reshape((3, 3))
 
@@ -113,6 +122,9 @@ class CharucoRectifierNode(Node):
     def ally_pose_callback(self, msg: PoseStamped):
         self.router.set_ally(msg.pose)
         # print(self.router.ally_pos)
+
+    def start_callback(self, msg: bool):
+        self.start = msg
 
     def image_callback(self, msg: Image):
         if self.K is None or self.D is None:
@@ -221,9 +233,14 @@ class CharucoRectifierNode(Node):
         # self.diff_pub.publish(diff_msg)
         self.debug_pub.publish(dbg_msg)
 
-        objects = get_objects(rectified)
-        obj_msg = self.bgr_to_image_msg(objects, msg.header)
-        self.objects_pub.publish(obj_msg)
+        if self.top_of_objects is None or not self.start:
+            new_objects = get_objects(rectified)
+            if new_objects is not None:
+                self.top_of_objects = new_objects
+
+        if self.top_of_objects is not None:
+            obj_msg = self.bgr_to_image_msg(self.top_of_objects, msg.header)
+            self.objects_pub.publish(obj_msg)
 
     def image_msg_to_bgr(self, msg: Image) -> np.ndarray:
         if msg.encoding not in ("rgb8", "bgr8"):
@@ -367,7 +384,7 @@ half_size = 30
 margin = 20
 x_delta = 20
 y_delta = 15
-centers: list[tuple[int, int]] = [
+left_centers: list[tuple[int, int]] = [
     # first line
     (1000 + half_size, 500 + half_size),
     (750 - half_size, 500 + half_size),
@@ -379,20 +396,46 @@ centers: list[tuple[int, int]] = [
     (500 - half_size, 750 + half_size),
     (250 + half_size, 750 + half_size),
 ]
+right_centers: list[tuple[int, int]] = [
+    # first line
+    (1000 + half_size, 1250 - half_size),
+    (750 - half_size, 1250 - half_size),
+    (500 + half_size, 1250 - half_size),
+    (250 - half_size, 1250 - half_size),
+    # second line
+    (1000 - half_size, 1000 - half_size),
+    (750 + half_size, 1000 - half_size),
+    (500 - half_size, 1000 - half_size),
+    (250 + half_size, 1000 - half_size),
+]
 
 
-def get_objects(image: cv2.typing.MatLike) -> list[int]:
-    objects: list[int] = []
+def get_objects(image: cv2.typing.MatLike) -> Optional[np.ndarray]:
+    objects = np.zeros(8)
     size: int = (half_size + margin) * 2
-    for center in centers:
-        x = center[0] - half_size - margin
-        y = center[1] - half_size - margin
+    for idx, centers in enumerate(zip(left_centers, right_centers)):
+        left_center, right_center = centers
 
-        crop = image[y : y + size, x : x + size + x_delta]
-        value = predict_object(crop)
-        objects.append(value)
+        x = left_center[0] - half_size - margin
+        y = right_center[1] - half_size - margin
+        crop_left = image[y : y + size, x : x + size + x_delta]
+        value_left = predict_object(crop_left)
 
-    # imge = np.concatenate(objects, axis=0)
+        x = left_center[0] - half_size - margin
+        y = right_center[1] - half_size - margin
+        crop_right = image[
+            y + size - 1 : y - 1 : -1, x + size + x_delta - 1 : x - 1 : -1
+        ]
+        value_right = predict_object(crop_right)
+
+        imge = np.concatenate([crop_left, crop_right], axis=0)
+
+        # draw tut image pls
+
+        if value_left != value_right:
+            return None
+
+        objects[idx] = value_left
 
     return objects
 
