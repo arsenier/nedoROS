@@ -326,8 +326,8 @@ class TSPA(Node):
         gripper = Bool()
         gripper.data = False
         const_dist_gripper = 22.0 / 100
-        porog_turn = 10.0 * math.pi / 180
-        porog_dist = 2.0 / 100
+        porog_turn = 30.0 * math.pi / 180
+        porog_dist = 10.0 / 100
         k_forward = 0.4
         k_turn = 0.6
         max_v = 0.1
@@ -384,6 +384,7 @@ class TSPA(Node):
             self.get_logger().info(f'Docking with duck {self.duck_locator}')
         elif self.current_behaviour == Behaviour.GRAB_THE_DUCK:
             self.twist = Twist()
+            self.twist.linear.x = 0.05
             self.get_logger().info('Grabbing the duck')
         elif self.current_behaviour == Behaviour.GO_TO_PBASE:
             self.goToPose(self.baze_pose)
@@ -492,9 +493,10 @@ def main(args=None):
     count_what_duck = 0
     try:
         while rclpy.ok():
+            node.duck_pose = mirror_cordination(cordination_ducks[count_what_duck], is_A_baze)
             run_behaviour(node, Behaviour.WAIT_TARGET, until = lambda: node.mas_give_cam is not None)
-            node.give_best_by_first()
-            node.duck_pose = mirror_cordination(cordination_ducks[node.duck_pos_number], is_A_baze)
+            #node.give_best_by_first()
+            #node.duck_pose = mirror_cordination(cordination_ducks[node.duck_pos_number], is_A_baze)
             run_behaviour(node, Behaviour.GO_TO_TARGET, until = lambda: \
                 (dist(node.robot_pose, node.duck_pose) < robot_gotopoint_dist_threshold or node.twist.linear.x < 0.03) and \
                     abs(node.err_theta) < 0.1 and node.timestate > 0.5)
@@ -506,7 +508,9 @@ def main(args=None):
 
                 run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 0.3)
 
-                node.set_behaviour(Behaviour.GRAB_THE_DUCK)
+                #node.set_behaviour(Behaviour.GRAB_THE_DUCK)
+                run_behaviour(node, Behaviour.GRAB_THE_DUCK, until = lambda: node.timestate > 2)
+
                 rclpy.spin_once(node)
                 if abs(node.duck_locator.cma) > 0.1 and abs(node.duck_locator.cmr) > 0.1 or not node.duck_locator.is_visible:
                     break
