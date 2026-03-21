@@ -6,7 +6,7 @@ import rclpy
 from rclpy.node import Node
 
 from sensor_msgs.msg import Image, CameraInfo
-from geometry_msgs.msg import PoseStamped, Pose
+from geometry_msgs.msg import PoseStamped, Point
 
 from . import aux
 from .router import Router
@@ -83,7 +83,7 @@ class CharucoRectifierNode(Node):
             Image, self.image_topic + "_charuco_rectified_debug", 10
         )
 
-        self.ducks_pub = self.create_publisher(Pose, "/duck_target", 10)
+        self.ducks_pub = self.create_publisher(Point, "/duck_target", 10)
 
         self.get_logger().info("CharucoRectifierNode started")
 
