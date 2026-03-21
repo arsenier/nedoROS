@@ -113,10 +113,15 @@ class TSPA(Node):
     def scan_callback(self, msg):
         """Lidar callback [LaserScan]"""
         lidar_offset = -83.0 * math.pi / 180
-        angle_par = math.pi * 2 / 3
-        dist_par = 50.0 / 100
-        dist_par_low = 20.0 / 100
+        angle_par = 45.0 * math.pi / 180
+        dist_par = 35.0 / 100
+        dist_par_low = 18.0 / 100
         angle_otbros = math.pi/9
+
+        manip_angles = [
+            0.3,
+            0.4
+        ]
         pc = []
 
         angle_min_out = msg.angle_min
@@ -125,7 +130,7 @@ class TSPA(Node):
         pc = msg.ranges
 
         self.duck_locator.cma = 0
-        self.duck_locator.cmr = 0
+        self.duck_locator.cmr = math.inf
         self.duck_locator.is_visible = False
         mass = 0
 
@@ -142,19 +147,28 @@ class TSPA(Node):
 
             # if abs(angle) < angle_otbros:
             if abs(angle) < angle_par and distance < dist_par and distance > dist_par_low:
+                if manip_angles[0] < abs(angle) < manip_angles[1]:
+                    continue
                 # self.get_logger().info(f'{idx}, {p}, {angle}, {distance}')
-                self.duck_locator.cma += angle
-                self.duck_locator.cmr += distance
-                mass += 1
+                # self.duck_locator.cma += angle
+                # self.duck_locator.cmr += distance
+                # mass += 1
+                if distance < self.duck_locator.cmr:
+                    self.duck_locator.cmr = distance
+                    self.duck_locator.cma = angle
+                    mass = 1
 
         if mass != 0:
             self.duck_locator.cma /= mass
             self.duck_locator.cmr /= mass
             self.duck_locator.is_visible = True
         
-        robot_theta = 0.0
+        if self.duck_locator.cmr > dist_par:
+            self.duck_locator.cmr = dist_par
+        
+        self.robot_theta = 0.0
 
-        # self.get_logger().info(f'cma: {self.cma}, cmr: {self.cmr}')
+        # self.get_logger().info(f'cma: {self.duck_locator.cma}, cmr: {self.duck_locator.cmr}')
         pass
 
     def gps_callback(self, msg):
@@ -293,11 +307,11 @@ class TSPA(Node):
         theta_turn = 0.0
         gripper = Bool()
         gripper.data = False
-        const_dist_gripper = 22.0 / 100
+        const_dist_gripper = 25.0 / 100
         porog_turn = math.pi / 18
         porog_dist = 2.0 / 100
         k_forward = 1.0
-        k_turn = 10.0
+        k_turn = 0.6
         max_v = 0.1
         max_w = 0.5
 
@@ -319,15 +333,16 @@ class TSPA(Node):
         v = min(max(v, -max_v), max_v)
         theta_turn = min(max(theta_turn, -max_w), max_w)
 
-        theta_turn_int = theta_turn if abs(theta_turn) > 0.3 else 0
+        # theta_turn_int = theta_turn if abs(theta_turn) > 0.3 else 0
+        theta_turn_int = theta_turn
 
-        self.robot_theta += theta_turn_int * self.timer_period * 0.3
+        self.robot_theta += theta_turn_int * self.timer_period
 
         twist.linear.x = v
         twist.angular.z = theta_turn
 
-        self.twist = twist
-        self.gripper = gripper
+        # self.twist = twist
+        # self.gripper = gripper
 
     def main_loop(self):
         clock = self.get_clock()
@@ -443,7 +458,7 @@ def main(args=None):
             for i in range(3):
                 run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
 
-                run_behaviour(node, Behaviour.DOCK_WITH_DUCK, until = lambda: node.gripper.data == True)
+                run_behaviour(node, Behaviour.DOCK_WITH_DUCK, until = lambda: False and node.gripper.data == True)
 
                 run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
 
@@ -479,6 +494,7 @@ def main(args=None):
 
     
     except KeyboardInterrupt:
+        run_behaviour(node=node, behaviour=Behaviour.WAIT_TIME, until=lambda: node.timestate > 1)
         pass
 
     node.destroy_node()

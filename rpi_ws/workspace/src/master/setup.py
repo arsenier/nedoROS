@@ -24,7 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'master = master.master:main'
+            'master = master.master:main',
+            'duck_locator = master.duck_locator:main',
         ],
     },
 )
