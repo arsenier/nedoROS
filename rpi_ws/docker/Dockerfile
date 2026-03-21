@@ -41,3 +41,5 @@ RUN apt-get install -y python3-pip && pip install pyserial && pip install transf
 # RUN python3.10 -m pip install torch torchvision
 
 ### ---------------------------------------------------------------------- #
+
+RUN apt-get install -y ros-humble-usb-cam

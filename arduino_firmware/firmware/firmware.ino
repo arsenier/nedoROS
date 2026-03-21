@@ -121,7 +121,7 @@ void loop() {
     // Serial.print(" encrAngle = ");
     // Serial.println(getRangle());
 
-    posarm = constrain(fmap(t, (1 - want_t_claws), 1, UP, DOWN), UP, DOWN);
+    posarm = constrain(fmap(t, (1 - want_t_claws), 1, DOWN, UP), UP, DOWN);
     posclaws = constrain(fmap(t2, 0, 1, OPEN, CLOSE), OPEN, CLOSE);
     claws.write(posclaws);
     arm.write(posarm);
@@ -132,8 +132,8 @@ void loop() {
     }
     else
     {
-      t -= t_one_it;
-      t2 -= t_one_it / want_t_claws;
+      t -= 0.2 * t_one_it;
+      t2 -= 2 * t_one_it / want_t_claws;
     }
 
     t = constrain(t, 0, 1);
