@@ -310,7 +310,7 @@ class TSPA(Node):
         k_forward = 0.4
         k_turn = 0.4
         maxline = 0.2
-        maxz = 0.7
+        maxz = 1.0
 
         dx = pose.x - self.robot_pose.x
         dy = pose.y - self.robot_pose.y
