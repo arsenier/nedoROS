@@ -261,9 +261,9 @@ class TSPA(Node):
         v = 0.0
         distotcl = 0.1
         k_forward = 0.58
-        k_turn = 1.5
-        maxline = 0.2
-        maxz = 0.8
+        k_turn = 0.4
+        maxline = 0.1
+        maxz = 0.5
 
         dx = pose.x - self.robot_pose.x
         dy = pose.y - self.robot_pose.y
@@ -341,8 +341,8 @@ class TSPA(Node):
         twist.linear.x = v
         twist.angular.z = theta_turn
 
-        # self.twist = twist
-        # self.gripper = gripper
+        self.twist = twist
+        self.gripper = gripper
 
     def main_loop(self):
         clock = self.get_clock()
@@ -377,7 +377,7 @@ class TSPA(Node):
             self.get_logger().info(f'Waiting... {self.timestate}')
 
         self.get_logger().info(f'Current subs: {self.current_subs}')
-        self.get_logger().info(f'Control: {self.twist}, {self.gripper}')
+        self.get_logger().info(f'GPS: {self.robot_pose}, Control: {self.twist}, {self.gripper}')
 
         self.twist_pub.publish(self.twist)
         self.gripper_pub.publish(self.gripper)
@@ -428,7 +428,7 @@ baze1 = Pose(0.869143, 0.136321, 0.00)
 baze2 = Pose(1.142820, 0.403740, -1.62)
 
 for i in range(8):
-    cordination_baze.append(Pose(baze1.x, 0.027 * (i + 1), baze1.theta))
+    cordination_baze.append(Pose(baze1.x, 0.15 + 0.027 * (i + 1), baze1.theta))
 
 for i in range(8):
     cordination_baze.append(Pose(1.25 - (0.027 * (i + 1)), baze2.y, baze2.theta))
@@ -448,9 +448,10 @@ def main(args=None):
     count_what_duck = 0
     try:
         while rclpy.ok():
+            node.duck_pose = mirror_cordination(cordination_ducks[count_what_duck], is_A_baze)
+            
             run_behaviour(node, Behaviour.WAIT_TARGET, until = lambda: node.duck_pose is not None)
 
-            node.duck_pose = mirror_cordination(cordination_ducks[count_what_duck], is_A_baze)
             run_behaviour(node, Behaviour.GO_TO_TARGET, until = lambda: \
                 dist(node.robot_pose, node.duck_pose) < 0.1 and \
                 abs(node.robot_pose.theta - node.duck_pose.theta) < 0.1)
@@ -458,7 +459,7 @@ def main(args=None):
             for i in range(3):
                 run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
 
-                run_behaviour(node, Behaviour.DOCK_WITH_DUCK, until = lambda: False and node.gripper.data == True)
+                run_behaviour(node, Behaviour.DOCK_WITH_DUCK, until = lambda: node.gripper.data == True)
 
                 run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
 
@@ -467,30 +468,30 @@ def main(args=None):
                 if abs(node.duck_locator.cma) > 0.1 and abs(node.duck_locator.cmr) > 0.1 or not node.duck_locator.is_visible:
                     break
 
-            run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 5)
-                # if node.duck_sensor.duck_type == DuckType.GOOD_DUCK or \
-                #    node.duck_sensor.duck_type == DuckType.BAD_DUCK:
-                #     break
+            # run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 5)
+            #     # if node.duck_sensor.duck_type == DuckType.GOOD_DUCK or \
+            #     #    node.duck_sensor.duck_type == DuckType.BAD_DUCK:
+            #     #     break
             
-            # if node.duck_sensor.duck_type == DuckType.GOOD_DUCK:
-            node.baze_pose = mirror_cordination(cordination_baze[count_what_duck], is_A_baze)
+            # # if node.duck_sensor.duck_type == DuckType.GOOD_DUCK:
+            node.baze_pose = mirror_cordination(cordination_baze[0], is_A_baze)
             run_behaviour(node, Behaviour.GO_TO_PBASE, until = lambda: \
                 dist(node.robot_pose, node.baze_pose) < 0.1 and \
                 abs(node.robot_pose.theta - node.baze_pose.theta) < 0.1)
 
-            # elif node.duck_sensor.duck_type == DuckType.BAD_DUCK:
-            #     run_behaviour(node, Behaviour.GO_TO_NBASE, until = lambda: \
-            #         dist(node.robot_pose, node.enemy_baze_pose) < 0.1 and \
-            #         abs(node.robot_pose.theta - node.enemy_baze_pose.theta) < 0.1)
-            # else:
-            #     continue
+            # # elif node.duck_sensor.duck_type == DuckType.BAD_DUCK:
+            # #     run_behaviour(node, Behaviour.GO_TO_NBASE, until = lambda: \
+            # #         dist(node.robot_pose, node.enemy_baze_pose) < 0.1 and \
+            # #         abs(node.robot_pose.theta - node.enemy_baze_pose.theta) < 0.1)
+            # # else:
+            # #     continue
 
-            run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 5)
-            run_behaviour(node, Behaviour.DROP_THE_DUCK, until = lambda: node.timestate > 3)
+            run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
+            run_behaviour(node, Behaviour.DROP_THE_DUCK, until = lambda: node.timestate > 2)
             run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
 
             count_what_duck += 1
-            break
+            # break
 
     
     except KeyboardInterrupt:
