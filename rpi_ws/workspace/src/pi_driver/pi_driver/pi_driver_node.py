@@ -106,10 +106,10 @@ def send_speeds(left_motor_speed, right_motor_speed, gripper):
 class Driver(Node):
 
     def __init__(self):
+        super().__init__('Driver')
         self.fw = 0
         self.ang = 0
         self.gripper = False
-        super().__init__('Driver')
         self.subscriber1 = self.create_subscription(Twist, '/cmd_vel', self.update_data_driver, 10)
         self.subscriber2 = self.create_subscription(Bool, '/gripper', self.update_data_gripper, 10)
         self.usik_right = self.create_publisher(Bool, '/usik_right', 10)
@@ -123,12 +123,12 @@ class Driver(Node):
         self.data_usr = Bool()
         self.started = False
         self.start_time = 0.0
-        self.timeG = -2
+        self.timeG = -2.0
 
     def check_start(self, msg):
         if msg.data and not self.started:
             self.started = True
-            self.start_time = time.time()    
+            self.start_time = self.get_clock().now().nanoseconds/1e9  
 
 
     def update_data_driver(self, msg):
@@ -138,11 +138,12 @@ class Driver(Node):
         self.gripper = msg.data
     
     def update_data_robot(self):
-        if not self.started:
-            return 
-        if time.time()-self.start_time > 90:
-            send_speeds(0, 0, 0)
-            return
+        # if not self.started:
+        #     return 
+        # if self.get_clock().now().nanoseconds/1e9 - self.start_time > 90:
+        #     send_speeds(0, 0, 0)
+        #     self.get_logger().info("Time is up")
+        #     return
 
         # fw (-1-1), ang(-pi, pi)
         R_robot = 0.08
@@ -154,10 +155,11 @@ class Driver(Node):
         vr = (self.fw + self.ang*R_robot) / R_wheel
         # v = self.fw * kf
         # u = self.ang * R_robot * kf
-        if time.time() - self.timeG < 2:
-            ans = send_speeds(vl, vr * 1.25, self.gripper)
-        else:
-            ans = send_speeds(-1, -1, self.gripper)
+        if self.get_clock().now().nanoseconds/1e9 - self.timeG < 2:
+            vl = -2
+            vr = -2
+
+        ans = send_speeds(vl, vr * 1.0, self.gripper)
 
         if ans is None:
                 return
@@ -167,7 +169,7 @@ class Driver(Node):
         self.usik_left.publish(self.data_usl)
         self.usik_right.publish(self.data_usr)
         if bool(ans[3]) or bool(ans[4]):
-            self.timeG = time.time()
+            self.timeG = self.get_clock().now().nanoseconds/1e9
 
         #____________________ODOM_______________
 
@@ -206,12 +208,6 @@ class Driver(Node):
         t.transform.rotation.y = quat[2]
         t.transform.rotation.z = quat[3]
         self.odom_broadcaster.sendTransform(t)
-
-    
-
-
-        
-
 
 
 def main(args=None):
