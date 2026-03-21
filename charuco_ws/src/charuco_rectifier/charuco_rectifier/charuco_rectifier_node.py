@@ -83,6 +83,10 @@ class CharucoRectifierNode(Node):
             Image, self.image_topic + "_charuco_rectified_debug", 10
         )
 
+        self.objects_pub = self.create_publisher(
+            Image, self.image_topic + "_charuco_objects", 10
+        )
+
         self.ducks_pub = self.create_publisher(Point, "/duck_target", 10)
 
         self.get_logger().info("CharucoRectifierNode started")
@@ -108,7 +112,7 @@ class CharucoRectifierNode(Node):
 
     def ally_pose_callback(self, msg: PoseStamped):
         self.router.set_ally(msg.pose)
-        print(self.router.ally_pos)
+        # print(self.router.ally_pos)
 
     def image_callback(self, msg: Image):
         if self.K is None or self.D is None:
@@ -152,6 +156,8 @@ class CharucoRectifierNode(Node):
         rectified = cv2.warpPerspective(
             cv_img, H, (self.output_width_px, self.output_height_px)
         )
+
+        """
         rect = rectified.copy()
 
         if self.etalon is None:
@@ -200,21 +206,24 @@ class CharucoRectifierNode(Node):
         )
         self.router.find_objects(rectified, num_labels, labels, stats, centroids)
 
-        target = self.router.choose_target(rectified)
-        if target is not None:
-            self.ducks_pub.publish(target)
+        # target = self.router.choose_target(rectified)
+        # if target is not None:
+        #     self.ducks_pub.publish(target)
 
         mask_bgr = cv2.cvtColor(mask_joined, cv2.COLOR_GRAY2BGR)
 
         rect_msg = self.bgr_to_image_msg(mask_bgr, msg.header)
         diff_msg = self.bgr_to_image_msg(diff, msg.header)
+        """
         dbg_msg = self.bgr_to_image_msg(rectified, msg.header)
 
-        # # cv2.imshow("kek", mask_bgr)
-        # cv2.waitKey(1)
-        self.rectified_pub.publish(rect_msg)
-        self.diff_pub.publish(diff_msg)
+        # self.rectified_pub.publish(rect_msg)
+        # self.diff_pub.publish(diff_msg)
         self.debug_pub.publish(dbg_msg)
+
+        objects = get_objects(rectified)
+        obj_msg = self.bgr_to_image_msg(objects, msg.header)
+        self.objects_pub.publish(obj_msg)
 
     def image_msg_to_bgr(self, msg: Image) -> np.ndarray:
         if msg.encoding not in ("rgb8", "bgr8"):
@@ -352,6 +361,39 @@ class CharucoRectifierNode(Node):
                 2,
                 cv2.LINE_AA,
             )
+
+
+half_size = 30
+margin = 20
+x_delta = 20
+y_delta = 15
+centers: list[tuple[int, int]] = [
+    # first line
+    (1000 + half_size, 500 + half_size),
+    (750 - half_size, 500 + half_size),
+    (500 + half_size, 500 + half_size),
+    (250 - half_size, 500 + half_size),
+    # second line
+    (1000 - half_size, 750 + half_size),
+    (750 + half_size, 750 + half_size),
+    (500 - half_size, 750 + half_size),
+    (250 + half_size, 750 + half_size),
+]
+
+
+def get_objects(image: cv2.typing.MatLike) -> cv2.typing.MatLike:
+    objects = []
+    size: int = (half_size + margin) * 2
+    for center in centers:
+        x = center[0] - half_size - margin
+        y = center[1] - half_size - margin
+
+        crop = image[y : y + size, x : x + size + x_delta]
+        objects.append(crop)
+
+    imge = np.concatenate(objects, axis=0)
+
+    return imge
 
 
 def main(args=None):
