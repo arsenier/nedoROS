@@ -103,6 +103,8 @@ class TSPA(Node):
         self.timestate = None
         self.timelastbeh = None
 
+        self.err_theta = None
+
         self.robot_theta = 0
 
         self.twist_pub = self.create_publisher(Twist, '/cmd_vel', 10)
@@ -272,7 +274,7 @@ class TSPA(Node):
         angle_errorToFr = desired_angle - self.robot_pose.theta
         angle_errorToFr = math.atan2(math.sin(angle_errorToFr), math.cos(angle_errorToFr))
 
-        desired_angle = pose.theta
+        # desired_angle = pose.theta
         angle_error = desired_angle - self.robot_pose.theta
         angle_error = math.atan2(math.sin(angle_error), math.cos(angle_error))
 
@@ -287,6 +289,7 @@ class TSPA(Node):
             v = 0
             amglereg = 0
 
+        self.err_theta = abs(amglereg)
         twist = Twist()
 
         twist.linear.x = k_forward * v
@@ -404,14 +407,30 @@ def dist(p1, p2):
 
 
 cordination_ducks = [
-    Pose(0.336994, 0.363888, 2.27), # 1
-    Pose(0.336994, 0.363888, 0.61), # 2
-    Pose(0.835612, 0.320223, 2.35), # 3
-    Pose(0.835612, 0.320223, 0.61), # 4
-    Pose(0.359710, 0.623648, 2.15), # 5
-    Pose(0.354694, 0.621288, 1.03), # 6
-    Pose(0.870093, 0.613370, 2.11), # 7
-    Pose(0.891206, 0.633751, 0.97), # 8
+    # Pose(0.336994, 0.363888, 2.27), # 1
+    # Pose(0.336994, 0.363888, 0.61), # 2
+    # Pose(0.835612, 0.320223, 2.35), # 3
+    # Pose(0.835612, 0.320223, 0.61), # 4
+    # Pose(0.359710, 0.623648, 2.15), # 5
+    # Pose(0.354694, 0.621288, 1.03), # 6
+    # Pose(0.870093, 0.613370, 2.11), # 7
+    # Pose(0.891206, 0.633751, 0.97), # 8
+    # Pose(0.366035, 0.757009, 2.00), # 9
+    # Pose(0.338126, 0.750289, 1.15), # 10
+    # Pose(0.852274, 0.743161, 1.11), # 11
+    # Pose(0.891469, 0.749518, 2.03), # 12
+    # Pose(0.858826, 1.164620, 2.47), # 13
+    # Pose(0.853082, 1.129030, 0.67), # 14
+    # Pose(0.621408, 1.106540, 2.21), # 15
+    # Pose(0.344352, 1.145580, 2.23)  # 16
+    Pose(1, 0.5, 0.61), # 4
+    Pose(0.75, 0.5, 2.35), # 3
+    Pose(0.5, 0.5, 0.61), # 2
+    Pose(0.25, 0.5, 2.27), # 1
+    Pose(0.3, 0.75, 2.15), # 5
+    Pose(0.5, 0.75, 1.03), # 6
+    Pose(0.75, 0.75, 2.11), # 7
+    Pose(1, 0.75, 0.97), # 8
     Pose(0.366035, 0.757009, 2.00), # 9
     Pose(0.338126, 0.750289, 1.15), # 10
     Pose(0.852274, 0.743161, 1.11), # 11
@@ -427,7 +446,7 @@ cordination_baze = []
 baze1 = Pose(0.869143, 0.136321, 0.00)
 baze2 = Pose(1.142820, 0.403740, -1.62)
 
-bazepos_centre = Pos(1.142820, 0.136321, -0.81)
+bazepos_centre = Pose(1.1, 0.15, -0.81)
 
 for i in range(8):
     cordination_baze.append(Pose(baze1.x, 0.15 + 0.027 * (i + 1), baze1.theta))
@@ -441,6 +460,7 @@ def mirror_cordination(cordination: Pose, need: bool):
     else:
         return Pose(cordination.x, 1.75 - cordination.y, -cordination.theta)
 
+robot_gotopoint_dist_threshold = 0.24
 is_A_baze = False
 # is_A_baze = True
 
@@ -455,7 +475,8 @@ def main(args=None):
             run_behaviour(node, Behaviour.WAIT_TARGET, until = lambda: node.duck_pose is not None)
 
             run_behaviour(node, Behaviour.GO_TO_TARGET, until = lambda: \
-                dist(node.robot_pose, node.duck_pose) < 0.24)
+                dist(node.robot_pose, node.duck_pose) < robot_gotopoint_dist_threshold and \
+                    node.err_theta < 0.6)
 
             for i in range(3):
                 run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
@@ -478,8 +499,8 @@ def main(args=None):
             #node.baze_pose = mirror_cordination(cordination_baze[0], is_A_baze)
             node.baze_pose = mirror_cordination(bazepos_centre, is_A_baze)
             run_behaviour(node, Behaviour.GO_TO_PBASE, until = lambda: \
-                dist(node.robot_pose, node.baze_pose) < 0.1 and \
-                abs(node.robot_pose.theta - node.baze_pose.theta) < 0.1)
+                dist(node.robot_pose, node.baze_pose) < robot_gotopoint_dist_threshold and \
+                    node.err_theta < 0.6)
 
             # # elif node.duck_sensor.duck_type == DuckType.BAD_DUCK:
             # #     run_behaviour(node, Behaviour.GO_TO_NBASE, until = lambda: \
