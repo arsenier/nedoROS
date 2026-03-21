@@ -2,13 +2,18 @@
 from enum import Enum
 
 class DuckType(Enum):
-    CUBE = 0
-    ARUCO_CUBE = 1
-    CYLINDER = 2
+    OCTO = 1
+    KROLIK = 2
     TUX = 3
-    ZAYC = 4
-    OCTO = 6
+    CYLYNDER = 4
+    BLUE_CUBE = 5
+    RED_CUBE = 6
+    ARUCO_21_CUBE = 7
+    ARUCO_20_CUBE = 8
     
+sample_list = [4, 1, 3, 6, 5, 7, 8, 2]
+sample_list = [6, 4, 5, 100000, 7, 1, 3, 2]
+
 def enctypt_duck(duck_type: DuckType, duck_id, array):
         array.append(duck_type.value)
         array.append(duck_id)
