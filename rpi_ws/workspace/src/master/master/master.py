@@ -270,7 +270,7 @@ class TSPA(Node):
         distotcl = 0.1
         k_forward = 0.4
         k_turn = 0.4
-        maxline = 0.1
+        maxline = 0.15
         maxz = 0.5
 
         dx = pose.x - self.robot_pose.x
@@ -316,7 +316,7 @@ class TSPA(Node):
         theta_turn = 0.0
         gripper = Bool()
         gripper.data = False
-        const_dist_gripper = 23.0 / 100
+        const_dist_gripper = 22.0 / 100
         porog_turn = 10.0 * math.pi / 180
         porog_dist = 2.0 / 100
         k_forward = 0.4
@@ -435,10 +435,10 @@ cordination_ducks = [
     # Pose(0.853082, 1.129030, 0.67), # 14
     # Pose(0.621408, 1.106540, 2.21), # 15
     # Pose(0.344352, 1.145580, 2.23)  # 16
-    Pose(0.75, 0.5, 2.35), # 3
     Pose(0.5, 0.5, 0.61), # 2
     Pose(1, 0.5, 0.61), # 4
     Pose(0.25, 0.5, 2.27), # 1
+    Pose(0.75, 0.5, 2.35), # 3
     Pose(0.3, 0.75, 2.15), # 5
     Pose(0.5, 0.75, 1.03), # 6
     Pose(0.75, 0.75, 2.11), # 7
@@ -489,11 +489,11 @@ def main(args=None):
                     abs(node.err_theta) < 0.1 and node.timestate > 0.5)
 
             for i in range(3):
-                run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
+                # run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
 
                 run_behaviour(node, Behaviour.DOCK_WITH_DUCK, until = lambda: node.gripper.data == True)
 
-                run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
+                # run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
 
                 node.set_behaviour(Behaviour.GRAB_THE_DUCK)
                 rclpy.spin_once(node)
@@ -519,9 +519,9 @@ def main(args=None):
             # # else:
             # #     continue
 
-            run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
+            # run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
             run_behaviour(node, Behaviour.DROP_THE_DUCK, until = lambda: node.timestate > 2)
-            run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
+            # run_behaviour(node, Behaviour.WAIT_TIME, until = lambda: node.timestate > 1)
 
             count_what_duck += 1
             # break
