@@ -27,13 +27,16 @@ MPU9250 IMU(Wire, -1, 0x68);
 #define TICKS_PER_ROTATE 484
 
 #define OPEN 0.0
-#define CLOSE 130.0
+#define CLOSE 160.0
 
-#define UP 80.0
-#define MID 80.0
-#define DOWN 180.0
+#define UP 60.0
+#define DOWN 140.0
+#define BELOW 180.0
 
-#define ARM_PARK 5.0
+#define START_BELOW_TIME 0.0
+#define BELOW_TIME 0.1
+
+#define ARM_PARK 0.0
 #define CLAW_PARK 40.0
 
 #define RADIUS 23.75
@@ -121,7 +124,14 @@ void loop() {
     // Serial.print(" encrAngle = ");
     // Serial.println(getRangle());
 
-    posarm = constrain(fmap(t, (1 - want_t_claws), 1, DOWN, UP), UP, DOWN);
+    // posarm = constrain(fmap(t, (1 - want_t_claws), 1, DOWN, UP), UP, DOWN);
+    if (t < START_BELOW_TIME) {
+      posarm = DOWN;     
+    } else if (t < BELOW_TIME) {
+        posarm = fmap(t, START_BELOW_TIME, BELOW_TIME, DOWN, BELOW);
+    } else {
+        posarm = constrain(fmap(t, (1 - want_t_claws), 1, BELOW, UP), UP, BELOW);
+    }
     posclaws = constrain(fmap(t2, 0, 1, OPEN, CLOSE), OPEN, CLOSE);
     claws.write(posclaws);
     arm.write(posarm);
