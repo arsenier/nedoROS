@@ -104,6 +104,8 @@ class TSPA(Node):
         self.timelastbeh = None
 
         self.err_theta = None
+        self.mas_give_cam = None
+        self.duck_pos_number = None
 
         self.robot_theta = 0
 
@@ -111,6 +113,13 @@ class TSPA(Node):
         self.gripper_pub = self.create_publisher(Bool, '/gripper', 10)
     
         self.current_subs = []
+
+    def give_best_by_first(self):
+        for i in range(8):
+            if self.mas_give_cam[i] <= 4 and self.mas_give_cam[i] != 0:
+                self.duck_pos_number = i
+                self.mas_give_cam[i] = 0
+                break
 
     def scan_callback(self, msg):
         """Lidar callback [LaserScan]"""
@@ -404,7 +413,7 @@ def dist(p1, p2):
             ) \
         ) \
     )
-
+    
 
 cordination_ducks = [
     # Pose(0.336994, 0.363888, 2.27), # 1
@@ -423,10 +432,10 @@ cordination_ducks = [
     # Pose(0.853082, 1.129030, 0.67), # 14
     # Pose(0.621408, 1.106540, 2.21), # 15
     # Pose(0.344352, 1.145580, 2.23)  # 16
-    Pose(1, 0.5, 0.61), # 4
-    Pose(0.75, 0.5, 2.35), # 3
-    Pose(0.5, 0.5, 0.61), # 2
     Pose(0.25, 0.5, 2.27), # 1
+    Pose(0.5, 0.5, 0.61), # 2
+    Pose(0.75, 0.5, 2.35), # 3
+    Pose(1, 0.5, 0.61), # 4
     Pose(0.3, 0.75, 2.15), # 5
     Pose(0.5, 0.75, 1.03), # 6
     Pose(0.75, 0.75, 2.11), # 7
@@ -470,10 +479,9 @@ def main(args=None):
     count_what_duck = 0
     try:
         while rclpy.ok():
-            node.duck_pose = mirror_cordination(cordination_ducks[count_what_duck], is_A_baze)
-            
-            run_behaviour(node, Behaviour.WAIT_TARGET, until = lambda: node.duck_pose is not None)
-
+            run_behaviour(node, Behaviour.WAIT_TARGET, until = lambda: node.mas_give_cam is not None)
+            node.give_best_by_first()
+            node.duck_pose = mirror_cordination(cordination_ducks[node.duck_pos_number], is_A_baze)
             run_behaviour(node, Behaviour.GO_TO_TARGET, until = lambda: \
                 dist(node.robot_pose, node.duck_pose) < robot_gotopoint_dist_threshold and \
                     node.err_theta < 0.6)
