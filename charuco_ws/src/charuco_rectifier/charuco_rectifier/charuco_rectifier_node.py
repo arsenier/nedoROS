@@ -241,7 +241,7 @@ class CharucoRectifierNode(Node):
         self.debug_pub.publish(dbg_msg)
 
         if self.top_of_objects is None or not self.start:
-            new_objects = get_objects(rectified)
+            new_objects = self.get_objects(rectified)
             if new_objects is not None:
                 self.top_of_objects = new_objects
 
@@ -424,18 +424,19 @@ class CharucoRectifierNode(Node):
             x = left_center[0] - self.half_size - self.margin
             y = right_center[1] - self.half_size - self.margin
             crop_left = image[y : y + size, x : x + size + self.x_delta]
-            value_left = self.black_box.predict_object(crop_left)
+            value_left, img_left = self.predict_object(crop_left)
 
             x = left_center[0] - self.half_size - self.margin
             y = right_center[1] - self.half_size - self.margin
-            crop_right = image[
+            crop_right, img_right = image[
                 y + size - 1 : y - 1 : -1, x + size + self.x_delta - 1 : x - 1 : -1
             ]
-            value_right = self.black_box.predict_object(crop_right)
+            value_right = self.self.black_box(crop_right)
 
-            imge = np.concatenate([crop_left, crop_right], axis=0)
+            imge1 = np.concatenate([crop_left, crop_right], axis=0)
+            imge2 = np.concatenate([img_left, img_right], axis=0)
 
-            # draw tut image pls
+            cv2.imshow("hihiha", np.concatenate([imge1, imge2], axis=1))
 
             if value_left != value_right:
                 return None
@@ -447,13 +448,15 @@ class CharucoRectifierNode(Node):
 
 class DetectModelYolov8:
     def __init__(self, path_to_model):
-        self.detector_model = YOLO(path_to_model)
+        self.classification_model = YOLO(path_to_model)
         self.path_to_model = path_to_model
         self.device, self.fp16 = (
             ("cuda", True) if torch.cuda.is_available() else ("cpu", False)
         )
 
-    def predict_object(self, image: cv2.typing.MatLike) -> int:
+    def predict_object(
+        self, image: cv2.typing.MatLike
+    ) -> tuple[int, cv2.typing.MatLike]:
         """Predict object from image 100x120
 
         Input:
@@ -481,7 +484,7 @@ class DetectModelYolov8:
             "Aruco": 78,
         }
 
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         # res = detector_model(img)[0]
         prediction = self.classification_model.predict(
             source="/Users/bw/Documents/Hachathons/ROS2026/classification_dataset/val/Octopus/1ffdfc23-1774106735_0.png",
