@@ -27,7 +27,7 @@ def xor_checksum(data: bytes) -> int:
 ser = serial.Serial(port, baudrate=baudrate, timeout=1)
 time.sleep(5)
 ser.reset_input_buffer()
-print("Serial initializated succesfully")
+# print("Serial initializated succesfully")
 
 
 def send_speeds(left_motor_speed, right_motor_speed, gripper):
@@ -125,10 +125,18 @@ class Driver(Node):
         self.start_time = 0.0
         self.timeG = -2.0
 
+        self.time_timer = None
+
+
+        self.get_logger().info("Serial initializated succesfully")
+
     def check_start(self, msg):
         if msg.data and not self.started:
             self.started = True
-            self.start_time = self.get_clock().now().nanoseconds/1e9  
+            self.start_time = self.get_clock().now().nanoseconds/1e9
+
+    def time_log(self):
+        self.get_logger().info(f"Left time: {90 - (self.get_clock().now().nanoseconds/1e9 - self.start_time)} sec")
 
 
     def update_data_driver(self, msg):
@@ -145,12 +153,16 @@ class Driver(Node):
         self.gripper = msg.data
     
     def update_data_robot(self):
-        # if not self.started:
-        #     return 
-        # if self.get_clock().now().nanoseconds/1e9 - self.start_time > 90:
-        #     send_speeds(0, 0, 0)
-        #     self.get_logger().info("Time is up")
-        #     return
+        if not self.started:
+            return
+        if self.time_timer is None:
+            self.get_logger().info("Attempt start!")
+            self.time_timer = self.create_timer(10.0, self.time_log)
+
+        if self.get_clock().now().nanoseconds/1e9 - self.start_time > 90:
+            send_speeds(0, 0, 0)
+            self.get_logger().info("Time is up")
+            return
 
         # fw (-1-1), ang(-pi, pi)
         R_robot = 0.08
