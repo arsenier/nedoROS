@@ -30,7 +30,7 @@ MPU9250 IMU(Wire, -1, 0x68);
 #define CLOSE 160.0
 
 #define UP 60.0
-#define DOWN 80.0
+#define DOWN 140.0
 #define BELOW 180.0
 
 #define START_BELOW_TIME 0.0
