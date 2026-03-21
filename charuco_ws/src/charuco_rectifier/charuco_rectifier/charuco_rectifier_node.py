@@ -381,19 +381,39 @@ centers: list[tuple[int, int]] = [
 ]
 
 
-def get_objects(image: cv2.typing.MatLike) -> cv2.typing.MatLike:
-    objects = []
+def get_objects(image: cv2.typing.MatLike) -> list[int]:
+    objects: list[int] = []
     size: int = (half_size + margin) * 2
     for center in centers:
         x = center[0] - half_size - margin
         y = center[1] - half_size - margin
 
         crop = image[y : y + size, x : x + size + x_delta]
-        objects.append(crop)
+        value = predict_object(crop)
+        objects.append(value)
 
     imge = np.concatenate(objects, axis=0)
 
     return imge
+
+
+def predict_object(image: cv2.typing.MatLike) -> int:
+    """Predict object from image 100x120
+
+    Input:
+        image (MatLike): rgb image 100x120
+
+    Return:
+        object index (int): 1 - octopus
+                            2 -  bunny
+                            3 - penguine
+                            4 - cilinder
+                            5 - blue cube
+                            6 - red cube
+                            7 - aruca 21
+                            8 - aruca 20
+    """
+    return -1
 
 
 def main(args=None):
