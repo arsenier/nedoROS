@@ -41,16 +41,10 @@ void up() {
   arm.write(UP);
   delay(500);
 }
-void mid() {
-  delay(100);
-  arm.write(MID);
-  delay(500);
-}
 
 void check_servo() {
   down();
-  delay(1000);
-  mid();
+
   delay(1000);
   up();
   delay(1000);
