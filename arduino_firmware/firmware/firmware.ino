@@ -57,7 +57,7 @@ extern void motorRPM(float rpmL, float rpmR, uint8_t move_time = Ts_ms), move_by
 
 /////////////////servo//////////////////
 float posarm = 0, posclaws = 0;
-int time_to_claws = 1000;
+int time_to_claws = 1500;
 float t_one_it = 1.0 / (time_to_claws / float(Ts_ms));
 float want_t_claws = 0.6;
 
@@ -132,7 +132,7 @@ void loop() {
     } else {
         posarm = constrain(fmap(t, (1 - want_t_claws), 1, BELOW, UP), UP, BELOW);
     }
-    posclaws = constrain(fmap(t2, 0, 1, OPEN, CLOSE), OPEN, CLOSE);
+    posclaws = constrain(fmap(t2, 0.5, 1, OPEN, CLOSE), OPEN, CLOSE);
     claws.write(posclaws);
     arm.write(posarm);
     if (gripper_form_rpi())
@@ -142,7 +142,7 @@ void loop() {
     }
     else
     {
-      t -= 0.2 * t_one_it;
+      t -= 0.5 * t_one_it;
       t2 -= 2 * t_one_it / want_t_claws;
     }
 
