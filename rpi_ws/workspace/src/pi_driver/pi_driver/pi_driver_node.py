@@ -35,8 +35,8 @@ def send_speeds(left_motor_speed, right_motor_speed, gripper):
 
     args: list[float] = [
         CONTROL_HEADER,
-        int(left_motor_speed),
-        int(right_motor_speed),
+        left_motor_speed,
+        right_motor_speed,
         int(gripper),
     ]
 
@@ -134,6 +134,13 @@ class Driver(Node):
     def update_data_driver(self, msg):
         self.fw = msg.linear.x
         self.ang = msg.angular.z
+
+        if self.fw is math.nan:
+            self.get_logger().info("fw nan")
+            self.fw = 0
+        if self.ang is math.nan:
+            self.get_logger().info("ang nan")
+            self.ang = 0
     def update_data_gripper(self, msg):
         self.gripper = msg.data
     
@@ -155,9 +162,15 @@ class Driver(Node):
         vr = (self.fw + self.ang*R_robot) / R_wheel
         # v = self.fw * kf
         # u = self.ang * R_robot * kf
-        if self.get_clock().now().nanoseconds/1e9 - self.timeG < 2:
-            vl = -2
-            vr = -2
+        if self.get_clock().now().nanoseconds/1e9 - self.timeG < 1:
+            vl = -2.0
+            vr = -2.0
+        elif self.get_clock().now().nanoseconds/1e9 - self.timeG < 3:
+            vl = 0.0
+            vr = 0.0
+        elif self.get_clock().now().nanoseconds/1e9 - self.timeG < 4:
+            vl = -2.0
+            vr = -2.0
 
         ans = send_speeds(vl, vr * 1.0, self.gripper)
 
