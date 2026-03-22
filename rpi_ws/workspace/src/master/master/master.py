@@ -214,7 +214,7 @@ class TSPA(Node):
                 # self.duck_locator.cmr += distance
                 # mass += 1
 
-                weight = -0.08 * self.duck_pose.theta * angle
+                weight = -0.10 * self.duck_pose.theta * angle
 
                 if distance < self.duck_locator.cmr + weight:
                     self.duck_locator.cmr = distance
@@ -374,7 +374,7 @@ class TSPA(Node):
         theta_turn = 0.0
         gripper = Bool()
         gripper.data = False
-        const_dist_gripper = 22.0 / 100
+        const_dist_gripper = 25.0 / 100
         porog_turn = 20.0 * math.pi / 180
         porog_dist = 10.0 / 100
         k_forward = 0.4
