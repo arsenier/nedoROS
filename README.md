@@ -1,5 +1,19 @@
 # nedoROS
 
+## Файловая структура
+
+```
+.
+├── arduino_firmware/ - прошивка контоллера Arduino Uno
+├── charuco_ws/ - рабочее пространство ROS2 сервера GPS
+├── yolo_ws/ - рабочее пространство нейронной сети для классификации уточек
+└── rpi_ws/ - рабочее пространство ROS2 бортового компьютера Raspberry Pi
+```
+
+## Общая схема системы
+
+![](docs/scheme.excalidraw.png)
+
 ### raspberry:
  OS is raspberry 64 bit for rpi 4B
  hostname: nedoROS, username: pi, password: raspberry
@@ -11,9 +25,9 @@
 2. Схватить/расхватить захват
 3. Прочитать локальную одометрию
 4. Прочитать значение концевиков
-5. Обнулить одометрию (перезагрузить ардуино)
+5. Обнулить одометрию (перезагрузить ардуино) [не реализовано]
 
-Частота обмена Arduino-Raspberry 10-100Гц
+Частота обмена Arduino-Raspberry 10Гц
 
 Протокол обмена:
 
@@ -22,10 +36,6 @@ Rpi-Arduino:
 Обычное управление:
 |0x01|left_motor_speed:float|right_motor_speed:float|gripper:byte|checksum:byte|
 11 bytes
-
-Сброс:
-|0xFF|0xFF|0xFF|0xFF|
-4 bytes
 
 Arduino-Rpi:
 Ответ на обычное управление:
