@@ -242,7 +242,12 @@ class CharucoRectifierNode(Node):
         if self.top_of_objects is None or not self.start:
             new_objects, imge = self.get_objects(rectified)
             if new_objects is not None:
-                self.top_of_objects = new_objects
+                if self.top_of_objects is None or not 78 in new_objects:
+                    for idx, fig in enumerate(new_objects):
+                        if fig == 78:
+                            new_objects[idx] = 7
+                            
+                    self.top_of_objects = new_objects
 
         if self.top_of_objects is not None:
             self.objects_pub.publish(Int16MultiArray(data=self.top_of_objects))
@@ -432,9 +437,7 @@ class CharucoRectifierNode(Node):
 
             x = right_center[0] - self.half_size - self.margin
             y = right_center[1] - self.half_size - self.margin
-            crop_right = image[
-                y + size - 1 : y - 1 : -1, x + size + self.x_delta - 1 : x - 1 : -1
-            ]
+            crop_right = image[y : y + size, x : x + size + self.x_delta]
             value_right, img_right = self.black_box.predict_object(crop_right)
 
             imges = np.concatenate([img_left, img_right], axis=0)
@@ -447,6 +450,16 @@ class CharucoRectifierNode(Node):
             # cv2.waitKey(10000)
 
             if value_left != value_right:
+                if 78 == value_left:
+                    if value_right in [7, 8]:
+                        objects.append(value_right)
+                        continue
+
+                if 78 == value_right:
+                    if value_left in [7, 8]:
+                        objects.append(value_left)
+                        continue
+
                 return None, all_image
 
             objects.append(value_right)
@@ -486,14 +499,14 @@ class DetectModelYolov8:
 
             image_result (cv2.Mat)
         """
-        # try:
-        #     idx, image_aruco = self.detect_aruco(image)
-        #     if idx == 20:
-        #         return 8, image_aruco
-        #     if idx == 21:
-        #         return 7, image_aruco
-        # except:
-        #     pass
+        try:
+            idx, image_aruco = self.detect_aruco(image)
+            if idx == 20:
+                return 8, image_aruco
+            if idx == 21:
+                return 7, image_aruco
+        except:
+            pass
         model_to_yura = {
             "Octopus": 1,
             "Bunny": 2,
@@ -501,7 +514,7 @@ class DetectModelYolov8:
             "Cylinder": 4,
             "Blue Square": 5,
             "Res square": 6,
-            "Aruco": 7,
+            "Aruco": 78,
         }
 
         # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
