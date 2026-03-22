@@ -207,13 +207,16 @@ class TSPA(Node):
 
             # if abs(angle) < angle_otbros:
             if abs(angle) < angle_par and distance < dist_par and distance > dist_par_low:
-                if manip_angles[0] < abs(angle) < manip_angles[1]:
-                    continue
+                # if manip_angles[0] < abs(angle) < manip_angles[1]:
+                #     continue
                 # self.get_logger().info(f'{idx}, {p}, {angle}, {distance}')
                 # self.duck_locator.cma += angle
                 # self.duck_locator.cmr += distance
                 # mass += 1
-                if distance < self.duck_locator.cmr:
+
+                weight = -0.08 * self.duck_pose.theta * angle
+
+                if distance < self.duck_locator.cmr + weight:
                     self.duck_locator.cmr = distance
                     self.duck_locator.cma = angle
                     mass = 1
@@ -500,22 +503,22 @@ cordination_ducks = [
     # Pose(0.75, 0.5, 2.35), # 3
     # Pose(1, 0.5, 0.61), # 4
     # Pose(0.5, 0.5, 0.61), # 2
-    Pose(0.25, 0.5, 2.27), # 1
-    Pose(0.5, 0.5, 0.61), # 2
-    Pose(0.75, 0.5, 2.35), # 3
-    Pose(1, 0.5, 0.61), # 4
-    Pose(0.3, 0.75, 2.15), # 5
-    Pose(0.5, 0.75, 1.03), # 6
-    Pose(0.75, 0.75, 2.11), # 7
-    Pose(1, 0.75, 0.97), # 8
-    Pose(0.366035, 0.757009, 2.00), # 9
-    Pose(0.338126, 0.750289, 1.15), # 10
-    Pose(0.852274, 0.743161, 1.11), # 11
-    Pose(0.891469, 0.749518, 2.03), # 12
-    Pose(0.858826, 1.164620, 2.47), # 13
-    Pose(0.853082, 1.129030, 0.67), # 14
-    Pose(0.621408, 1.106540, 2.21), # 15
-    Pose(0.344352, 1.145580, 2.23)  # 16
+    Pose(0.25, 0.5, 1), # 0
+    Pose(0.5, 0.5, 1), # 1
+    Pose(0.75, 0.5, -1), # 2
+    Pose(1, 0.5, -1), # 3
+    Pose(0.3, 0.75, 1), # 4
+    Pose(0.5, 0.75, 1), # 5
+    Pose(0.75, 0.75, -1), # 6
+    Pose(1, 0.75, -1), # 7
+    Pose(0.366035, 0.757009, 2.00), # 8
+    Pose(0.338126, 0.750289, 1.15), # 9
+    Pose(0.852274, 0.743161, 1.11), # 10
+    Pose(0.891469, 0.749518, 2.03), # 11
+    Pose(0.858826, 1.164620, 2.47), # 12
+    Pose(0.853082, 1.129030, 0.67), # 13
+    Pose(0.621408, 1.106540, 2.21), # 14
+    Pose(0.344352, 1.145580, 2.23)  # 15
 ]
 
 cordination_baze = []
