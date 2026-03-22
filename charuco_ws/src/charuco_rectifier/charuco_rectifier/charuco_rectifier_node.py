@@ -238,13 +238,18 @@ class CharucoRectifierNode(Node):
         # self.diff_pub.publish(diff_msg)
         self.debug_pub.publish(dbg_msg)
 
+        imge: Optional[cv2.typing.MatLike] = None
         if self.top_of_objects is None or not self.start:
-            new_objects = self.get_objects(rectified)
+            new_objects, imge = self.get_objects(rectified)
             if new_objects is not None:
                 self.top_of_objects = new_objects
 
         if self.top_of_objects is not None:
             self.objects_pub.publish(Int16MultiArray(data=self.top_of_objects))
+
+        if imge is not None:
+            imge_msg = self.bgr_to_image_msg(imge, msg.header)
+            self.rectified_pub.publish(imge_msg)
 
     def image_msg_to_bgr(self, msg: Image) -> list[int]:
         if msg.encoding not in ("rgb8", "bgr8"):
@@ -412,8 +417,11 @@ class CharucoRectifierNode(Node):
         (250 + half_size, 1000 - half_size),
     ]
 
-    def get_objects(self, image: cv2.typing.MatLike) -> Optional[list[int]]:
+    def get_objects(
+        self, image: cv2.typing.MatLike
+    ) -> tuple[Optional[list[int]], Optional[cv2.typing.MatLike]]:
         objects = []
+        all_image = None
         size: int = (self.half_size + self.margin) * 2
         for left_center, right_center in zip(self.left_centers, self.right_centers):
 
@@ -429,18 +437,21 @@ class CharucoRectifierNode(Node):
             ]
             value_right, img_right = self.black_box.predict_object(crop_right)
 
-            # imge1 = np.concatenate([crop_left, crop_right], axis=0)
-            # imge2 = np.concatenate([img_left, img_right], axis=0)
+            imges = np.concatenate([img_left, img_right], axis=0)
+            if all_image is None:
+                all_image = imges
+            else:
+                all_image = np.concatenate([all_image, imges], axis=1)
 
-            # cv2.imshow("hihiha", np.concatenate([imge1, imge2], axis=1))
+            # cv2.imshow("hihiha", )
             # cv2.waitKey(10000)
 
-            # if value_left != value_right:
-            #     return None
+            if value_left != value_right:
+                return None, all_image
 
             objects.append(value_right)
 
-        return objects
+        return objects, all_image
 
 
 class DetectModelYolov8:
@@ -450,6 +461,10 @@ class DetectModelYolov8:
         self.device, self.fp16 = (
             ("cuda", True) if torch.cuda.is_available() else ("cpu", False)
         )
+
+        aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_250)
+        aruco_params = cv2.aruco.DetectorParameters()
+        self.detector = cv2.aruco.ArucoDetector(aruco_dict, aruco_params)
 
     def predict_object(
         self, image: cv2.typing.MatLike
@@ -471,6 +486,14 @@ class DetectModelYolov8:
 
             image_result (cv2.Mat)
         """
+        # try:
+        #     idx, image_aruco = self.detect_aruco(image)
+        #     if idx == 20:
+        #         return 8, image_aruco
+        #     if idx == 21:
+        #         return 7, image_aruco
+        # except:
+        #     pass
         model_to_yura = {
             "Octopus": 1,
             "Bunny": 2,
@@ -495,7 +518,31 @@ class DetectModelYolov8:
             half=self.fp16,
         )[0]
         class_label = model_to_yura[prediction.names[prediction.probs.top1]]
-        return class_label, prediction.plot()
+        result_image = prediction.plot()
+        cv2.putText(
+            result_image,
+            prediction.names[prediction.probs.top1],
+            (10, 80),
+            cv2.FONT_HERSHEY_COMPLEX,
+            0.5,
+            (255, 0, 255),
+            1,
+        )
+        return class_label, result_image
+
+    def detect_aruco(self, image: cv2.typing.MatLike) -> tuple[int, cv2.typing.MatLike]:
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        corners, ids, _ = self.detector.detectMarkers(
+            gray,
+        )
+
+        if ids is not None:
+            for corner, marker_id in zip(corners, ids.flatten()):
+                if marker_id in [20, 21]:
+                    return marker_id, cv2.aruco.drawDetectedMarkers(image, corners, ids)
+
+        return -1, image
 
 
 def main(args=None):
