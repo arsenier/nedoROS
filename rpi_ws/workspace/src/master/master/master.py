@@ -58,10 +58,12 @@ class TSPA(Node):
         # self.duck_type_sub = [Int32, '/duck_type', self.duck_type_callback, 10]
         self.pfield_sub = [PoseStamped, '/pfield_pose', self.pzone_callback, 10]
         self.nfield_sub = [PoseStamped, '/nfield_pose', self.nzone_callback, 10]
+        self.start_sub = [Bool, '/start', self.start_callback, 10]
 
         self.beh2sub = {
             Behaviour.WAIT_TARGET_LIST: [
-                self.duck_class
+                self.duck_class, 
+                self.start_sub
             ],
             Behaviour.WAIT_TARGET: [
                 self.duck_sub,
@@ -120,10 +122,15 @@ class TSPA(Node):
 
         self.robot_theta = 0.0
 
+        self.is_start = False
+
         self.twist_pub = self.create_publisher(Twist, '/cmd_vel', 10)
         self.gripper_pub = self.create_publisher(Bool, '/gripper', 10)
     
         self.current_subs = []
+
+    def start_callback(self, msg):
+        self.is_start = msg.data
 
     def give_best_by_first(self):
         self.duck_pos_number = 0
@@ -404,8 +411,9 @@ class TSPA(Node):
         clock = self.get_clock()
         currenttime = clock.now()
         self.timestate = currenttime.nanoseconds / 1e9 - self.timelastbeh
-
-        if self.current_behaviour == Behaviour.WAIT_TARGET:
+        if self.current_behaviour == Behaviour.WAIT_TARGET_LIST:
+            self.get_logger().info('Waiting start ans list of ducks, start = {self.is_start}')
+        elif self.current_behaviour == Behaviour.WAIT_TARGET:
             self.twist = Twist()
             self.get_logger().info('Waiting for target')
         elif self.current_behaviour == Behaviour.GO_TO_TARGET:
@@ -526,9 +534,9 @@ def main(args=None):
     count_what_duck = 0
     try:
         #sample_duck_class_mas = [4, 1, 3, 6, 5, 7, 8, 2]
-        sample_duck_class_mas = [6, 4, 5, 1000, 7, 1, 3, 2]
-        node.duck_class_callback(Int16MultiArray(data=sample_duck_class_mas))
-        run_behaviour(node, Behaviour.WAIT_TARGET_LIST, until = lambda: node.duck_class_mas is not None)
+        # sample_duck_class_mas = [6, 4, 5, 1000, 7, 1, 3, 2]
+        # node.duck_class_callback(Int16MultiArray(data=sample_duck_class_mas))
+        run_behaviour(node, Behaviour.WAIT_TARGET_LIST, until = lambda: node.is_start == True)
         # node.give_best_by_first()
         # node.give_best_by_first()
         # node.give_best_by_first()
@@ -588,7 +596,6 @@ def main(args=None):
             # count_what_duck += 1
             # break
 
-    
     except KeyboardInterrupt:
         run_behaviour(node=node, behaviour=Behaviour.WAIT_TIME, until=lambda: node.timestate > 1)
         pass
