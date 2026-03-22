@@ -153,7 +153,7 @@ class TSPA(Node):
             if self.duck_class_mas[2] == 1000000:
                 if self.duck_class_mas[3] > 10:
                     self.duck_class_mas[3] -= 10
-            if self.duck_class_mas[i] < self.duck_class_mas[self.duck_pos_number]:
+            if self.duck_class_mas[i] <= self.duck_class_mas[self.duck_pos_number]:
                 self.duck_pos_number = i
         self.duck_class_mas[self.duck_pos_number] = 1000000
         self.get_logger().info(f'Duck class: {self.duck_pos_number}, {self.duck_class_mas}')
