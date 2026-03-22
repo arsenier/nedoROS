@@ -2,7 +2,7 @@ import math
 import numpy as np
 import cv2
 from typing import Optional
-from geometry_msgs.msg import Point
+from geometry_msgs.msg import Point, Pose
 
 from . import aux
 
@@ -35,7 +35,7 @@ class Router:
         centroids: cv2.typing.MatLike,
     ) -> None:
         """returns all correct targets and"""
-        MIN_AREA = 1600  # слишком мелкий шум
+        MIN_AREA = 1000  # слишком мелкий шум
         BIG_W = 180  # слишком большой объект по ширине
         BIG_H = 180  # слишком большой объект по высоте
         MAX_ASPECT_RATIO = 4.0  # слишком длинный / узкий объект
@@ -114,12 +114,10 @@ class Router:
 
         points_with_length: list[tuple[aux.Point, float]] = []
         for duck, lifetime in self.ducks:
-            if lifetime < 5:
+            if lifetime < 3:
                 continue
-            if (
-                self.enemy_robot is None
-                or aux.dist2line(self.ally_pos, duck, self.enemy_robot)
-                > ROBOT_RADIUS * 2
+            if self.enemy_robot is None or not aux.line_circle_intersect(
+                self.ally_pos, duck, self.enemy_robot, ROBOT_RADIUS * 2, "S"
             ):  # можно проехать
                 points_with_length.append((duck, aux.dist(self.ally_pos, duck)))
             elif self.enemy_robot is not None:
@@ -164,6 +162,7 @@ class Router:
                         best_point.get_cords_int(),
                         duck.get_cords_int(),
                         (0, 127, 0),
+                        4,
                     )
 
         for point, _ in points_with_length:
@@ -172,6 +171,7 @@ class Router:
                 self.ally_pos.get_cords_int(),
                 point.get_cords_int(),
                 (0, 127, 0),
+                4,
             )
 
         if len(points_with_length) != 0:
@@ -181,6 +181,7 @@ class Router:
                 self.ally_pos.get_cords_int(),
                 target.get_cords_int(),
                 (127, 127, 0),
+                6,
             )
             return point_to_pose(target)
 

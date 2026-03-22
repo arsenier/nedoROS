@@ -1,12 +1,18 @@
 import math
+from typing import Optional
 import numpy as np
 import cv2
+
+from ultralytics import YOLO
+import torch
+
 
 import rclpy
 from rclpy.node import Node
 
 from sensor_msgs.msg import Image, CameraInfo
-from geometry_msgs.msg import PoseStamped, Pose
+from geometry_msgs.msg import PoseStamped, Point
+from std_msgs.msg import Bool, Int16MultiArray
 
 from . import aux
 from .router import Router
@@ -32,6 +38,7 @@ class CharucoRectifierNode(Node):
         self.declare_parameter("camera_info_topic", "/camera_info")
         self.declare_parameter("board_pose_topic", "/image_raw_charuco_pose")
         self.declare_parameter("ally_pose_topic", "/image_recalib_apriltag_pose")
+        self.declare_parameter("start_topic", "/start")
 
         self.declare_parameter("number_of_squares_x", 5)
         self.declare_parameter("number_of_squares_y", 7)
@@ -46,6 +53,7 @@ class CharucoRectifierNode(Node):
         self.camera_info_topic = self.get_parameter("camera_info_topic").value
         self.board_pose_topic = self.get_parameter("board_pose_topic").value
         self.ally_pose_topic = self.get_parameter("ally_pose_topic").value
+        self.start_topic = self.get_parameter("start_topic").value
 
         self.number_of_squares_x = self.get_parameter("number_of_squares_x").value
         self.number_of_squares_y = self.get_parameter("number_of_squares_y").value
@@ -72,6 +80,9 @@ class CharucoRectifierNode(Node):
         self.ally_pose_sub = self.create_subscription(
             PoseStamped, self.ally_pose_topic, self.ally_pose_callback, 10
         )
+        self.start_sub = self.create_subscription(
+            Bool, self.start_topic, self.start_callback, 10
+        )
 
         self.rectified_pub = self.create_publisher(
             Image, self.image_topic + "_charuco_rectified", 10
@@ -83,12 +94,19 @@ class CharucoRectifierNode(Node):
             Image, self.image_topic + "_charuco_rectified_debug", 10
         )
 
-        self.ducks_pub = self.create_publisher(Pose, "/duck_target", 10)
+        self.objects_pub = self.create_publisher(
+            Int16MultiArray, self.image_topic + "_charuco_objects", 10
+        )
 
         self.get_logger().info("CharucoRectifierNode started")
 
         self.etalon: rclpy.Optional[np.ndarray] = None
         self.router = Router()
+
+        self.start = False
+        self.top_of_objects: Optional[list[int]] = None
+
+        self.black_box = DetectModelYolov8("../yolo_ws/model/best.pt")
 
     def camera_info_callback(self, msg: CameraInfo):
         self.K = np.array(msg.k, dtype=np.float64).reshape((3, 3))
@@ -108,7 +126,10 @@ class CharucoRectifierNode(Node):
 
     def ally_pose_callback(self, msg: PoseStamped):
         self.router.set_ally(msg.pose)
-        print(self.router.ally_pos)
+        # print(self.router.ally_pos)
+
+    def start_callback(self, msg: bool):
+        self.start = msg
 
     def image_callback(self, msg: Image):
         if self.K is None or self.D is None:
@@ -152,6 +173,8 @@ class CharucoRectifierNode(Node):
         rectified = cv2.warpPerspective(
             cv_img, H, (self.output_width_px, self.output_height_px)
         )
+
+        """
         rect = rectified.copy()
 
         if self.etalon is None:
@@ -200,23 +223,40 @@ class CharucoRectifierNode(Node):
         )
         self.router.find_objects(rectified, num_labels, labels, stats, centroids)
 
-        target = self.router.choose_target(rectified)
-        if target is not None:
-            self.ducks_pub.publish(target)
+        # target = self.router.choose_target(rectified)
+        # if target is not None:
+        #     self.ducks_pub.publish(target)
 
         mask_bgr = cv2.cvtColor(mask_joined, cv2.COLOR_GRAY2BGR)
 
         rect_msg = self.bgr_to_image_msg(mask_bgr, msg.header)
         diff_msg = self.bgr_to_image_msg(diff, msg.header)
+        """
         dbg_msg = self.bgr_to_image_msg(rectified, msg.header)
 
-        # # cv2.imshow("kek", mask_bgr)
-        # cv2.waitKey(1)
-        self.rectified_pub.publish(rect_msg)
-        self.diff_pub.publish(diff_msg)
+        # self.rectified_pub.publish(rect_msg)
+        # self.diff_pub.publish(diff_msg)
         self.debug_pub.publish(dbg_msg)
 
-    def image_msg_to_bgr(self, msg: Image) -> np.ndarray:
+        imge: Optional[cv2.typing.MatLike] = None
+        if self.top_of_objects is None or not self.start:
+            new_objects, imge = self.get_objects(rectified)
+            if new_objects is not None:
+                if self.top_of_objects is None or not 78 in new_objects:
+                    for idx, fig in enumerate(new_objects):
+                        if fig == 78:
+                            new_objects[idx] = 7
+                            
+                    self.top_of_objects = new_objects
+
+        if self.top_of_objects is not None:
+            self.objects_pub.publish(Int16MultiArray(data=self.top_of_objects))
+
+        if imge is not None:
+            imge_msg = self.bgr_to_image_msg(imge, msg.header)
+            self.rectified_pub.publish(imge_msg)
+
+    def image_msg_to_bgr(self, msg: Image) -> list[int]:
         if msg.encoding not in ("rgb8", "bgr8"):
             raise ValueError(f"Unsupported encoding: {msg.encoding}")
 
@@ -352,6 +392,170 @@ class CharucoRectifierNode(Node):
                 2,
                 cv2.LINE_AA,
             )
+
+    half_size = 30
+    margin = 20
+    x_delta = 20
+    y_delta = 15
+    left_centers: list[tuple[int, int]] = [
+        # first line
+        (1000 + half_size, 500 + half_size),
+        (750 - half_size, 500 + half_size),
+        (500 + half_size, 500 + half_size),
+        (250 - half_size, 500 + half_size),
+        # second line
+        (1000 - half_size, 750 + half_size),
+        (750 + half_size, 750 + half_size),
+        (500 - half_size, 750 + half_size),
+        (250 + half_size, 750 + half_size),
+    ]
+    right_centers: list[tuple[int, int]] = [
+        # first line
+        (1000 + half_size, 1250 - half_size),
+        (750 - half_size, 1250 - half_size),
+        (500 + half_size, 1250 - half_size),
+        (250 - half_size, 1250 - half_size),
+        # second line
+        (1000 - half_size, 1000 - half_size),
+        (750 + half_size, 1000 - half_size),
+        (500 - half_size, 1000 - half_size),
+        (250 + half_size, 1000 - half_size),
+    ]
+
+    def get_objects(
+        self, image: cv2.typing.MatLike
+    ) -> tuple[Optional[list[int]], Optional[cv2.typing.MatLike]]:
+        objects = []
+        all_image = None
+        size: int = (self.half_size + self.margin) * 2
+        for left_center, right_center in zip(self.left_centers, self.right_centers):
+
+            x = left_center[0] - self.half_size - self.margin
+            y = left_center[1] - self.half_size - self.margin
+            crop_left = image[y : y + size, x : x + size + self.x_delta]
+            value_left, img_left = self.black_box.predict_object(crop_left)
+
+            x = right_center[0] - self.half_size - self.margin
+            y = right_center[1] - self.half_size - self.margin
+            crop_right = image[y : y + size, x : x + size + self.x_delta]
+            value_right, img_right = self.black_box.predict_object(crop_right)
+
+            imges = np.concatenate([img_left, img_right], axis=0)
+            if all_image is None:
+                all_image = imges
+            else:
+                all_image = np.concatenate([all_image, imges], axis=1)
+
+            # cv2.imshow("hihiha", )
+            # cv2.waitKey(10000)
+
+            if value_left != value_right:
+                if 78 == value_left:
+                    if value_right in [7, 8]:
+                        objects.append(value_right)
+                        continue
+
+                if 78 == value_right:
+                    if value_left in [7, 8]:
+                        objects.append(value_left)
+                        continue
+
+                return None, all_image
+
+            objects.append(value_right)
+
+        return objects, all_image
+
+
+class DetectModelYolov8:
+    def __init__(self, path_to_model):
+        self.classification_model = YOLO(path_to_model)
+        self.path_to_model = path_to_model
+        self.device, self.fp16 = (
+            ("cuda", True) if torch.cuda.is_available() else ("cpu", False)
+        )
+
+        aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_250)
+        aruco_params = cv2.aruco.DetectorParameters()
+        self.detector = cv2.aruco.ArucoDetector(aruco_dict, aruco_params)
+
+    def predict_object(
+        self, image: cv2.typing.MatLike
+    ) -> tuple[int, cv2.typing.MatLike]:
+        """Predict object from image 100x120
+
+        Input:
+            image (MatLike): rgb image 100x120
+
+        Return:
+            object index (int): 1 - octopus
+                                2 -  bunny
+                                3 - penguine
+                                4 - cilinder
+                                5 - blue cube
+                                6 - red cube
+                                7 - aruca 21
+                                8 - aruca 20
+
+            image_result (cv2.Mat)
+        """
+        try:
+            idx, image_aruco = self.detect_aruco(image)
+            if idx == 20:
+                return 8, image_aruco
+            if idx == 21:
+                return 7, image_aruco
+        except:
+            pass
+        model_to_yura = {
+            "Octopus": 1,
+            "Bunny": 2,
+            "Penguin": 3,
+            "Cylinder": 4,
+            "Blue Square": 5,
+            "Res square": 6,
+            "Aruco": 78,
+        }
+
+        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # res = detector_model(img)[0]
+        prediction = self.classification_model.predict(
+            source=image,
+            show=False,
+            save=False,
+            conf=0.3,
+            save_txt=False,
+            save_crop=False,
+            verbose=False,
+            device=self.device,
+            half=self.fp16,
+        )[0]
+        class_label = model_to_yura[prediction.names[prediction.probs.top1]]
+        result_image = prediction.plot()
+        cv2.putText(
+            result_image,
+            prediction.names[prediction.probs.top1],
+            (10, 80),
+            cv2.FONT_HERSHEY_COMPLEX,
+            0.5,
+            (255, 0, 255),
+            1,
+        )
+        return class_label, result_image
+
+    def detect_aruco(self, image: cv2.typing.MatLike) -> tuple[int, cv2.typing.MatLike]:
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        corners, ids, _ = self.detector.detectMarkers(
+            gray,
+        )
+
+        if ids is not None:
+            for corner, marker_id in zip(corners, ids.flatten()):
+                if marker_id in [20, 21]:
+                    return marker_id, cv2.aruco.drawDetectedMarkers(image, corners, ids)
+
+        return -1, image
 
 
 def main(args=None):

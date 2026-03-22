@@ -168,14 +168,22 @@ private:
     std::vector<std::vector<cv::Point2f>> corners, rejected;
     cv::aruco::detectMarkers(gray, dict(), corners, ids, detector_params_, rejected);
 
+    // bool sended_flag = false;
     for (const auto &id : ids) {
       if (id == 8) {
         std_msgs::msg::Bool start_msg;
         start_msg.data = true;
         start_pub_->publish(start_msg);
+        // sended_flag = false;
         break;
       }
     }
+    
+    // if (sended_flag == false){
+    //     std_msgs::msg::Bool start_msg;
+    //     start_msg.data = false;
+    //     start_pub_->publish(start_msg);
+    // }
 
     // RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 500,
     //   "detected=%zu rejected=%zu dict=%d",
