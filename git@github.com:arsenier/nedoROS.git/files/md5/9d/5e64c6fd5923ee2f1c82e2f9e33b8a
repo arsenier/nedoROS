@@ -1,0 +1,12 @@
+# YOLO Classification Dataset
+path: /Users/bw/Documents/Hachathons/ROS2026/classification_dataset  # dataset root directory
+
+# Classes
+names:
+  0: Aruco
+  1: Blue Square
+  2: Bunny
+  3: Cylinder
+  4: Octopus
+  5: Penguin
+  6: Res square
