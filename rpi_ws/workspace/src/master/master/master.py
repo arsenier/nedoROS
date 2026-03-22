@@ -53,7 +53,7 @@ class TSPA(Node):
 
         self.gps_sub = [PoseStamped, '/image_recalib_apriltag_pose', self.gps_callback, 10]
         self.duck_sub = [PoseStamped, '/goal_pose', self.duck_callback, 10]
-        self.duck_class = [Int16MultiArray, '/duck_type', self.duck_class_callback, 10]
+        self.duck_class = [Int16MultiArray, '/image_raw_charuco_objects', self.duck_class_callback, 10]
         self.lidar_sub = [LaserScan, '/scan', self.scan_callback, 10]
         # self.duck_type_sub = [Int32, '/duck_type', self.duck_type_callback, 10]
         self.pfield_sub = [PoseStamped, '/pfield_pose', self.pzone_callback, 10]
@@ -63,10 +63,12 @@ class TSPA(Node):
         self.beh2sub = {
             Behaviour.WAIT_TARGET_LIST: [
                 self.duck_class, 
-                self.start_sub
+                self.start_sub,
+                self.gps_sub,
             ],
             Behaviour.WAIT_TARGET: [
                 self.duck_sub,
+                self.gps_sub,
             ],
             Behaviour.GO_TO_TARGET: [
                 self.duck_sub,
@@ -155,6 +157,9 @@ class TSPA(Node):
         self.get_logger().info(f'Duck class: {self.duck_pos_number}, {self.duck_class_mas}')
 
     def duck_class_callback(self, msg):
+        if self.is_start:
+            return
+        
         self.duck_class_mas = list(msg.data)
         for i in range(len(self.duck_class_mas)):
             if self.duck_class_mas[i] == 4:
@@ -290,6 +295,8 @@ class TSPA(Node):
         # https://stackoverflow.com/questions/38487816/unsubscribing-from-ros-topic-python
         # for sub in self.current_subs:
         #     sub.shutdown()
+        for i in range(len(self.current_subs)):
+            self.current_subs[i] = None
         self.current_subs = []
 
         # self.duck_sensor = None
@@ -366,7 +373,7 @@ class TSPA(Node):
         porog_turn = 20.0 * math.pi / 180
         porog_dist = 10.0 / 100
         k_forward = 0.4
-        k_turn = 1.0
+        k_turn = 0.6
         max_v = 0.2
         max_w = 1.0
 
@@ -412,7 +419,7 @@ class TSPA(Node):
         currenttime = clock.now()
         self.timestate = currenttime.nanoseconds / 1e9 - self.timelastbeh
         if self.current_behaviour == Behaviour.WAIT_TARGET_LIST:
-            self.get_logger().info('Waiting start ans list of ducks, start = {self.is_start}')
+            self.get_logger().info(f'Waiting start ans list of ducks, start = {self.is_start}, duck list = {self.duck_class_mas}')
         elif self.current_behaviour == Behaviour.WAIT_TARGET:
             self.twist = Twist()
             self.get_logger().info('Waiting for target')
@@ -442,7 +449,7 @@ class TSPA(Node):
             self.get_logger().info(f'Waiting... {self.timestate}')
 
         # self.get_logger().info(f'Current subs: {self.current_subs}')
-        self.get_logger().info(f'GPS: {self.robot_pose}, Control: {self.twist}, {self.gripper}')
+        self.get_logger().info(f'GPS: {self.robot_pose}, duck list: {self.duck_class_mas}, Control: {self.twist}, {self.gripper}')
 
         self.twist_pub.publish(self.twist)
         self.gripper_pub.publish(self.gripper)
@@ -508,7 +515,7 @@ cordination_baze = []
 baze1 = Pose(0.869143, 0.136321, 0.00)
 baze2 = Pose(1.142820, 0.403740, -1.62)
 
-bazepos_centre = Pose(1.1, 0.15, -0.81)
+bazepos_centre = Pose(1.10, 0.15, -0.81)
 
 for i in range(8):
     cordination_baze.append(Pose(baze1.x, 0.15 + 0.027 * (i + 1), baze1.theta))
@@ -522,8 +529,8 @@ def mirror_cordination(cordination: Pose, need: bool):
     else:
         return Pose(cordination.x, 1.75 - cordination.y, -cordination.theta)
 
-# is_A_baze = False
-is_A_baze = True
+is_A_baze = False
+# is_A_baze = True
 
 def main(args=None):
     rclpy.init(args=args)
