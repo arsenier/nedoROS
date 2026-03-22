@@ -461,6 +461,7 @@ class TSPA(Node):
 
         self.twist_pub.publish(self.twist)
         self.gripper_pub.publish(self.gripper)
+        self.usik_inhibit_pub.publish(self.usik_inhibit)
 
 def run_behaviour(node, behaviour, until = lambda: False):
     node.set_behaviour(behaviour)
