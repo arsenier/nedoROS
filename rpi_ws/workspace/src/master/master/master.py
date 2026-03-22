@@ -114,6 +114,7 @@ class TSPA(Node):
 
         self.twist = Twist()
         self.gripper = Bool()
+        self.usik_inhibit = Bool()
         self.timestate = None
         self.timelastbeh = None
 
@@ -128,6 +129,7 @@ class TSPA(Node):
 
         self.twist_pub = self.create_publisher(Twist, '/cmd_vel', 10)
         self.gripper_pub = self.create_publisher(Bool, '/gripper', 10)
+        self.usik_inhibit_pub = self.create_publisher(Bool, '/usik_inhibit', 10)
     
         self.current_subs = []
 
@@ -417,6 +419,7 @@ class TSPA(Node):
     def main_loop(self):
         clock = self.get_clock()
         currenttime = clock.now()
+        self.usik_inhibit.data = False
         self.timestate = currenttime.nanoseconds / 1e9 - self.timelastbeh
         if self.current_behaviour == Behaviour.WAIT_TARGET_LIST:
             self.get_logger().info(f'Waiting start ans list of ducks, start = {self.is_start}, duck list = {self.duck_class_mas}')
@@ -436,12 +439,14 @@ class TSPA(Node):
         elif self.current_behaviour == Behaviour.GO_TO_PBASE:
             self.goToPose(self.baze_pose)
             self.get_logger().info('Going to pbase')
+            self.usik_inhibit.data = True
         elif self.current_behaviour == Behaviour.GO_TO_NBASE:
             self.goToPose(self.enemy_baze_pose)
             self.get_logger().info('Going to nbase')
         elif self.current_behaviour == Behaviour.DROP_THE_DUCK:
             self.twist = Twist()
             self.twist.linear.x = -0.08
+            self.usik_inhibit.data = True
             self.gripper.data = False
             self.get_logger().info('Dropping the duck')
         elif self.current_behaviour == Behaviour.WAIT_TIME:
@@ -449,7 +454,7 @@ class TSPA(Node):
             self.get_logger().info(f'Waiting... {self.timestate}')
 
         # self.get_logger().info(f'Current subs: {self.current_subs}')
-        self.get_logger().info(f'GPS: {self.robot_pose}, duck list: {self.duck_class_mas}, Control: {self.twist}, {self.gripper}')
+        self.get_logger().info(f'GPS: {self.robot_pose}, duck list: {self.duck_class_mas}, Control: {self.twist}, {self.gripper},{self.usik_inhibit}')
 
         self.twist_pub.publish(self.twist)
         self.gripper_pub.publish(self.gripper)
@@ -529,8 +534,8 @@ def mirror_cordination(cordination: Pose, need: bool):
     else:
         return Pose(cordination.x, 1.75 - cordination.y, -cordination.theta)
 
-is_A_baze = False
-# is_A_baze = True
+# is_A_baze = False
+is_A_baze = True
 
 def main(args=None):
     rclpy.init(args=args)
