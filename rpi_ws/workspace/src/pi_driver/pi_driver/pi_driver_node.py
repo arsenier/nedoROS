@@ -116,6 +116,8 @@ class Driver(Node):
         self.usik_left = self.create_publisher(Bool, '/usik_left', 10)
         self.pub_odom = self.create_publisher(Odometry, '/odom', 10)
         self.is_start = self.create_subscription(Bool, '/start', self.check_start, 10)
+        self.usik_inhibit = self.create_subscription(Bool, '/usik_inhibit', self.check_usik_inhibit, 10)
+        self.is_usik_inhibit = False
         self.odom_broadcaster = tf2_ros.TransformBroadcaster(self)
         self.timer_period = 0.1
         self.timer = self.create_timer(self.timer_period, self.update_data_robot)
@@ -138,6 +140,8 @@ class Driver(Node):
     def time_log(self):
         self.get_logger().info(f"Left time: {90 - (self.get_clock().now().nanoseconds/1e9 - self.start_time)} sec")
 
+    def check_usik_inhibit(self, msg):
+        self.is_usik_inhibit = msg.data
 
     def update_data_driver(self, msg):
         self.fw = msg.linear.x
@@ -193,7 +197,7 @@ class Driver(Node):
         self.data_usr.data = bool(ans[4])
         self.usik_left.publish(self.data_usl)
         self.usik_right.publish(self.data_usr)
-        if bool(ans[3]) or bool(ans[4]):
+        if (bool(ans[3]) or bool(ans[4]))and not self.is_usik_inhibit:
             self.timeG = self.get_clock().now().nanoseconds/1e9
 
         #____________________ODOM_______________
