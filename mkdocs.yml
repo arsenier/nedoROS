@@ -1,5 +1,8 @@
 site_name: nedoROS
 nav:
-  - Home: index.md
-  - About: about.md
+  - О проекте: index.md
+  - Аппаратная часть: hardware.md
+  - Код низкого уровня: low_level.md
+  - Код навигации и принятия решений: rpi_level.md
+  - Видеозрение и классификация уточек: nav_level.md
 theme: readthedocs

@@ -12,7 +12,7 @@
 
 ## Общая схема системы
 
-![](docs/scheme.excalidraw.png)
+![](docs/img/scheme.excalidraw.png)
 
 ### raspberry:
  OS is raspberry 64 bit for rpi 4B
@@ -90,4 +90,20 @@ pip install dvc
 Чтобы получить веса модели и данные надо сделать:
 ```
 dvc pull
+```
+
+## Документация
+
+Документация собирается с помощью mkdocs.
+
+Установить mkdocs:
+
+```bash
+pipx install mkdocs
+```
+
+Опубликовать документацию:
+
+```bash
+mkdocs gh-deploy
 ```
