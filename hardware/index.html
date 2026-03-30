@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Аппаратная часть - nedoROS</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "\u0410\u043f\u043f\u0430\u0440\u0430\u0442\u043d\u0430\u044f \u0447\u0430\u0441\u0442\u044c";
+        var mkdocs_page_input_path = "hardware.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> nedoROS
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">О проекте</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Аппаратная часть</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#_2">Внешний вид робота</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#_3">Аппаратное оснащение</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#_4">Список компонентов и ссылок</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../low_level/">Код низкого уровня</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../rpi_level/">Код навигации и принятия решений</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../nav_level/">Видеозрение и классификация уточек</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">nedoROS</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Аппаратная часть</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="_1">Аппараратная часть</h1>
+<p>Робот представляет из себя тележку с дифференциальным приводом и волокушей, манипулятором, контроллером Arduino Uno и одноплатным компьютером Raspberry Pi 4B.</p>
+<h2 id="_2">Внешний вид робота</h2>
+<p><img alt="" src="../img/robot_front.jpg" />
+<img alt="" src="../img/robot_left.jpg" />
+<img alt="" src="../img/robot_back.jpg" />
+<img alt="" src="../img/robot_right.jpg" />
+<img alt="" src="../img/robot_bottom.jpg" /></p>
+<h2 id="_3">Аппаратное оснащение</h2>
+<h2 id="_4">Список компонентов и ссылок</h2>
+<table>
+<thead>
+<tr>
+<th>Закупки:</th>
+<th>Название</th>
+<th>Назначение, описание</th>
+<th>Прямая ссылка где купить</th>
+<th>Количество</th>
+<th>Фотография если нужно</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Raspberry pi 4B</td>
+<td>крутиться рос, обработка лидара, общение с ардуино</td>
+<td>https://aliexpress.ru/item/1005006733203166.html?shpMethod=CAINIAO_STANDARD&amp;sku_id=12000038121994670&amp;spm=a2g2w.productlist.search_results.2.791b7173iCNzRV</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>logitech c270</td>
+<td>детект чаруко доски, детект робота, распознование объектов на их местах</td>
+<td>https://aliexpress.ru/item/1_326088900.html?shpMethod=MYMALL_PUDO_CITY&amp;sku_id=5000001771211348&amp;spm=a2g2w.productlist.search_results.2.26606142O9DDxi</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Грибок аварийного выключения</td>
+<td>разрыв земли цепи питания</td>
+<td>https://www.ozon.ru/product/knopka-avariynoy-ostanovki-gribok-povorotnaya-s-fiksatsiey-ip40-220v-10a-2-kontakta-kruglaya-302434565/?__rr=1&amp;abt_att=1&amp;from=share_android&amp;perehod=smm_share_button_productpage_link</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Ардуино уно</td>
+<td>подача сигнала на моторы, считывание IMU, считывание концевиков, управление сервой</td>
+<td>https://aliexpress.ru/item/1005004073975153.html?sku_id=12000027951952147&amp;spm=a2g2w.productlist.search_results.1.492a7108o6IxvA</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Шилд мотора</td>
+<td>вольтаж с запасо</td>
+<td>https://iarduino.ru/shop/Expansion-payments/Motor-Shield-L298.html</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>MG946R</td>
+<td>подъем захвата вверх-вниз</td>
+<td>https://aliexpress.ru/item/4000502044588.html?shpMethod=CAINIAO_ECONOMY&amp;sku_id=10000002401622860&amp;spm=a2g2w.productlist.search_results.0.333b1e2dUa2pgS</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>7</td>
+<td>mg90</td>
+<td>управляют схватом захвата. часто горят :(</td>
+<td>https://www.ozon.ru/product/2sht-servoprivod-mg90-s-micro-servo-servomotor-mg90s-3-7-2v-ampertok-tower-pro-mg90-180-micro-servo-3539223449/?at=99trKOyN8uEXOOZRIBXLRjwiMPgvyYCZmXNx4SP5jBwx</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>8</td>
+<td>интерфейсные провода</td>
+<td>малинка(usb-a)- ардуино (usb-b)</td>
+<td></td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>9</td>
+<td>лидар</td>
+<td>направление объекта для стыковки.</td>
+<td>https://aliexpress.ru/item/1005007075882801.html?sku_id=12000039319951496&amp;spm=a2g2w.productlist.search_results.1.71386cc4A9SN2X</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>10</td>
+<td>тумблер питания</td>
+<td>для планового выключения питания</td>
+<td>https://aliexpress.ru/item/1005001994328465.html?shpMethod=CAINIAO_SUPER_ECONOMY&amp;sku_id=12000018349863568&amp;spm=a2g2w.productlist.search_results.14.39af6b6fiEPdyS</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>11</td>
+<td>LM2596</td>
+<td>стаб 12в-5в на сервочки</td>
+<td>https://aliexpress.ru/item/1005003780274326.html?shpMethod=CAINIAO_SUPER_ECONOMY&amp;sku_id=12000027142887130&amp;spm=a2g2w.productlist.search_results.0.2406603cc2VEip</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>12</td>
+<td>XL4015 с вольтметром</td>
+<td>Смотреть напряжение на банках и питать малинку от юсб</td>
+<td>https://market.yandex.ru/cc/975WaF</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>13</td>
+<td>пищалка</td>
+<td>сигнализация о разряде банок</td>
+<td>https://aliexpress.ru/item/1005008750369827.html?shpMethod=CAINIAO_SUPER_ECONOMY&amp;sku_id=12000048410563277&amp;spm=a2g2w.productlist.search_results.10.17d02d3dn7qfj3</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>14</td>
+<td>отсек для аккумуляторов</td>
+<td></td>
+<td>https://aliexpress.ru/item/1005004036301580.html?shpMethod=MYMALL_PUDO_CITY&amp;sku_id=12000038184077606&amp;spm=a2g2w.productlist.search_results.16.34eb1513XqHAnU</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td>15</td>
+<td>концевик</td>
+<td>усиками детектить попадания в себя противников</td>
+<td>https://aliexpress.ru/item/1005008634065991.html?shpMethod=CAINIAO_SUPER_ECONOMY&amp;sku_id=12000046037034310&amp;spm=a2g2w.productlist.search_results.2.427f1a68Dnmn14</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>16</td>
+<td>колеса 85мм</td>
+<td>кататься</td>
+<td>https://ardmag.ru/mehanics/wheels/1674.html</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>17</td>
+<td>dc мотор, 12вольт + наколхозить крепеж</td>
+<td>кататься</td>
+<td>aliexpress.ru/item/32855724293.html?sku_id=12000041529946492&amp;spm=a2g2w.productlist.search_results.4.61f341acMpGT7g</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>18</td>
+<td>муфта для крепежа колеса на вал мотора</td>
+<td>шестигранник 2.0</td>
+<td>https://aliexpress.ru/item/1005010112043572.html?shpMethod=CAINIAO_STANDARD&amp;sku_id=12000051184522905&amp;spm=a2g2w.productlist.search_results.4.6aa161cc42L3Hx</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>19</td>
+<td>макетные провода всех типов</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>20</td>
+<td>резисторы для делителя</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="О проекте"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../low_level/" class="btn btn-neutral float-right" title="Код низкого уровня">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../low_level/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
