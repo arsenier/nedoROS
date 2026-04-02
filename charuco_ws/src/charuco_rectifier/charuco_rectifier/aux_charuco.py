@@ -1,5 +1,5 @@
 """
-Auxiliary math and utility module.
+aux_charucoiliary math and utility module.
 """
 
 import math
@@ -138,7 +138,7 @@ class Point:
 
     def debug_str(self) -> str:
         """Return string to recreate this point."""
-        return f"aux.Point({self.x:.0f}, {self.y:.0f})"
+        return f"aux_charuco.Point({self.x:.0f}, {self.y:.0f})"
 
     def get_cords(self) -> tuple[float, float]:
         return self.x, self.y

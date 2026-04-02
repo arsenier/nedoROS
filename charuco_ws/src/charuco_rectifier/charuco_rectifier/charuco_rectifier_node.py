@@ -14,7 +14,7 @@ from sensor_msgs.msg import Image, CameraInfo
 from geometry_msgs.msg import PoseStamped, Point
 from std_msgs.msg import Bool, Int16MultiArray
 
-from . import aux
+from . import aux_charuco
 from .router import Router
 
 # title_window = "sad"
