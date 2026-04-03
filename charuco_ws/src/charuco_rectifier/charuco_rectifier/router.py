@@ -4,16 +4,16 @@ import cv2
 from typing import Optional
 from geometry_msgs.msg import Point, Pose
 
-from . import aux
+from . import aux_charuco
 
 ROBOT_RADIUS = 200
 
 
 class Router:
     def __init__(self) -> None:
-        self.ally_pos: Optional[aux.Point] = None
-        self.ducks: list[tuple[aux.Point, int]] = []  # position with life time
-        self.enemy_robot: Optional[aux.Point] = None
+        self.ally_pos: Optional[aux_charuco.Point] = None
+        self.ducks: list[tuple[aux_charuco.Point, int]] = []  # position with life time
+        self.enemy_robot: Optional[aux_charuco.Point] = None
         self.enemy_robot_size: Optional[tuple[float, float]] = None
 
     def reset_locals(self) -> None:
@@ -22,7 +22,7 @@ class Router:
         self.enemy_robot_size = None
 
     def set_ally(self, position: Pose) -> None:
-        self.ally_pos = aux.Point(
+        self.ally_pos = aux_charuco.Point(
             1250 - position.position.x * 1000, position.position.y * 1000
         )
 
@@ -70,7 +70,7 @@ class Router:
                 cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
                 cv2.circle(image, (cx, cy), 20, (255, 0, 255), -1)
 
-                self.enemy_robot = aux.Point(
+                self.enemy_robot = aux_charuco.Point(
                     cx, cy
                 )  # NOTE можно сохранять в поле класса чтобы не пропадал
                 self.enemy_robot_size = (w, h)
@@ -80,9 +80,9 @@ class Router:
             cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cv2.circle(image, (cx, cy), 6, (0, 0, 255), -1)
 
-            new_duck = aux.Point(cx, cy)
+            new_duck = aux_charuco.Point(cx, cy)
             for old_duck, lifetime in old_ducks:
-                if aux.dist(old_duck, new_duck) < 100:
+                if aux_charuco.dist(old_duck, new_duck) < 100:
                     self.ducks.append(((new_duck + old_duck) / 2, lifetime + 1))
                     break
             else:
@@ -104,34 +104,34 @@ class Router:
             return None
         if (
             self.enemy_robot is not None
-            and aux.dist(self.ally_pos, self.enemy_robot) < ROBOT_RADIUS * 2
+            and aux_charuco.dist(self.ally_pos, self.enemy_robot) < ROBOT_RADIUS * 2
         ):
             # NOTE в страхе убегаем от противника, отдаем банку?
-            point = aux.nearest_point_on_circle(
+            point = aux_charuco.nearest_point_on_circle(
                 self.ally_pos, self.enemy_robot, ROBOT_RADIUS * 3
             )
             return point_to_pose(point)
 
-        points_with_length: list[tuple[aux.Point, float]] = []
+        points_with_length: list[tuple[aux_charuco.Point, float]] = []
         for duck, lifetime in self.ducks:
             if lifetime < 3:
                 continue
-            if self.enemy_robot is None or not aux.line_circle_intersect(
+            if self.enemy_robot is None or not aux_charuco.line_circle_intersect(
                 self.ally_pos, duck, self.enemy_robot, ROBOT_RADIUS * 2, "S"
             ):  # можно проехать
-                points_with_length.append((duck, aux.dist(self.ally_pos, duck)))
+                points_with_length.append((duck, aux_charuco.dist(self.ally_pos, duck)))
             elif self.enemy_robot is not None:
                 # враг мешает
-                passthrough_points: list[aux.Point] = []
+                passthrough_points: list[aux_charuco.Point] = []
                 delta_angle = math.asin(
-                    ROBOT_RADIUS / aux.dist(self.ally_pos, self.enemy_robot)
+                    ROBOT_RADIUS / aux_charuco.dist(self.ally_pos, self.enemy_robot)
                 )
                 for angle in [-delta_angle, delta_angle]:
                     ally_to_enemy = self.enemy_robot - self.ally_pos
-                    ally_vec = self.ally_pos + aux.rotate(ally_to_enemy, angle)
-                    duck_vec = self.ally_pos + aux.rotate(ally_to_enemy, -angle)
+                    ally_vec = self.ally_pos + aux_charuco.rotate(ally_to_enemy, angle)
+                    duck_vec = self.ally_pos + aux_charuco.rotate(ally_to_enemy, -angle)
 
-                    passthrough_point = aux.get_line_intersection(
+                    passthrough_point = aux_charuco.get_line_intersection(
                         self.ally_pos, ally_vec, duck, duck_vec, "LL"
                     )
                     if passthrough_point is not None and is_point_in_field(
@@ -147,14 +147,14 @@ class Router:
                         )
 
                 if len(passthrough_points) != 0:
-                    best_point = aux.find_nearest_point(
+                    best_point = aux_charuco.find_nearest_point(
                         self.ally_pos, passthrough_points
                     )
                     points_with_length.append(
                         (
                             best_point,
-                            aux.dist(self.ally_pos, best_point)
-                            + aux.dist(best_point, duck),
+                            aux_charuco.dist(self.ally_pos, best_point)
+                            + aux_charuco.dist(best_point, duck),
                         )
                     )
                     cv2.line(
@@ -188,7 +188,7 @@ class Router:
         return None
 
 
-def point_to_pose(point: aux.Point) -> Point:
+def point_to_pose(point: aux_charuco.Point) -> Point:
     pose = Point()
     pose.x = float(1.25 - point.x / 1000)
     pose.y = float(point.y / 1000)
@@ -198,7 +198,7 @@ def point_to_pose(point: aux.Point) -> Point:
     return pose
 
 
-def is_point_in_field(point: aux.Point) -> bool:
+def is_point_in_field(point: aux_charuco.Point) -> bool:
     return (
         ROBOT_RADIUS < point.x < 1250 - ROBOT_RADIUS
         and ROBOT_RADIUS < point.y < 1750 - ROBOT_RADIUS
