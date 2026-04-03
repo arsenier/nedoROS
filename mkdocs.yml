@@ -1,8 +1,12 @@
 site_name: nedoROS
 nav:
   - О проекте: index.md
-  - Аппаратная часть: hardware.md
-  - Код низкого уровня: low_level.md
-  - Код навигации и принятия решений: rpi_level.md
-  - Видеозрение и классификация уточек: nav_level.md
+  - Аппаратная часть:
+    - Обзор робота: hardware/overview.md
+    - Инструкции и документация: hardware/assembly.md
+  - Программная часть:
+    - Обзор системы управления: software/overview.md
+    - Код низкого уровня: software/low_level.md
+    - Код навигации и принятия решений: software/rpi_level.md
+    - Видеозрение и классификация уточек: software/nav_level.md
 theme: readthedocs
