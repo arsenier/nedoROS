@@ -1,5 +1,6 @@
 .git-old
 
+*.pdf
 charuco_ws/etalon.npy
 
 # Byte-compiled / optimized / DLL files
