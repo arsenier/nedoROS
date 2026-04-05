@@ -1,0 +1,7 @@
+# This file is used internally by FFMPEG.
+file 'file:D:/githakaton/ultrahak/nedoROS/media/videos/manim_serial/1080p60/partial_movie_files/serial/1228539237_3910566465_223132457.mp4'
+file 'file:D:/githakaton/ultrahak/nedoROS/media/videos/manim_serial/1080p60/partial_movie_files/serial/4239673008_2742115125_494340722.mp4'
+file 'file:D:/githakaton/ultrahak/nedoROS/media/videos/manim_serial/1080p60/partial_movie_files/serial/4239673008_1363165111_971415285.mp4'
+file 'file:D:/githakaton/ultrahak/nedoROS/media/videos/manim_serial/1080p60/partial_movie_files/serial/4239673008_2203651839_1796867951.mp4'
+file 'file:D:/githakaton/ultrahak/nedoROS/media/videos/manim_serial/1080p60/partial_movie_files/serial/4239673008_3194784148_2101401352.mp4'
+file 'file:D:/githakaton/ultrahak/nedoROS/media/videos/manim_serial/1080p60/partial_movie_files/serial/4239673008_2408024828_1282965899.mp4'
