@@ -4,9 +4,12 @@ nav:
   - Аппаратная часть:
     - Обзор робота: hardware/overview.md
     - Инструкции и документация: hardware/assembly.md
+    - Электроника: hardware/electronic.md
   - Программная часть:
     - Обзор системы управления: software/overview.md
     - Код низкого уровня: software/low_level.md
     - Код навигации и принятия решений: software/rpi_level.md
     - Видеозрение и классификация уточек: software/nav_level.md
+  - Использование: usage/usage.md
+  - Сценарий видео: script/script.md
 theme: readthedocs
