@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Обзор системы управления - nedoROS</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "\u041e\u0431\u0437\u043e\u0440 \u0441\u0438\u0441\u0442\u0435\u043c\u044b \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u044f";
+        var mkdocs_page_input_path = "software/overview.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> nedoROS
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">О проекте</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Аппаратная часть</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../hardware/overview/">Обзор робота</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../hardware/assembly/">Инструкции и документация</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../hardware/electronic/">Электроника</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Программная часть</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Обзор системы управления</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#_2">О трехуровневой архитектуре</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">Контроллер</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Секвенсор</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Делибератор</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../low_level/">Код низкого уровня</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../rpi_level/">Код навигации и принятия решений</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../nav_level/">Видеозрение и классификация уточек</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Использование</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../usage/usage/">Запуск робота</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">MISC</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../script/script/">Сценарий видео</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">nedoROS</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Программная часть</li>
+      <li class="breadcrumb-item active">Обзор системы управления</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="_1">Обзор системы управления</h1>
+<p>Система управления представляет собой модифицированную 3х уровневую архитектуру с элементами архитектуры подчинения (subsumption).</p>
+<h2 id="_2">О трехуровневой архитектуре</h2>
+<p>Трехуровневая архитектура разделяет функции управления на три временных масштаба и уровня абстракции: делиберативный (планирование), секвенциальный (координация) и реактивный (непосредственное управление).</p>
+<pre><code>   Цель / задача
+        │
+        ▼
+┌─────────────────┐
+│  Делибератор    │ ← глобальная модель, логический вывод
+└────────┬────────┘
+         │ план (последовательность этапов)
+         ▼
+┌─────────────────┐
+│  Секвенсор      │ ← конечный автомат, мониторинг условий
+└────────┬────────┘
+         │ примитивные команды (скорость, позиция, усилие)
+         ▼
+┌─────────────────┐
+│  Контроллер     │ ← ПИД, обратная связь с датчиками
+└────────┬────────┘
+         │ данные (ток, положение, контакт)
+         ▼
+   Физическая система / робот
+</code></pre>
+<h3 id="_3">Контроллер</h3>
+<p>Роль Контроллера - реактивное управление роботом в реальном времени. На этом уровне замыкаются контуры обратной связи (ПИД регуляторы) и выполняются примитивные команды.</p>
+<p>В нашей системе представлен контроллером Arduino Uno, задачей которого является максимально точно отрабатывать данное ему сверху задание по управлению.</p>
+<p>В частности, здесь реализованы:
+- ПИ регуляторы скорости моторов;
+- Программирование циклограм движения сервоприводов захвата;
+- Локальная одометрия.</p>
+<p>Частота главного цикла нашего Контроллера составляет 100Гц, что обеспечивает высокую отзывчивось моторов.</p>
+<blockquote>
+<p>Заметка: здесь и далее термин "контроллер" используется в двух смыслах: физический контроллер Arduino Uno, стоящий на роботе, и контроллер как элемент трехуровневой архитектуры системы управления. Во избежание путаницы первый будет писаться с маленькой буквы, второй - с большой.</p>
+</blockquote>
+<h3 id="_4">Секвенсор</h3>
+<p>Роль Секвенсора - координация действий робота и выполнение длительных задач.</p>
+<p>Он:</p>
+<ul>
+<li>принимает план действий от Делибератора,</li>
+<li>разбивает план на конкретные шаги и формирует уставки для Контроллера,</li>
+<li>отслеживает выполнение действий и обрабатывает ошибки.</li>
+</ul>
+<p>Главный цикл Секвенсора имеет частоту 10Гц.</p>
+<p>На этом уровне определены элементарные поведения, которые роботу необходимо выполнять для реализации задачи. Для переключения между поведениями используется модифицированная парадигма ITSPA, позволяющая использовать для описания последовательности сложных поведений стандартные средства управления потоком исполнения программы без конечных автоматов.</p>
+<p>В нашей системе представлен одноплатным компьютером Raspberry Pi 4B.</p>
+<h3 id="_5">Делибератор</h3>
+<p>Роль Делибератора - принятие стратегических решений и глобальное планирование.</p>
+<p>В нашей системе как такового Делибератора нет, но если бы он был бы, он был бы реализован на сервере системы глобального позиционирования.</p>
+<p>В нашей системе он отвечает за GPS (определение местоположения робота в глобальной системе координат) и классификацию объектов интереса (уточек).</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../hardware/electronic/" class="btn btn-neutral float-left" title="Электроника"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../low_level/" class="btn btn-neutral float-right" title="Код низкого уровня">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../hardware/electronic/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../low_level/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

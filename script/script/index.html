@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Сценарий видео - nedoROS</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "\u0421\u0446\u0435\u043d\u0430\u0440\u0438\u0439 \u0432\u0438\u0434\u0435\u043e";
+        var mkdocs_page_input_path = "script/script.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> nedoROS
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">О проекте</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Аппаратная часть</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../hardware/overview/">Обзор робота</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../hardware/assembly/">Инструкции и документация</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../hardware/electronic/">Электроника</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Программная часть</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../software/overview/">Обзор системы управления</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../software/low_level/">Код низкого уровня</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../software/rpi_level/">Код навигации и принятия решений</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../software/nav_level/">Видеозрение и классификация уточек</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Использование</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../usage/usage/">Запуск робота</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">MISC</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Сценарий видео</a>
+    <ul class="current">
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">nedoROS</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">MISC</li>
+      <li class="breadcrumb-item active">Сценарий видео</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p>Мне необходимо написать сценарий для видео, рассказывающем о нашем ROS2 роботе. </p>
+<p>В видео должны быть освещены темы:</p>
+<h2 id="_1">обзор всей системы в целом</h2>
+<ul>
+<li>робот:</li>
+<li>микроконтроллер (Arduino Uno)</li>
+<li>одноплатник (Raspberry Pi 4b)</li>
+<li>сервер навигации</li>
+<li>небесная веб камера</li>
+<li>классификатор уточек</li>
+<li>система глобального позиционирования</li>
+</ul>
+<h2 id="_2">аппаратная часть</h2>
+<ul>
+<li>механика</li>
+<li>фанерные детали</li>
+<li>3д печатные детали</li>
+<li>исполнительные механизмы (моторы, сервоприводы)</li>
+<li>датчики (усики, лидар, бортовая веб камера)</li>
+<li>электроника</li>
+<li>схема подключения</li>
+<li>включение аварийной кнопки</li>
+</ul>
+<h2 id="_3">система управления</h2>
+<p>Модифицированная 3х уровневая архитектура с элементами архитектуры подчинения (subsumption)</p>
+<h3 id="_4">программа микроконтроллера</h3>
+<ul>
+<li>уровень контроллер (controller)</li>
+<li>главный цикл</li>
+<li>парадигма ITSPA</li>
+<li>контроль скорости моторов</li>
+<li>программирование движения захвата через параметрические функции</li>
+<li>единственная задача: качественно отрабатывать присланное задание и давать обратную связь </li>
+<li>драйвер для ROS2 на бортовом компьютере</li>
+</ul>
+<h3 id="_5">программа бортового компьютера</h3>
+<ul>
+<li>уровень секвенсор (sequencer)</li>
+<li>основная логика управления движением и принятия решений</li>
+<li>парадигма ITSPA</li>
+<li>топики это датчики и исполнительные узлы</li>
+<li>набор элементарных поведений для выполнения отдельных задач</li>
+<li>для всех поведений блоки TS и A обеспечиваются использованием ROS</li>
+<li>блоки P для каждого поведения выделены в отдельные циклы</li>
+<li>для каждого поведения написан свой цикл, это поведение выполняющий</li>
+<li>алгоритм выполнения задачи прописывается в виде последовательности элементарных поведений, с использованием стандартных функций управления потоком исполнения программы</li>
+</ul>
+<h3 id="gps">программа системы GPS</h3>
+<ul>
+<li>уровень планировщик (deliberator)</li>
+<li>алгоритмы видеозрения</li>
+<li>распознавание charuco доски и aruco меток</li>
+<li>определение глобальных координат робота</li>
+<li>классификация уточек по типу</li>
+</ul>
+<p>На основании списка тем с основными мыслями напиши черновик сценария в виде более подробного списка тем и главных моментов, которые необходимо осветить. Напиши заготовки текста для каждой части, укажи места где необходимо добавить детали. Общий хронометраж видео - 30 минут. Для каждой части укажи примерное экранное время.</p>
+<hr />
+<h2 id="robot-2025-ros2-">Черновик сценария видео: «ROBOT-2025: наш ROS2-робот с трёхуровневой архитектурой»</h2>
+<p><strong>Общий хронометраж:</strong> 30 минут<br />
+<strong>Формат:</strong> экранное время разделено между ведущим (или закадровый голос) + натурные съёмки робота, схемы, 3D-модели, фрагменты кода.</p>
+<hr />
+<h3 id="1-1">1. Вступление (1 мин)</h3>
+<p><strong>Текст:</strong></p>
+<blockquote>
+<p>«Привет! Сегодня мы детально разберём нашего робота на ROS2. Он умеет ориентироваться по глобальным координатам, распознавать уток, автономно объезжать препятствия и выполнять захват. В основе — модифицированная трёхуровневая архитектура с элементами subsumption. За 30 минут пройдём путь от фанерной механики до алгоритмов видеозрения. Поехали!»</p>
+</blockquote>
+<p><strong>Что на экране:</strong><br />
+- Красивое общее видео робота, выполняющего задачу.<br />
+- Логотип проекта.</p>
+<hr />
+<h3 id="2-3">2. Обзор всей системы (3 мин)</h3>
+<h4 id="21-1">2.1. Робот целиком (1 мин)</h4>
+<p><strong>Текст:</strong></p>
+<blockquote>
+<p>«Наш робот — это гибрид Arduino Uno и Raspberry Pi 4B. Arduino отвечает за низкоуровневый контроль моторов и датчиков, Raspberry — за логику поведения. Связь через ROS2: драйвер на Pi отправляет команды и получает телеметрию.»</p>
+<p><strong>Детали, которые нужно показать:</strong><br />
+- Фото/видео робота, указать где Arduino, где Pi.<br />
+- Схема: Arduino ↔ (USB/serial) ↔ Raspberry Pi.</p>
+</blockquote>
+<h4 id="22-2">2.2. Сервер навигации (2 мин)</h4>
+<p><strong>Текст:</strong></p>
+<blockquote>
+<p>«Верхний уровень — сервер навигации, который работает на отдельном ПК или прямо на Raspberry, если хватает ресурсов. В его задачи входит:<br />
+- Небесная веб-камера (смотрит на потолок с ArUco-маркерами для глобальной локализации).<br />
+- Классификатор уточек — нейросеть, различающая, например, резиновых, деревянных, живых.<br />
+- Система глобального позиционирования — объединяет данные с камеры и, при необходимости, GPS-модуля (на улице).»</p>
+<p><strong>Детали:</strong> вставить скриншот работы детектора ArUco, пример классификации уточек.<br />
+<strong>Временная метка:</strong> с 1:00 по 4:00.</p>
+</blockquote>
+<hr />
+<h3 id="3-6">3. Аппаратная часть (6 мин)</h3>
+<h4 id="31-2">3.1. Механика (2 мин)</h4>
+<p><strong>Текст:</strong></p>
+<blockquote>
+<p>«Корпус — лазерная резка фанеры. Все кронштейны, шестерни и захваты напечатаны на 3D-принтере. Исполнительные механизмы: два DC мотора с энкодерами для колёс, сервоприводы для захвата и поворота камеры.<br />
+Датчики:<br />
+- Усики (тактильные концевые выключатели) — для обнаружения столкновений.<br />
+- Лидар (например, YDLIDAR X2) — для построения локальной карты.<br />
+- Бортовая веб-камера — для распознавания объектов спереди.»</p>
+<p><strong>Показать:</strong> крупные планы фанерных деталей, 3D-печатных узлов, работу захвата, монтаж лидара.</p>
+</blockquote>
+<h4 id="32-2">3.2. Электроника (2 мин)</h4>
+<p><strong>Текст:</strong></p>
+<blockquote>
+<p>«Электроника построена на двух платах:<br />
+- Arduino Uno: читает энкодеры, управляет моторами через драйвер L298N (или аналоги), опрашивает усики и сервоприводы.<br />
+- Raspberry Pi 4B: принимает команды от Arduino, обрабатывает лидар, камеры, общается с сервером навигации.<br />
+- Схема подключения: Pi получает питание 5В/3А, Arduino — от отдельного регулятора. Лидар через USB на Pi.»</p>
+</blockquote>
+<p><strong>Текст про аварийную кнопку:</strong></p>
+<blockquote>
+<p>«Аварийная кнопка — разрыв цепи питания моторов, подключена к входу Arduino. При нажатии — мгновенная остановка, даже если ROS завис.»</p>
+<p><strong>Показать:</strong> схему на экране, реальную кнопку на роботе.<br />
+<strong>Детали:</strong> добавить фото распиновки, если нужно.</p>
+</blockquote>
+<h4 id="33-2">3.3. Демонстрация аппаратной части (2 мин)</h4>
+<p><strong>Текст:</strong></p>
+<blockquote>
+<p>«Давайте посмотрим, как это работает вместе. Сейчас я нажимаю кнопку — моторы останавливаются. Проверим усики — при касании робот отъезжает назад.»</p>
+<p><strong>Видео:</strong> ручное тестирование кнопки, реакции усиков, движение по команде с пульта.</p>
+</blockquote>
+<hr />
+<h3 id="4-16">4. Система управления (16 мин)</h3>
+<h4 id="41-1">4.1. Общая архитектура (1 мин)</h4>
+<p><strong>Текст:</strong></p>
+<blockquote>
+<p>«У нас модифицированная трёхуровневая архитектура с элементами subsumption.<br />
+- Уровень <strong>Controller</strong> (Arduino) — выполнение примитивных команд, ПИД-регуляторы скорости.<br />
+- Уровень <strong>Sequencer</strong> (Raspberry Pi) — выбор поведения на основе датчиков и целей.<br />
+- Уровень <strong>Deliberator</strong> (сервер GPS) — глобальное планирование и распознавание.<br />
+Subsumption проявляется в том, что более приоритетное поведение (например, „избегание столкновения“) может вытеснять текущее.»</p>
+<p><strong>Схема:</strong> три блока со стрелками, указать потоки данных.</p>
+</blockquote>
+<h4 id="42-controller-5">4.2. Программа микроконтроллера (Controller) (5 мин)</h4>
+<p><strong>Текст:</strong></p>
+<blockquote>
+<p>«Arduino работает по парадигме <strong>ITSPA</strong> (Iterative, Timed, Sense-Plan-Act). Главный цикл:<br />
+- Считать датчики (энкодеры, усики, кнопку).<br />
+- Получить задание из ROS2 (через serial).<br />
+- Вычислить управляющие сигналы для моторов (PID).<br />
+- Выполнить движение захвата по параметрическим функциям (например, синусоидальная траектория для обхода помехи).<br />
+- Отправить обратную связь: текущая скорость, положение, сработали ли усики.<br />
+Единственная задача Arduino — качественно отрабатывать присланное задание и не думать о глобальной цели.»</p>
+<p><strong>Демо:</strong><br />
+- Фрагмент кода: void loop() { sense(); plan(); act(); }<br />
+- Параметрическая функция для захвата — график на экране.<br />
+- Ролик: робот выполняет команду «прямо 1 метр» — Arduino стабилизирует скорость.</p>
+</blockquote>
+<h4 id="43-sequencer-5">4.3. Программа бортового компьютера (Sequencer) (5 мин)</h4>
+<p><strong>Текст:</strong></p>
+<blockquote>
+<p>«На Raspberry Pi запущен ROS2-узел — “секвенсор”. Он тоже следует ITSPA, но на уровне поведения.<br />
+- Топики ROS2 — это датчики (/lidar, /camera, /bumpers) и исполнители (/cmd_vel, /gripper).<br />
+- Для каждого элементарного поведения („ехать вдоль стены“, „объехать утку“, „захватить“) написан отдельный цикл.<br />
+- Блоки TS (Time &amp; Sense) и A (Act) обеспечиваются самим ROS2: подписка на топики и публикация команд.<br />
+- Блоки P (Plan) — внутри каждого поведения свой цикл, где на основе сенсоров решается, что делать прямо сейчас.<br />
+- Алгоритм выполнения задачи — это последовательность вызовов поведений с обычными if/while и ожиданием событий. Например:<br />
+<code>nav_to(x,y); detect_duck(); grasp();</code>»</p>
+<p><strong>Детали:</strong> показать код на экране (C++/Python), как секвенсор переключает поведения.<br />
+<strong>Видео:</strong> робот объезжает препятствие — наложение текста, какое поведение активно.</p>
+</blockquote>
+<h4 id="44-gps-deliberator-4">4.4. Программа системы GPS (Deliberator) (4 мин)</h4>
+<p><strong>Текст:</strong></p>
+<blockquote>
+<p>«Верхний уровень — планировщик. Он запущен на мощном ПК или на Raspberry, но с выносом тяжёлых сетей. Задачи:<br />
+- Распознавать Charuco-доску и ArUco-метки на потолке (глобальная локализация).<br />
+- Вычислять глобальные координаты робота (x, y, угол).<br />
+- Классифицировать уток по типу: резиновая, деревянная, живая — с помощью свёрточной нейросети.<br />
+Планировщик посылает секвенсору цель „переместиться в точку A“ или „утка типа X находится в (x,y)“.<br />
+Здесь же реализован глобальный планировщик пути (A* на карте).»</p>
+<p><strong>Демо:</strong><br />
+- Работа ArUco-детектора на видео с потолочной камеры.<br />
+- Окно классификации: наезд камеры на утку, вывод типа.<br />
+- Rviz с глобальным планом и траекторией робота.</p>
+</blockquote>
+<h4 id="45-1">4.5. Взаимодействие уровней на примере (1 мин)</h4>
+<p><strong>Текст:</strong></p>
+<blockquote>
+<p>«Пример: планировщик даёт секвенсору команду „подъехать к утке типа A“. Секвенсор активирует поведение „навигация к точке“. Поведение отправляет Arduino цели скорости. Если лидар видит препятствие — секвенсор переключается на поведение объезда (subsumption: более приоритетное). Arduino продолжает выполнять локальные команды, не зная про утку. Как только препятствие позади — возврат к исходному поведению.»</p>
+<p><strong>Анимация:</strong> блок-схема с изменением активных уровней.</p>
+</blockquote>
+<hr />
+<h3 id="5-3">5. Заключение (3 мин)</h3>
+<p><strong>Текст:</strong></p>
+<blockquote>
+<p>«Мы показали:<br />
+- Как собрать робота из фанеры и 3D-печати.<br />
+- Почему мы разделили управление на три уровня.<br />
+- Как Arduino через ROS2 отрабатывает примитивы, а Raspberry решает, что делать.<br />
+- Как сервер навигации даёт глобальные цели.<br />
+Такой подход делает робота надёжным (аварийная кнопка и усики всегда работают), гибким (добавление новых поведений — просто написать ещё один цикл) и умным (глобальное планирование с распознаванием).  </p>
+</blockquote>
+<p><strong>Благодарность:</strong>  </p>
+<blockquote>
+<p>«Спасибо за внимание! Если хотите увидеть исходники или сборку — ссылки в описании. Подписывайтесь, в следующем видео разберём код секвенсора и калибровку ArUco.»</p>
+</blockquote>
+<p><strong>На экране:</strong><br />
+- Контактная информация, ссылки на GitHub, титры.</p>
+<hr />
+<h3 id="_6">Приложение: места для добавления деталей</h3>
+<table>
+<thead>
+<tr>
+<th>Раздел</th>
+<th>Где добавить детали</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.2</td>
+<td>Скриншоты работы классификатора уток с примерами правильных/ошибочных распознаваний.</td>
+</tr>
+<tr>
+<td>3.1</td>
+<td>3D-модель захвата с указанием сервопривода, чертёж фанерной основы.</td>
+</tr>
+<tr>
+<td>3.2</td>
+<td>Принципиальная схема подключения (можно сделать в Fritzing).</td>
+</tr>
+<tr>
+<td>4.2</td>
+<td>Подробный график работы ПИД-регулятора, сравнение с/без него.</td>
+</tr>
+<tr>
+<td>4.3</td>
+<td>Пример кода поведения «объезд препятствия»: подписка на /lidar, публикация /cmd_vel.</td>
+</tr>
+<tr>
+<td>4.4</td>
+<td>Демонстрация работы Charuco: калибровочная доска, вычисление координат в реальном времени.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>Итоговый хронометраж:</strong><br />
+- Введение: 1 мин<br />
+- Обзор системы: 3 мин<br />
+- Аппаратная часть: 6 мин<br />
+- Система управления: 16 мин<br />
+- Заключение: 3 мин<br />
+- +1 мин резерв (на переходы, пояснения деталей) → 30 минут.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../usage/usage/" class="btn btn-neutral float-left" title="Запуск робота"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../usage/usage/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

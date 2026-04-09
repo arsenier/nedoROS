@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Видеозрение и классификация уточек - nedoROS</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "\u0412\u0438\u0434\u0435\u043e\u0437\u0440\u0435\u043d\u0438\u0435 \u0438 \u043a\u043b\u0430\u0441\u0441\u0438\u0444\u0438\u043a\u0430\u0446\u0438\u044f \u0443\u0442\u043e\u0447\u0435\u043a";
+        var mkdocs_page_input_path = "software/nav_level.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> nedoROS
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">О проекте</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Аппаратная часть</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../hardware/overview/">Обзор робота</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../hardware/assembly/">Инструкции и документация</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../hardware/electronic/">Электроника</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Программная часть</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../overview/">Обзор системы управления</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../low_level/">Код низкого уровня</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../rpi_level/">Код навигации и принятия решений</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Видеозрение и классификация уточек</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#gps_1">Видео с демонстрацией работы GPS и классификации объектов</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#_1">Общая схема</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#_2">Запуск</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#usb_cam_node_exe">usb_cam_node_exe</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#charuco_detector">charuco_detector</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#apriltag_pose_detector_node">apriltag_pose_detector_node</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pose_recalibrator">pose_recalibrator</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#charuco_rectifier_node">charuco_rectifier_node</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Использование</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../usage/usage/">Запуск робота</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">MISC</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../script/script/">Сценарий видео</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">nedoROS</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Программная часть</li>
+      <li class="breadcrumb-item active">Видеозрение и классификация уточек</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="gps">Сервер GPS и классификации объектов</h1>
+<h3 id="gps_1"><a href="../img/video_demo.mp4">Видео с демонстрацией работы GPS и классификации объектов</a></h3>
+<h2 id="_1">Общая схема</h2>
+<pre><code>┌──────────── Изображение с камеры
+│               │              │
+│               ▼              ▼
+│  ┌───────────────────┐ ┌───────────────────┐
+│  │Определение позиции│ │Определение позиции│
+│  │   charuco-доски   │ │   aruco-маркера   │
+│  └────┬───────┬──────┘ └────┬──────────────┘
+│       │       │             │  
+│       │       ▼             ▼
+│       │     ┌──────────────────┐
+│       │     │Вычисление позиции│
+│       │     │ маркера на доске │
+│       │     └──────────────────┘
+│       │               │
+│       │               ▼
+│       │      Отправка на робота
+▼       ▼
+┌───────────────────┐
+│&quot;Выпрямление&quot; доски│
+│ по известной поз. │
+└───────────────────┘
+         │
+         ▼
+┌───────────────────┐
+│  Определение  16  │
+│ стартовых позиций │
+└───────────────────┘
+         │
+         ▼
+┌───────────────────┐
+│Определение объекта│
+│    в  каждой из   │
+│ стартовых позиций │
+└───────────────────┘
+         │
+         ▼
+ Отправка на робота
+</code></pre>
+<h2 id="_2">Запуск</h2>
+<p>Для удобного запуска реализован launch-файл <a href="../../charuco_ws/src/nedo_bringup/launch/all.launch.py">all.launch.py</a>, который запускает:
+- <code>usb_cam_node_exe</code> для получения изображения с камеры
+- <code>charuco_detector</code> для распознавания и получения координат доски
+- <code>apriltag_pose_detector_node</code> для распознавания и получения координат маркера
+- <code>pose_recalibrator</code> для получения координат маркера в относительных координатах доски
+- <code>charuco_rectifier_node</code> для "выпрямления" доски по известной позиции и распознавания объектов</p>
+<p>В этом же файле находятся все основные настройки, например параметры aruco-маркера, названия топиков и т.д.</p>
+<h2 id="usb_cam_node_exe">usb_cam_node_exe</h2>
+<p>Используется стандартный usb_cam для получения изображения с камеры, отправляется в топик <code>/image_raw</code>. Также, для корректной работы нод, камера была откалибрована и данные о камере передаются в топик <code>/camera_info</code>.</p>
+<p>В папке <a href="../../charuco_ws/src/usb_cam">charuco_ws/src/usb_cam</a> находятся файлы с настройками камеры. Там важно изменить все параметры камеры под свою, также полезно настраивать яркость (brightness) до сборки датасета и использования распознавания объектов.</p>
+<h2 id="charuco_detector">charuco_detector</h2>
+<p>Нода определяет арукомаркеры на изображении и по их позициям, зная искажение камеры и расположение маркеров на доске, определяет позицию доски относительно камеры. Публикует tf2 топик <code>/image_raw_charuco_pose</code> с координатами доски относительно координат камеры.</p>
+<p>За основу взят репозиторий <a href="https://github.com/errrr0501/charuco_detector_ROS2">charuco_detector_ROS2</a>, портировавший на ROS2 репозиоторий <a href="https://github.com/carlosmccosta/charuco_detector">charuco_detector</a>.</p>
+<h2 id="apriltag_pose_detector_node">apriltag_pose_detector_node</h2>
+<p>Нода определяет все маркера на изображении, используется для получения координат робота (с маркером 239 семейства Aruco 250_4х4) и распознавания центрального маркера для определения старта игры.</p>
+<p>Получение координат маркера в системе камеры аналогично получению координат charuco-доски, код представляет стандартный пример обнаружения маркеров библиотеки OpenCV2, обернутый в ROS2.</p>
+<h2 id="pose_recalibrator">pose_recalibrator</h2>
+<p>Нода получает tf2-топики <code>/image_raw_charuco_pose</code> и <code>/image_raw_apriltag_pose</code> и вычисляет координаты маркера в координатах доски (включая координаты центра маркера и его направление, то есть направление взгляда робота). Преобразование делается стандартным ROS2-методом для tf2.</p>
+<p>Полученные координаты отправляются на робота через топик <code>/image_recalib_apriltag_pose</code>.</p>
+<h2 id="charuco_rectifier_node">charuco_rectifier_node</h2>
+<p>Нода получает изображение с камеры, откалиброванные параметры камеры (типа искажения, разрешения и т.д.) и позицию доски относительно камеры. Используя эти данные, мы можем определить позиции углов доски в пикселях на изображении, и по ним "выпрямить" доску, то есть получить прямоугольное изображение, углы которого соответствуют углам доски и расстояние в пикселях соответствует расстоянию в миллиметрах на реальной доске.</p>
+<p><img alt="charuco_rectifier_node" src="../img/rectified_board.jpg" /></p>
+<p>Так как мы точно знаем стартовые позиции объектов, мы получить изображения каждого из объектов, обрезая матрицу изображения с выровненной доской</p>
+<p><img alt="rviz_debug" src="../img/rviz_final.png" /></p>
+<p>Это скрин отладочных выводов в RViz. Здесь видно как нарезаются картинки для каждого объекта, которые по одной передаются в модуль распознавания (подробнее <a href="../duck_classifier/">тут</a>), который определяет тип и возвращает его нам.</p>
+<p>Код определяет все 16 объектов. Если симметричные объекты совпадают (по регламенту расположение объектов симметрично в начале матча), значит вероятность ошибки мала и код отправляет на робота список, сопоставляющий номер позиции на поле с объектом который там стоит. Когда центральный тег открывается (начало игры и запуск роботов) мы больше не распознаем объекты и отправляем последний список который увидели</p>
+<h1 id="apendix">Apendix</h1>
+<h2 id="_3"><strong><em>Идеи дальше остались на стадии разработки</em></strong></h2>
+<p>Высь код можно найти в файле <a href="../../charuco_ws/src/charuco_rectifier/charuco_rectifier/charuco_rectifier_node.py#177-234">charuco_rectifier_node.py</a></p>
+<p>Изначально мы планировали определять позиции объектов с камеры над полем, так как думали что их стартовое расположение будет случайным. Для этого мы сначала калибровались, запоминая изображение поля без объектов и роботов на нем (уже "выпрямленное"). Возьмем такое изображение </p>
+<p><img alt="img" src="../img/apendix1.jpeg" /></p>
+<p>Теперь работаем с картинками как с матрицами - <strong><em>вычисляем модуль разности для каждого пикселя</em></strong> между калибровочным изображением и картинки с поля. Если попробовать вывести полученную матрицу, получим следующее</p>
+<p><img alt="img" src="../img/apendix2.jpeg" /></p>
+<p>Видно, что рисунок самой доски почти уходит (что легко исправляется морфологическими преобразованиями), а объекты легко отличимы глазом на полученном изображении.</p>
+<p>Проблема возникает с тем, что такая разность слишком чувствительна к изменениям в освещении, особенно к теням на поле, из-за чего приходится сильно обрабатывать полученную матрицу, но из нее можно получить хорошую маску (хотя бы в тепличных условиях)</p>
+<p><img alt="charuco_rectifier_node" src="../img/rectified_board.jpg" /></p>
+<p>Первое большое пятно - нашего робота, легко выкинуть зная его координаты. Второе большое пятно - робот противника, выкинем его и объекты с запасом вокруг. Всё что осталось - какие-то игровые объекты, зная их точную позицию на изображении, можем обрезать кадр и отправить в модуль распознавания, как описано выше</p>
+<h2 id="apendixs-appendix">Apendix's appendix</h2>
+<p>В той же ноде <a href="../../charuco_ws/src/charuco_rectifier/charuco_rectifier/charuco_rectifier_node.py">charuco_rectifier_node</a> планировалось составлять маршрут для робота с объездом дешевых объектов и вражеского робота. Но увидев регламент самого хакатона, мы решили просто доставлять в зону выгрузки ближайшие объекты, отдавая приоритет более дорогим. </p>
+<p>На взаимодействие с противником мы не рассчитывали, но оставили на всякий случай "усики", которые не дают роботу таранить объекты, но об этом подробнее в части про хардвар</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../rpi_level/" class="btn btn-neutral float-left" title="Код навигации и принятия решений"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../usage/usage/" class="btn btn-neutral float-right" title="Запуск робота">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../rpi_level/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../usage/usage/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
