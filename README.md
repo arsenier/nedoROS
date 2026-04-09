@@ -1,5 +1,7 @@
 # nedoROS
 
+## *Подробная документация проекта* https://arsenier.github.io/nedoROS/
+
 ## Файловая структура
 
 ```
