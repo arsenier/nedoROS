@@ -14,3 +14,10 @@ source install/setup.bash
 make lidar
 make pi_driv
 ```
+
+## Запуск модулей на компьютере
+Запуск распознавания положения charuco-доски и aruco-маркера 239, а также определение объектов на стартовых позициях
+```
+cd charuco_ws
+make
+```
