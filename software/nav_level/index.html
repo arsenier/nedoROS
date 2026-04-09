@@ -5,14 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>Видеозрение и классификация уточек - nedoROS</title>
+    <title>Сервер GPS и классификация объектов - nedoROS</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "\u0412\u0438\u0434\u0435\u043e\u0437\u0440\u0435\u043d\u0438\u0435 \u0438 \u043a\u043b\u0430\u0441\u0441\u0438\u0444\u0438\u043a\u0430\u0446\u0438\u044f \u0443\u0442\u043e\u0447\u0435\u043a";
+        var mkdocs_page_name = "\u0421\u0435\u0440\u0432\u0435\u0440 GPS \u0438 \u043a\u043b\u0430\u0441\u0441\u0438\u0444\u0438\u043a\u0430\u0446\u0438\u044f \u043e\u0431\u044a\u0435\u043a\u0442\u043e\u0432";
         var mkdocs_page_input_path = "software/nav_level.md";
         var mkdocs_page_url = null;
       </script>
@@ -60,7 +60,7 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../rpi_level/">Код навигации и принятия решений</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Видеозрение и классификация уточек</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Сервер GPS и классификация объектов</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#gps_1">Видео с демонстрацией работы GPS и классификации объектов</a>
     </li>
@@ -106,7 +106,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Программная часть</li>
-      <li class="breadcrumb-item active">Видеозрение и классификация уточек</li>
+      <li class="breadcrumb-item active">Сервер GPS и классификация объектов</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -115,7 +115,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="gps">Сервер GPS и классификации объектов</h1>
+                <h1 id="gps">Сервер GPS и классификация объектов</h1>
 <h3 id="gps_1"><a href="../img/video_demo.mp4">Видео с демонстрацией работы GPS и классификации объектов</a></h3>
 <h2 id="_1">Общая схема</h2>
 <pre><code>┌──────────── Изображение с камеры
@@ -157,7 +157,7 @@
  Отправка на робота
 </code></pre>
 <h2 id="_2">Запуск</h2>
-<p>Для удобного запуска реализован launch-файл <a href="../../charuco_ws/src/nedo_bringup/launch/all.launch.py">all.launch.py</a>, который запускает:
+<p>Для удобного запуска реализован launch-файл <a href="https://github.com/arsenier/nedoROS/blob/main/charuco_ws/src/nedo_bringup/launch/all.launch.py">all.launch.py</a>, который запускает:
 - <code>usb_cam_node_exe</code> для получения изображения с камеры
 - <code>charuco_detector</code> для распознавания и получения координат доски
 - <code>apriltag_pose_detector_node</code> для распознавания и получения координат маркера
@@ -166,7 +166,7 @@
 <p>В этом же файле находятся все основные настройки, например параметры aruco-маркера, названия топиков и т.д.</p>
 <h2 id="usb_cam_node_exe">usb_cam_node_exe</h2>
 <p>Используется стандартный usb_cam для получения изображения с камеры, отправляется в топик <code>/image_raw</code>. Также, для корректной работы нод, камера была откалибрована и данные о камере передаются в топик <code>/camera_info</code>.</p>
-<p>В папке <a href="../../charuco_ws/src/usb_cam">charuco_ws/src/usb_cam</a> находятся файлы с настройками камеры. Там важно изменить все параметры камеры под свою, также полезно настраивать яркость (brightness) до сборки датасета и использования распознавания объектов.</p>
+<p>В папке <a href="https://github.com/arsenier/nedoROS/blob/main/charuco_ws/src/usb_cam">charuco_ws/src/usb_cam</a> находятся файлы с настройками камеры. Там важно изменить все параметры камеры под свою, также полезно настраивать яркость (brightness) до сборки датасета и использования распознавания объектов.</p>
 <h2 id="charuco_detector">charuco_detector</h2>
 <p>Нода определяет арукомаркеры на изображении и по их позициям, зная искажение камеры и расположение маркеров на доске, определяет позицию доски относительно камеры. Публикует tf2 топик <code>/image_raw_charuco_pose</code> с координатами доски относительно координат камеры.</p>
 <p>За основу взят репозиторий <a href="https://github.com/errrr0501/charuco_detector_ROS2">charuco_detector_ROS2</a>, портировавший на ROS2 репозиоторий <a href="https://github.com/carlosmccosta/charuco_detector">charuco_detector</a>.</p>
@@ -185,7 +185,7 @@
 <p>Код определяет все 16 объектов. Если симметричные объекты совпадают (по регламенту расположение объектов симметрично в начале матча), значит вероятность ошибки мала и код отправляет на робота список, сопоставляющий номер позиции на поле с объектом который там стоит. Когда центральный тег открывается (начало игры и запуск роботов) мы больше не распознаем объекты и отправляем последний список который увидели</p>
 <h1 id="apendix">Apendix</h1>
 <h2 id="_3"><strong><em>Идеи дальше остались на стадии разработки</em></strong></h2>
-<p>Высь код можно найти в файле <a href="../../charuco_ws/src/charuco_rectifier/charuco_rectifier/charuco_rectifier_node.py#177-234">charuco_rectifier_node.py</a></p>
+<p>Высь код можно найти в файле <a href="https://github.com/arsenier/nedoROS/blob/main/charuco_ws/src/charuco_rectifier/charuco_rectifier/charuco_rectifier_node.py#177-234">charuco_rectifier_node.py</a></p>
 <p>Изначально мы планировали определять позиции объектов с камеры над полем, так как думали что их стартовое расположение будет случайным. Для этого мы сначала калибровались, запоминая изображение поля без объектов и роботов на нем (уже "выпрямленное"). Возьмем такое изображение </p>
 <p><img alt="img" src="../img/apendix1.jpeg" /></p>
 <p>Теперь работаем с картинками как с матрицами - <strong><em>вычисляем модуль разности для каждого пикселя</em></strong> между калибровочным изображением и картинки с поля. Если попробовать вывести полученную матрицу, получим следующее</p>
@@ -195,7 +195,7 @@
 <p><img alt="charuco_rectifier_node" src="../img/rectified_board.jpg" /></p>
 <p>Первое большое пятно - нашего робота, легко выкинуть зная его координаты. Второе большое пятно - робот противника, выкинем его и объекты с запасом вокруг. Всё что осталось - какие-то игровые объекты, зная их точную позицию на изображении, можем обрезать кадр и отправить в модуль распознавания, как описано выше</p>
 <h2 id="apendixs-appendix">Apendix's appendix</h2>
-<p>В той же ноде <a href="../../charuco_ws/src/charuco_rectifier/charuco_rectifier/charuco_rectifier_node.py">charuco_rectifier_node</a> планировалось составлять маршрут для робота с объездом дешевых объектов и вражеского робота. Но увидев регламент самого хакатона, мы решили просто доставлять в зону выгрузки ближайшие объекты, отдавая приоритет более дорогим. </p>
+<p>В той же ноде <a href="https://github.com/arsenier/nedoROS/blob/main/charuco_ws/src/charuco_rectifier/charuco_rectifier/charuco_rectifier_node.py">charuco_rectifier_node</a> планировалось составлять маршрут для робота с объездом дешевых объектов и вражеского робота. Но увидев регламент самого хакатона, мы решили просто доставлять в зону выгрузки ближайшие объекты, отдавая приоритет более дорогим. </p>
 <p>На взаимодействие с противником мы не рассчитывали, но оставили на всякий случай "усики", которые не дают роботу таранить объекты, но об этом подробнее в части про хардвар</p>
               
             </div>
