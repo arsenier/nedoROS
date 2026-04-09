@@ -46,6 +46,7 @@
 ## Запуск
 
 Для удобного запуска реализован launch-файл [all.launch.py](https://github.com/arsenier/nedoROS/blob/main/charuco_ws/src/nedo_bringup/launch/all.launch.py), который запускает:
+
 - `usb_cam_node_exe` для получения изображения с камеры
 - `charuco_detector` для распознавания и получения координат доски
 - `apriltag_pose_detector_node` для распознавания и получения координат маркера
