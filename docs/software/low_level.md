@@ -29,25 +29,25 @@ Arduino-Rpi:
 
 ## Управление моторами
 
-![alt text](image.png)
+![alt text](img/image.png)
 
 ### Вычислитель скорости
 
-![alt text](image-2.png)
+![alt text](img/image-2.png)
 
 ### ПИ регуляторы скорости
 
-![alt text](image-1.png)
+![alt text](img/image-1.png)
 
 ### Настройка коэффициентов
 
 Метод мысленного эксперимента и подбора.
 
-![alt text](image-3.png)
+![alt text](img/image-3.png)
 
-![alt text](image-4.png)
+![alt text](img/image-4.png)
 
-![alt text](image-5.png)
+![alt text](img/image-5.png)
 
 ## Локальная одометрия
 
@@ -112,4 +112,4 @@ void odom() {
 
 Программирование циклограм движения сервоприводов захвата
 
-![alt text](image-6.png)
+![alt text](img/image-6.png)
