@@ -2,6 +2,8 @@
 
 привет я боря и если вы видите эту надпись то я ничего не сделал
 
+[Ссылка на датасет](https://huggingface.co/datasets/BW/ROS_Hackathon_2026_Toys_Dataset)
+
 <!-- ### Классификация объектов -->
 
 <!-- https://superuser.com/a/556031 -->
