@@ -74,11 +74,6 @@
     </ul>
                   </li>
               </ul>
-              <p class="caption"><span class="caption-text">MISC</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../script/script/">Сценарий видео</a>
-                  </li>
-              </ul>
       </div>
     </div>
     </nav>
@@ -106,19 +101,23 @@
                 <h1 id="_1">Запуск программ</h1>
 <h2 id="_2">Ручной запуск робота</h2>
 <p>Запуск контейнера для ROS и вход в него</p>
-<pre><code>cd ~/nedoROS/rpi_ws/
+<pre><code class="language-bash">cd ~/nedoROS/rpi_ws/
 make zmrobo_run 
-make zmrobo_into 
 </code></pre>
-<p>Внутри контейнера:</p>
-<pre><code>cd workspace/
+<p>В двух разных терминалах:</p>
+<pre><code class="language-bash">make zmrobo_into 
+cd workspace/
 source install/setup.bash
-make lidar
-make pi_driv
+make all
+</code></pre>
+<pre><code class="language-bash">make zmrobo_into 
+cd workspace/
+source install/setup.bash
+make master
 </code></pre>
 <h2 id="_3">Запуск модулей на компьютере</h2>
 <p>Запуск распознавания положения charuco-доски и aruco-маркера 239, а также определение объектов на стартовых позициях</p>
-<pre><code>cd charuco_ws
+<pre><code class="language-bash">cd charuco_ws
 make
 </code></pre>
               
@@ -126,7 +125,6 @@ make
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../../software/nav_level/" class="btn btn-neutral float-left" title="Сервер GPS и классификация объектов"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../../script/script/" class="btn btn-neutral float-right" title="Сценарий видео">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -151,8 +149,6 @@ make
     
       <span><a href="../../software/nav_level/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
-    
-      <span><a href="../../script/script/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

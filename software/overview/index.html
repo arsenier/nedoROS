@@ -66,6 +66,8 @@
     </li>
         </ul>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#ros">ROS</a>
+    </li>
     </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../low_level/">Код низкого уровня</a>
@@ -78,11 +80,6 @@
               <p class="caption"><span class="caption-text">Использование</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../usage/usage/">Запуск робота</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">MISC</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../script/script/">Сценарий видео</a>
                   </li>
               </ul>
       </div>
@@ -159,6 +156,10 @@
 <p>Роль Делибератора - принятие стратегических решений и глобальное планирование.</p>
 <p>В нашей системе как такового Делибератора нет, но если бы он был бы, он был бы реализован на сервере системы глобального позиционирования.</p>
 <p>В нашей системе он отвечает за GPS (определение местоположения робота в глобальной системе координат) и классификацию объектов интереса (уточек).</p>
+<h2 id="ros">ROS</h2>
+<p>Общая схема топиков и нод представлена ниже:</p>
+<p><img alt="" src="../../img/rosgraph.png" /></p>
+<p>Здесь секвенсор это нода <code>/tspa</code>. В ней происходит принятие решений и обработка всех сигналов. Самая правая нода <code>/pi_driver</code> отвечает за взаимодействие с контроллером Arduino Uno по UART. Все остальные ноды отвечают за GPS и классификацию уточек.</p>
               
             </div>
           </div><footer>

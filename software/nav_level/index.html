@@ -78,17 +78,18 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#charuco_rectifier_node">charuco_rectifier_node</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#_3">Классификация объектов</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">Сборка датасета</a>
+    </li>
+        </ul>
+    </li>
     </ul>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Использование</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../usage/usage/">Запуск робота</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">MISC</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../script/script/">Сценарий видео</a>
                   </li>
               </ul>
       </div>
@@ -117,6 +118,7 @@
               
                 <h1 id="gps">Сервер GPS и классификация объектов</h1>
 <h3 id="gps_1"><a href="../img/video_demo.webm">Видео с демонстрацией работы GPS и классификации объектов</a></h3>
+<p><img alt="" src="../img/video_demo.gif" /></p>
 <h2 id="_1">Общая схема</h2>
 <pre><code>┌──────────── Изображение с камеры
 │               │              │
@@ -185,8 +187,14 @@
 <p><img alt="rviz_debug" src="../img/rviz_final.png" /></p>
 <p>Это скрин отладочных выводов в RViz. Здесь видно как нарезаются картинки для каждого объекта, которые по одной передаются в модуль распознавания (подробнее <a href="../duck_classifier/">тут</a>), который определяет тип и возвращает его нам.</p>
 <p>Код определяет все 16 объектов. Если симметричные объекты совпадают (по регламенту расположение объектов симметрично в начале матча), значит вероятность ошибки мала и код отправляет на робота список, сопоставляющий номер позиции на поле с объектом который там стоит. Когда центральный тег открывается (начало игры и запуск роботов) мы больше не распознаем объекты и отправляем последний список который увидели</p>
+<h2 id="_3">Классификация объектов</h2>
+<!-- https://superuser.com/a/556031 -->
+<!-- ffmpeg -i dataset.mp4     -vf "fps=15,scale=360:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse"     -loop 0 dataset15360.gif -->
+
+<h3 id="_4">Сборка датасета</h3>
+<p><img alt="" src="../../img/dataset15360.gif" /></p>
 <h1 id="apendix">Apendix</h1>
-<h2 id="_3"><strong><em>Идеи дальше остались на стадии разработки</em></strong></h2>
+<h2 id="_5"><strong><em>Идеи дальше остались на стадии разработки</em></strong></h2>
 <p>Высь код можно найти в файле <a href="https://github.com/arsenier/nedoROS/blob/main/charuco_ws/src/charuco_rectifier/charuco_rectifier/charuco_rectifier_node.py#177-234">charuco_rectifier_node.py</a></p>
 <p>Изначально мы планировали определять позиции объектов с камеры над полем, так как думали что их стартовое расположение будет случайным. Для этого мы сначала калибровались, запоминая изображение поля без объектов и роботов на нем (уже "выпрямленное"). Возьмем такое изображение </p>
 <p><img alt="img" src="../img/apendix1.jpeg" /></p>
