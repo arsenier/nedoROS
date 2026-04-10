@@ -157,12 +157,14 @@
  Отправка на робота
 </code></pre>
 <h2 id="_2">Запуск</h2>
-<p>Для удобного запуска реализован launch-файл <a href="https://github.com/arsenier/nedoROS/blob/main/charuco_ws/src/nedo_bringup/launch/all.launch.py">all.launch.py</a>, который запускает:
-- <code>usb_cam_node_exe</code> для получения изображения с камеры
-- <code>charuco_detector</code> для распознавания и получения координат доски
-- <code>apriltag_pose_detector_node</code> для распознавания и получения координат маркера
-- <code>pose_recalibrator</code> для получения координат маркера в относительных координатах доски
-- <code>charuco_rectifier_node</code> для "выпрямления" доски по известной позиции и распознавания объектов</p>
+<p>Для удобного запуска реализован launch-файл <a href="https://github.com/arsenier/nedoROS/blob/main/charuco_ws/src/nedo_bringup/launch/all.launch.py">all.launch.py</a>, который запускает:</p>
+<ul>
+<li><code>usb_cam_node_exe</code> для получения изображения с камеры</li>
+<li><code>charuco_detector</code> для распознавания и получения координат доски</li>
+<li><code>apriltag_pose_detector_node</code> для распознавания и получения координат маркера</li>
+<li><code>pose_recalibrator</code> для получения координат маркера в относительных координатах доски</li>
+<li><code>charuco_rectifier_node</code> для "выпрямления" доски по известной позиции и распознавания объектов</li>
+</ul>
 <p>В этом же файле находятся все основные настройки, например параметры aruco-маркера, названия топиков и т.д.</p>
 <h2 id="usb_cam_node_exe">usb_cam_node_exe</h2>
 <p>Используется стандартный usb_cam для получения изображения с камеры, отправляется в топик <code>/image_raw</code>. Также, для корректной работы нод, камера была откалибрована и данные о камере передаются в топик <code>/camera_info</code>.</p>
