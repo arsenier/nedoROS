@@ -12,6 +12,6 @@ nav:
     - Сервер GPS и классификация объектов: software/nav_level.md
   - Использование:
     - Запуск робота: usage/usage.md
-  - MISC:
-    - Сценарий видео: script/script.md
+  # - MISC:
+  #   - Сценарий видео: script/script.md
 theme: readthedocs
