@@ -13,7 +13,9 @@ pip install ultralytics==8.2.103 -q
 ```
 
 Чтобы получить веса модели и данные находятся на huggingface:
+
 [Ссылка на модель](https://huggingface.co/BW/ROS2026_Hackathon_Yolov8_classification)
+
 [Ссылка на датасет](https://huggingface.co/datasets/BW/ROS_Hackathon_2026_Toys_Dataset)
 
 <!-- ### Классификация объектов -->

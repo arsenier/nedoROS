@@ -9,7 +9,8 @@ nav:
     - Обзор системы управления: software/overview.md
     - Код низкого уровня: software/low_level.md
     - Код навигации и принятия решений: software/rpi_level.md
-    - Сервер GPS и классификация объектов: software/nav_level.md
+    - Сервер GPS: software/nav_level.md
+    - Распознавание объектов: software/duck_classifier.md
   - Использование:
     - Запуск робота: usage/usage.md
   # - MISC:
