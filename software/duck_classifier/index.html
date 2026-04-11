@@ -5,14 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>Распознавание объекта - nedoROS</title>
+    <title>Распознавание объектов - nedoROS</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "\u0420\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0432\u0430\u043d\u0438\u0435 \u043e\u0431\u044a\u0435\u043a\u0442\u0430";
+        var mkdocs_page_name = "\u0420\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0432\u0430\u043d\u0438\u0435 \u043e\u0431\u044a\u0435\u043a\u0442\u043e\u0432";
         var mkdocs_page_input_path = "software/duck_classifier.md";
         var mkdocs_page_url = null;
       </script>
@@ -53,14 +53,28 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Программная часть</span></p>
-              <ul>
+              <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../overview/">Обзор системы управления</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../low_level/">Код низкого уровня</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../rpi_level/">Код навигации и принятия решений</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../nav_level/">Сервер GPS и классификация объектов</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../nav_level/">Сервер GPS</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Распознавание объектов</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#_2">Постановка задачи</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#_3">Данные</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#_4">Модель</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">Сборка датасета</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Использование</span></p>
@@ -82,7 +96,8 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Распознавание объекта</li>
+          <li class="breadcrumb-item">Программная часть</li>
+      <li class="breadcrumb-item active">Распознавание объектов</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -91,19 +106,33 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="_1">Распознавание объекта</h1>
-<p>привет я боря и если вы видите эту надпись то я ничего не сделал</p>
+                <h1 id="_1">Классификация объектов</h1>
+<h2 id="_2">Постановка задачи</h2>
+<p>По изображение с верхней камеры понять начальное расположение типов объектов.</p>
+<h2 id="_3">Данные</h2>
+<p>Crop картинки с верхней камеры, в разрешении 120x100 начальных  позиций с объектами. Данные были размечены в Label Studio.</p>
+<h2 id="_4">Модель</h2>
+<p>Дообученная на наших данных YOLOv8m-cls.</p>
+<p>Для работы надо установить:</p>
+<pre><code>pip install ultralytics==8.2.103 -q
+</code></pre>
+<p>Чтобы получить веса модели и данные находятся на huggingface:</p>
+<p><a href="https://huggingface.co/BW/ROS2026_Hackathon_Yolov8_classification">Ссылка на модель</a></p>
 <p><a href="https://huggingface.co/datasets/BW/ROS_Hackathon_2026_Toys_Dataset">Ссылка на датасет</a></p>
 <!-- ### Классификация объектов -->
 
 <!-- https://superuser.com/a/556031 -->
 <!-- ffmpeg -i dataset.mp4     -vf "fps=15,scale=360:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse"     -loop 0 dataset15360.gif -->
 
-<h4 id="_2">Сборка датасета</h4>
+<h4 id="_5">Сборка датасета</h4>
 <p><img alt="" src="../../img/dataset15360.gif" /></p>
               
             </div>
           </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../nav_level/" class="btn btn-neutral float-left" title="Сервер GPS"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../usage/usage/" class="btn btn-neutral float-right" title="Запуск робота">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
 
   <hr/>
 
@@ -125,6 +154,10 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
+      <span><a href="../nav_level/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../usage/usage/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
