@@ -104,191 +104,170 @@
               
                 <h1 id="_1">Инструкции и документация</h1>
 <h2 id="_2">Конструкция робота</h2>
-<p>Все самостоятельно разработанные разработанные детали робота были либо вырезаны на
-ларезном станке, либо напечатаны на 3D принтере. Исходные файлы проекта доступны <a href="https://disk.yandex.ru/d/OX-B2bhMUjPgxg">здесь</a>.</p>
+<p>Все самостоятельно разработанные детали робота были либо вырезаны на
+лазерном станке, либо напечатаны на 3D-принтере. Исходные файлы проекта доступны <a href="https://disk.yandex.ru/d/OX-B2bhMUjPgxg">здесь</a>.</p>
 <h2 id="_3">Сборка робота</h2>
-<p>Шаг 1. Вырезать деталь 1 этажа, закрепить на ней держатель аккумуляторов, моторы</p>
+<p>Шаг 1. Вырезать деталь 1 этажа, закрепить на ней держатель аккумуляторов и моторы</p>
 <p>Шаг 2. Приклеить лидар на тонкий слой термоклея. Важно соблюсти его ориентацию относительно робота</p>
-<p>Шаг 3. На 50 мм стойки прикрутить второй этаж. На нем расположить: тумблер, стабилизатор, плату Ардуино с шилдом, макетную плату для гироскопа</p>
-<p>Шаr 4. Теперь можно закрепить на нижней платформе манипулятор и концевые выключатели, с приклеинными на термоклей усиками</p>
-<p>Шаг 5. Подключить всю перифирию к основному контроллеру. После установки третьего этажа доступ к контроллеру будет ограничен и подключить все будет сложнее</p>
-<p>Шаг 6. На 50 мм стойки поставить третий этаж. Закрепить на нем второй стабилизатор, разберри</p>
-<p>Шаг 7. Подключить питание микрокомпьютера к стабилизатору, подключить выход USB-A разберри к USB-В ардуины. Важно, что на нашем роботе на кабеле, со стороны USB-А разъема изолетной заклеен пин 5 В. Это не дает ардуине питаться от разберри при отсутствии основного питания (например при нажатии аварийной кнопки)<br />
-<img src="./usb-a_pinout.jpg" width="45%"> <img src="./usb-a.jpg" width="45%"></p>
-<p>Шаг 8. На 50 мм стойки закрепить 4 этаж. На ней закрепить крепление камеры, с ней внутри, и аварийную кнопку. Важно, что во избежание люфта кнопки стоит между ее корпусом и этажом поставить 4 мм проставку</p>
-<p>Шаг 9. Приклеить аруку на крышу робота</p>
+<p>Шаг 3. На 50 мм стойки прикрутить второй этаж. На нем расположить: тумблер, стабилизатор, плату Arduino с шилдом, макетную плату для гироскопа</p>
+<p>Шаг 4. Теперь можно закрепить на нижней платформе манипулятор и концевые выключатели с приклеенными на термоклей усиками</p>
+<p>Шаг 5. Подключить всю периферию к основному контроллеру. После установки третьего этажа доступ к контроллеру будет ограничен, и подключить все будет сложнее</p>
+<p>Шаг 6. На 50 мм стойки поставить третий этаж. Закрепить на нем второй стабилизатор и Raspberry Pi</p>
+<p>Шаг 7. Подключить питание микрокомпьютера к стабилизатору и соединить Raspberry Pi с Arduino кабелем USB-A - USB-B. Важно, что на нашем роботе на кабеле со стороны разъема USB-A изолентой заклеен пин 5 В. Это не дает плате Arduino питаться от Raspberry Pi при отсутствии основного питания, например при нажатии аварийной кнопки.<br />
+<img src="./assembly/usb-a_pinout.jpg" width="45%"> <img src="./assembly/usb-a.jpg" width="45%"></p>
+<p>Шаг 8. На 50 мм стойки закрепить 4 этаж. На нем закрепить крепление камеры вместе с камерой и аварийную кнопку. Важно, что во избежание люфта кнопки стоит поставить 4 мм проставку между ее корпусом и этажом</p>
+<p>Шаг 9. Приклеить ArUco-маркер на крышу робота</p>
 <h2 id="_4">Список компонентов и ссылок</h2>
 <table>
 <thead>
 <tr>
-<th>Закупки:</th>
+<th>№</th>
 <th>Название</th>
-<th>Назначение, описание</th>
-<th>Прямая ссылка где купить</th>
+<th>Назначение</th>
+<th>Ссылка</th>
 <th>Количество</th>
-<th>Фотография если нужно</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>1</td>
-<td>Raspberry pi 4B</td>
-<td>крутиться рос, обработка лидара, общение с ардуино</td>
-<td>https://aliexpress.ru/item/1005006733203166.html?shpMethod=CAINIAO_STANDARD&amp;sku_id=12000038121994670&amp;spm=a2g2w.productlist.search_results.2.791b7173iCNzRV</td>
+<td>Raspberry Pi 4B</td>
+<td>запуск ROS, обработка лидара, обмен данными с Arduino</td>
+<td><a href="https://aliexpress.ru/item/1005006733203166.html?shpMethod=CAINIAO_STANDARD&amp;sku_id=12000038121994670&amp;spm=a2g2w.productlist.search_results.2.791b7173iCNzRV">AliExpress</a></td>
 <td>1</td>
-<td></td>
 </tr>
 <tr>
 <td>2</td>
-<td>logitech c270</td>
-<td>детект чаруко доски, детект робота, распознование объектов на их местах</td>
-<td>https://aliexpress.ru/item/1_326088900.html?shpMethod=MYMALL_PUDO_CITY&amp;sku_id=5000001771211348&amp;spm=a2g2w.productlist.search_results.2.26606142O9DDxi</td>
+<td>Logitech C270</td>
+<td>детектирование ChArUco-доски, детектирование робота и распознавание объектов на стартовых позициях</td>
+<td><a href="https://aliexpress.ru/item/1_326088900.html?shpMethod=MYMALL_PUDO_CITY&amp;sku_id=5000001771211348&amp;spm=a2g2w.productlist.search_results.2.26606142O9DDxi">AliExpress</a></td>
 <td>1</td>
-<td></td>
 </tr>
 <tr>
 <td>3</td>
 <td>Грибок аварийного выключения</td>
-<td>разрыв земли цепи питания</td>
-<td>https://www.ozon.ru/product/knopka-avariynoy-ostanovki-gribok-povorotnaya-s-fiksatsiey-ip40-220v-10a-2-kontakta-kruglaya-302434565/?__rr=1&amp;abt_att=1&amp;from=share_android&amp;perehod=smm_share_button_productpage_link</td>
+<td>аварийное отключение питания</td>
+<td><a href="https://www.ozon.ru/product/knopka-avariynoy-ostanovki-gribok-povorotnaya-s-fiksatsiey-ip40-220v-10a-2-kontakta-kruglaya-302434565/?__rr=1&amp;abt_att=1&amp;from=share_android&amp;perehod=smm_share_button_productpage_link">Ozon</a></td>
 <td>1</td>
-<td></td>
 </tr>
 <tr>
 <td>4</td>
-<td>Ардуино уно</td>
-<td>подача сигнала на моторы, считывание IMU, считывание концевиков, управление сервой</td>
-<td>https://aliexpress.ru/item/1005004073975153.html?sku_id=12000027951952147&amp;spm=a2g2w.productlist.search_results.1.492a7108o6IxvA</td>
+<td>Arduino Uno</td>
+<td>управление моторами, считывание IMU и концевиков, управление сервоприводами</td>
+<td><a href="https://aliexpress.ru/item/1005004073975153.html?sku_id=12000027951952147&amp;spm=a2g2w.productlist.search_results.1.492a7108o6IxvA">AliExpress</a></td>
 <td>1</td>
-<td></td>
 </tr>
 <tr>
 <td>5</td>
-<td>Шилд мотора</td>
-<td>вольтаж с запасо</td>
-<td>https://iarduino.ru/shop/Expansion-payments/Motor-Shield-L298.html</td>
-<td></td>
-<td></td>
+<td>Motor Shield L298</td>
+<td>драйвер моторов с запасом по напряжению</td>
+<td><a href="https://iarduino.ru/shop/Expansion-payments/Motor-Shield-L298.html">iArduino</a></td>
+<td>-</td>
 </tr>
 <tr>
 <td>6</td>
 <td>MG946R</td>
-<td>подъем захвата вверх-вниз</td>
-<td>https://aliexpress.ru/item/4000502044588.html?shpMethod=CAINIAO_ECONOMY&amp;sku_id=10000002401622860&amp;spm=a2g2w.productlist.search_results.0.333b1e2dUa2pgS</td>
+<td>подъем захвата вверх и вниз</td>
+<td><a href="https://aliexpress.ru/item/4000502044588.html?shpMethod=CAINIAO_ECONOMY&amp;sku_id=10000002401622860&amp;spm=a2g2w.productlist.search_results.0.333b1e2dUa2pgS">AliExpress</a></td>
 <td>1</td>
-<td></td>
 </tr>
 <tr>
 <td>7</td>
 <td>MG90</td>
-<td>управляют схватом захвата. часто горят :(</td>
-<td>https://www.ozon.ru/product/2sht-servoprivod-mg90-s-micro-servo-servomotor-mg90s-3-7-2v-ampertok-tower-pro-mg90-180-micro-servo-3539223449/?at=99trKOyN8uEXOOZRIBXLRjwiMPgvyYCZmXNx4SP5jBwx</td>
+<td>управление схватом захвата</td>
+<td><a href="https://www.ozon.ru/product/2sht-servoprivod-mg90-s-micro-servo-servomotor-mg90s-3-7-2v-ampertok-tower-pro-mg90-180-micro-servo-3539223449/?at=99trKOyN8uEXOOZRIBXLRjwiMPgvyYCZmXNx4SP5jBwx">Ozon</a></td>
 <td>1</td>
-<td></td>
 </tr>
 <tr>
 <td>8</td>
-<td>интерфейсные провода</td>
-<td>малинка(usb-a)- ардуино (usb-b)</td>
-<td></td>
+<td>Интерфейсный кабель USB-A - USB-B</td>
+<td>соединение Raspberry Pi с Arduino Uno</td>
+<td>-</td>
 <td>1</td>
-<td></td>
 </tr>
 <tr>
 <td>9</td>
-<td>лидар</td>
-<td>направление объекта для стыковки.</td>
-<td>https://aliexpress.ru/item/1005007075882801.html?sku_id=12000039319951496&amp;spm=a2g2w.productlist.search_results.1.71386cc4A9SN2X</td>
+<td>Лидар</td>
+<td>определение направления на объект при стыковке</td>
+<td><a href="https://aliexpress.ru/item/1005007075882801.html?sku_id=12000039319951496&amp;spm=a2g2w.productlist.search_results.1.71386cc4A9SN2X">AliExpress</a></td>
 <td>1</td>
-<td></td>
 </tr>
 <tr>
 <td>10</td>
-<td>тумблер питания</td>
-<td>для планового выключения питания</td>
-<td>https://aliexpress.ru/item/1005001994328465.html?shpMethod=CAINIAO_SUPER_ECONOMY&amp;sku_id=12000018349863568&amp;spm=a2g2w.productlist.search_results.14.39af6b6fiEPdyS</td>
+<td>Тумблер питания</td>
+<td>плановое включение и выключение питания</td>
+<td><a href="https://aliexpress.ru/item/1005001994328465.html?shpMethod=CAINIAO_SUPER_ECONOMY&amp;sku_id=12000018349863568&amp;spm=a2g2w.productlist.search_results.14.39af6b6fiEPdyS">AliExpress</a></td>
 <td>1</td>
-<td></td>
 </tr>
 <tr>
 <td>11</td>
 <td>LM2596</td>
-<td>стаб 12в-5в на сервочки</td>
-<td>https://aliexpress.ru/item/1005003780274326.html?shpMethod=CAINIAO_SUPER_ECONOMY&amp;sku_id=12000027142887130&amp;spm=a2g2w.productlist.search_results.0.2406603cc2VEip</td>
+<td>понижение 12 В до 5 В для сервоприводов</td>
+<td><a href="https://aliexpress.ru/item/1005003780274326.html?shpMethod=CAINIAO_SUPER_ECONOMY&amp;sku_id=12000027142887130&amp;spm=a2g2w.productlist.search_results.0.2406603cc2VEip">AliExpress</a></td>
 <td>1</td>
-<td></td>
 </tr>
 <tr>
 <td>12</td>
 <td>XL4015 с вольтметром</td>
-<td>Смотреть напряжение на банках и питать малинку от юсб</td>
-<td>https://market.yandex.ru/cc/975WaF</td>
+<td>контроль напряжения аккумулятора и питание Raspberry Pi по USB</td>
+<td><a href="https://market.yandex.ru/cc/975WaF">Yandex Market</a></td>
 <td>1</td>
-<td></td>
 </tr>
 <tr>
 <td>13</td>
-<td>пищалка</td>
-<td>сигнализация о разряде банок</td>
-<td>https://aliexpress.ru/item/1005008750369827.html?shpMethod=CAINIAO_SUPER_ECONOMY&amp;sku_id=12000048410563277&amp;spm=a2g2w.productlist.search_results.10.17d02d3dn7qfj3</td>
+<td>Пищалка</td>
+<td>сигнализация о разряде аккумулятора</td>
+<td><a href="https://aliexpress.ru/item/1005008750369827.html?shpMethod=CAINIAO_SUPER_ECONOMY&amp;sku_id=12000048410563277&amp;spm=a2g2w.productlist.search_results.10.17d02d3dn7qfj3">AliExpress</a></td>
 <td>1</td>
-<td></td>
 </tr>
 <tr>
 <td>14</td>
-<td>отсек для аккумуляторов</td>
-<td></td>
-<td>https://aliexpress.ru/item/1005004036301580.html?shpMethod=MYMALL_PUDO_CITY&amp;sku_id=12000038184077606&amp;spm=a2g2w.productlist.search_results.16.34eb1513XqHAnU</td>
+<td>Отсек для аккумуляторов</td>
+<td>крепление аккумуляторов</td>
+<td><a href="https://aliexpress.ru/item/1005004036301580.html?shpMethod=MYMALL_PUDO_CITY&amp;sku_id=12000038184077606&amp;spm=a2g2w.productlist.search_results.16.34eb1513XqHAnU">AliExpress</a></td>
 <td>1</td>
-<td></td>
 </tr>
 <tr>
 <td>15</td>
-<td>концевик</td>
-<td>усиками детектить попадания в себя противников</td>
-<td>https://aliexpress.ru/item/1005008634065991.html?shpMethod=CAINIAO_SUPER_ECONOMY&amp;sku_id=12000046037034310&amp;spm=a2g2w.productlist.search_results.2.427f1a68Dnmn14</td>
+<td>Концевик</td>
+<td>фиксация контакта с препятствием</td>
+<td><a href="https://aliexpress.ru/item/1005008634065991.html?shpMethod=CAINIAO_SUPER_ECONOMY&amp;sku_id=12000046037034310&amp;spm=a2g2w.productlist.search_results.2.427f1a68Dnmn14">AliExpress</a></td>
 <td>2</td>
-<td></td>
 </tr>
 <tr>
 <td>16</td>
-<td>колеса 85мм</td>
-<td>кататься</td>
-<td>https://ardmag.ru/mehanics/wheels/1674.html</td>
+<td>Колеса 85 мм</td>
+<td>движение робота</td>
+<td><a href="https://ardmag.ru/mehanics/wheels/1674.html">Ardmag</a></td>
 <td>2</td>
-<td></td>
 </tr>
 <tr>
 <td>17</td>
-<td>dc мотор, 12вольт + наколхозить крепеж</td>
-<td>кататься</td>
-<td>aliexpress.ru/item/32855724293.html?sku_id=12000041529946492&amp;spm=a2g2w.productlist.search_results.4.61f341acMpGT7g</td>
+<td>DC-мотор 12 В + крепеж</td>
+<td>привод колес</td>
+<td><a href="https://aliexpress.ru/item/32855724293.html?sku_id=12000041529946492&amp;spm=a2g2w.productlist.search_results.4.61f341acMpGT7g">AliExpress</a></td>
 <td>2</td>
-<td></td>
 </tr>
 <tr>
 <td>18</td>
-<td>муфта для крепежа колеса на вал мотора</td>
+<td>Муфта для крепления колеса на вал мотора</td>
 <td>шестигранник 2.0</td>
-<td>https://aliexpress.ru/item/1005010112043572.html?shpMethod=CAINIAO_STANDARD&amp;sku_id=12000051184522905&amp;spm=a2g2w.productlist.search_results.4.6aa161cc42L3Hx</td>
+<td><a href="https://aliexpress.ru/item/1005010112043572.html?shpMethod=CAINIAO_STANDARD&amp;sku_id=12000051184522905&amp;spm=a2g2w.productlist.search_results.4.6aa161cc42L3Hx">AliExpress</a></td>
 <td>2</td>
-<td></td>
 </tr>
 <tr>
 <td>19</td>
-<td>макетные провода всех типов</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
+<td>Макетные провода всех типов</td>
+<td>монтаж и прототипирование соединений</td>
+<td>-</td>
+<td>-</td>
 </tr>
 <tr>
 <td>20</td>
-<td>резисторы для делителя</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
+<td>Резисторы для делителя</td>
+<td>сборка делителя напряжения</td>
+<td>-</td>
+<td>-</td>
 </tr>
 </tbody>
 </table>
